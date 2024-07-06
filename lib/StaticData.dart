@@ -1,6 +1,9 @@
 
+import 'package:crm/AppStaticData/routes.dart';
 import 'package:crm/Components/Auth/LoginPage.dart';
 import 'package:crm/Components/DashBoard/DashBoard.dart';
+import 'package:crm/Components/Subscriber/ViewSubscriber.dart';
+import 'package:crm/HomePage.dart';
 import 'package:crm/ListSubscriber.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -84,7 +87,7 @@ class AppConst extends GetxController implements GetxService {
     token = pref.getString('authToken');
     isSubscriber = pref.getBool('isSubscriber') as bool;
     id = pref.getInt('id') as int;
-    print("Token : $token");
+    print("ID--- : $token");
   }
 
   updateshowDrawer() {
@@ -93,6 +96,7 @@ class AppConst extends GetxController implements GetxService {
   }
 
   RxInt pageselecter = 0.obs;
+  RxInt dynamicId = 0.obs;
 
   RxInt selectColor = 0.obs;
   RxInt selectedTile = 0.obs;
@@ -127,13 +131,32 @@ class AppConst extends GetxController implements GetxService {
   //Switch
   RxBool switchistrue = false.obs;
 
-  var page = [
-    LoginPage(),
-    DashBoard(),
-    const ListSubscriber(),
-  ].obs;
+  // var page = getPage;
 
-  void changePage(int newIndex) {
+  // var page = [
+  //   LoginPage(),
+  //   DashBoard(),
+  //   const ListSubscriber(),
+  // ].obs;
+
+  // void changePage(int newIndex) {
+  //   pageselecter.value = newIndex;
+ 
+  // }
+
+    void changePage(int newIndex, {int? id}) {
     pageselecter.value = newIndex;
-  }
+    if(id !=0) dynamicId.value = id!;
+    switch (newIndex) {
+      case 1:
+        Get.toNamed(Routes.homepage);
+        break;
+      case 2:
+        Get.toNamed(Routes.viewsubscriber, parameters: {'id': id.toString()});
+        break;
+      
+      default:
+        Get.toNamed(Routes.initial);
+    }
+}
 }

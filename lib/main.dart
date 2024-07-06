@@ -1,19 +1,16 @@
 
 import 'dart:ui';
-
 import 'package:crm/AppStaticData/logger.dart';
 import 'package:crm/AppStaticData/routes.dart';
 import 'package:crm/Components/Auth/LoginPage.dart';
 import 'package:crm/Components/DashBoard/DashBoard.dart';
 import 'package:crm/Components/Subscriber/ViewSubscriber.dart';
 import 'package:crm/Providers/providercolors.dart';
+import 'package:crm/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:provider/provider.dart';
-
-
-
 import 'package:shared_preferences/shared_preferences.dart';
 
 
@@ -83,10 +80,9 @@ class _MyWidgetState extends State<MyWidget> {
             colorScheme: ColorScheme.fromSwatch().copyWith(
               primary: const Color(0xFF0059E7),
             )),
-        home: token == null || token!.isEmpty ? LoginPage() : isSubscriber ? ViewSubscriber(subscriberId: id) : DashBoard(),
+        home: SplashScreen()
       ),
     );
-
   }
 }
 class MyCustomScrollBehavior extends MaterialScrollBehavior {

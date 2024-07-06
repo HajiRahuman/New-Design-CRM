@@ -1,6 +1,8 @@
 
 import 'package:crm/AppStaticData.dart';
 import 'package:crm/CommonBottBar.dart';
+import 'package:crm/Components/DashBoard/DashBoard.dart';
+import 'package:crm/Components/Subscriber/ListSubscriber.dart';
 import 'package:crm/Providers/providercolors.dart';
 import 'package:crm/StaticData.dart';
 import 'package:flutter/material.dart';
@@ -94,8 +96,9 @@ class _DarwerCodeState extends State<DarwerCode> {
                                 iconpath: "assets/home.svg",
                                 index: 0,
                                 ontap: () {
-                                  controller.changePage(0);
+                                  controller.changePage(1);
                                   Get.back();
+                                 
                                 }),
                               _buildexpansiontilt(
                                 index: 0,
@@ -115,14 +118,15 @@ class _DarwerCodeState extends State<DarwerCode> {
                                         ),
                                         InkWell(
                                             onTap: () {
-                                              controller.changePage(1);
+                                              controller.changePage(2);
                                               Get.back();
+                                            
                                             },
                                             child: Row(
                                               children: [
-                                                _buildcomunDesh(index: 1),
+                                                _buildcomunDesh(index: 2),
                                                 _buildcomuntext(
-                                                    title: 'List Subscriber', index: 1),
+                                                    title: 'List Subscriber', index: 2),
                                               ],
                                             )),
                                         _buildsizeboxwithheight(),

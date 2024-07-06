@@ -3,6 +3,7 @@
 
 
 
+import 'package:crm/Components/Subscriber/ViewSubscriber.dart';
 import 'package:crm/HomePage.dart';
 import 'package:crm/splash_screen.dart';
 import 'package:get/get.dart';
@@ -13,6 +14,7 @@ import 'package:get/get.dart';
 class Routes {
   static String initial = "/";
   static String homepage = "/homePage";
+  static String viewsubscriber = "/viewsubscriber/:id";
 }
 
 final getPage = [
@@ -24,4 +26,7 @@ final getPage = [
     name: Routes.homepage,
     page: () => HomePage(),
   ),
-];
+ GetPage(name: Routes.viewsubscriber, page: () {
+          var subscriberId = int.parse(Get.parameters['id']!);
+          return ViewSubscriber(subscriberId: subscriberId);
+        }),];

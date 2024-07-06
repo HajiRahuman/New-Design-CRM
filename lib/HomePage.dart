@@ -1,4 +1,3 @@
-
 // import 'package:crm/AppBar.dart';
 // import 'package:crm/AppStaticData.dart';
 // import 'package:crm/Drawer.dart';
@@ -7,7 +6,6 @@
 // import 'package:flutter/material.dart';
 // import 'package:get/get.dart';
 // import 'package:provider/provider.dart';
-
 
 // class HomePage extends StatefulWidget {
 //   const HomePage({super.key});
@@ -77,7 +75,7 @@
 //               return selectedPage;
 //             }),
 //           ),
-         
+
 //         );
 //       });
 //     }
@@ -85,6 +83,8 @@
 // }
 import 'package:crm/AppBar.dart'; // Assuming you have a BottomAppBar equivalent
 import 'package:crm/AppStaticData.dart';
+import 'package:crm/AppStaticData/routes.dart';
+import 'package:crm/Components/Subscriber/ViewSubscriber.dart';
 import 'package:crm/Controller/Drawer.dart';
 
 import 'package:crm/Providers/providercolors.dart';
@@ -133,9 +133,25 @@ class _HomePageState extends State<HomePage> {
                           // Remove the AppBar here
                           Expanded(
                             child: Obx(() {
-                              Widget selectedPage = controller
-                                  .page[controller.pageselecter.value];
-                              return selectedPage;
+                              // Widget selectedPage =
+                              //   controller.pageselecter.value as Widget;
+                              // return selectedPage;
+                              switch (controller.pageselecter.value) {
+                                case 0:
+                                  return Get.offAllNamed(Routes.homepage);
+                                case 1:
+                                  return Center(
+                                    child: Text('Dashboard Page'),
+                                  );
+                                case 2:
+                                  return ViewSubscriber(
+                                      subscriberId: controller.dynamicId.value);
+
+                                default:
+                                  return Center(
+                                    child: Text('Unknown Page'),
+                                  );
+                              }
                             }),
                           ),
                         ],
@@ -146,7 +162,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
-          bottomNavigationBar:const BottomAppBar(
+          bottomNavigationBar: const BottomAppBar(
             child: SizedBox(
               height: 60,
               child: AppBarCode(),
@@ -163,15 +179,14 @@ class _HomePageState extends State<HomePage> {
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
             child: Obx(() {
-              Widget selectedPage =
-                  controller.page[controller.pageselecter.value];
+              Widget selectedPage = controller.pageselecter.value as Widget;
               return selectedPage;
             }),
           ),
-          bottomNavigationBar:const BottomAppBar(
+          bottomNavigationBar: const BottomAppBar(
             child: SizedBox(
               height: 60,
-              child:  AppBarCode(), 
+              child: AppBarCode(),
             ),
           ),
         );

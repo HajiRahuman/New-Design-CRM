@@ -1,3 +1,4 @@
+import 'package:crm/AppBar.dart';
 import 'package:crm/AppStaticData.dart';
 import 'package:crm/Providers/providercolors.dart';
 import 'package:crm/Widgets/CommonTitle.dart';
@@ -31,6 +32,12 @@ class _ListSubscriber extends State<ListSubscriber> with SingleTickerProviderSta
   Widget build(BuildContext context) {
     notifire = Provider.of<ColorNotifire>(context, listen: true);
     return Scaffold(
+       bottomNavigationBar:const BottomAppBar(
+            child: SizedBox(
+              height: 60,
+              child: AppBarCode(),
+            ),
+          ),
       backgroundColor: notifire.getbgcolor,
       body: SizedBox(
         height: MediaQuery.of(context).size.height,
