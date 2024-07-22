@@ -49,7 +49,7 @@ class _SplashScreenState extends State<SplashScreen> {
               height: 20,
             ),
             const Text(
-              'C R M!',
+              'C R M',
               style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w100,

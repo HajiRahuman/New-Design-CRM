@@ -26,7 +26,9 @@ final getPage = [
     name: Routes.homepage,
     page: () => HomePage(),
   ),
- GetPage(name: Routes.viewsubscriber, page: () {
-          var subscriberId = int.parse(Get.parameters['id']!);
-          return ViewSubscriber(subscriberId: subscriberId);
-        }),];
+//  GetPage(name: Routes.viewsubscriber, page: () {
+//           var subscriberId = int.parse(Get.parameters['id']!);
+//           return ViewSubscriber(subscriberId: subscriberId);
+//         }),
+        
+        ];

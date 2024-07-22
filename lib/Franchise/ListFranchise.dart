@@ -11,14 +11,14 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:provider/provider.dart';
 
-class ListSubscriber extends StatefulWidget {
-  const ListSubscriber({super.key});
+class ListFranchise extends StatefulWidget {
+  const ListFranchise({super.key});
 
   @override
-  State<ListSubscriber> createState() => _ListSubscriber();
+  State<ListFranchise> createState() => _ListFranchise();
 }
 
-class _ListSubscriber extends State<ListSubscriber> with SingleTickerProviderStateMixin {
+class _ListFranchise extends State<ListFranchise> with SingleTickerProviderStateMixin {
   ColorNotifire notifire = ColorNotifire();
   int currentPage = 1;
   final int itemsPerPage = 5;
@@ -49,7 +49,7 @@ class _ListSubscriber extends State<ListSubscriber> with SingleTickerProviderSta
                 children: [
                   
                   const SizedBoxx(),
-                  const ComunTitle(title: 'List Subscriber', path: "Subscriber"),
+                  const ComunTitle(title: 'List Franchise', path: "Franchise"),
                   Padding(
                     padding: const EdgeInsets.only(top: 0, right: padding, left: padding, bottom: 0),
                     child: Container(
@@ -98,9 +98,11 @@ class _ListSubscriber extends State<ListSubscriber> with SingleTickerProviderSta
   Widget _buildProfile1({required bool isphon}) {
     return Column(
       children: [
-           Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
+                IconButton(onPressed: (){}, icon:const Icon(Icons.visibility)),
+              IconButton(onPressed: (){}, icon:const Icon(Icons.refresh)),
               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   elevation: 0,
@@ -113,11 +115,10 @@ class _ListSubscriber extends State<ListSubscriber> with SingleTickerProviderSta
                                   style: mediumBlackTextStyle.copyWith(
                                       color: Colors.white),
                                 )),
-                                IconButton(onPressed: (){}, icon:const Icon(Icons.refresh, color: Colors.black),)
             ],
           ),
         
-        const SizedBoxx(),
+        const SizedBox(height: 10),
         Row(
           children: [
             Expanded(
@@ -144,7 +145,7 @@ class _ListSubscriber extends State<ListSubscriber> with SingleTickerProviderSta
                               ),
                               leading: const CircleAvatar(
                                 backgroundColor: Colors.transparent,
-                                backgroundImage: AssetImage("assets/avatar2.png"),
+                                backgroundImage: AssetImage("assets/avatar1.png"),
                               ),
                               subtitle: Padding(
                                 padding: const EdgeInsets.only(top: 6),
@@ -158,7 +159,7 @@ class _ListSubscriber extends State<ListSubscriber> with SingleTickerProviderSta
                                   color: appGreyColor,
                                 ),
                                 onTap: (){
-                                     controller.changePage(2);
+                                     controller.changePage(5);
 // print('hxfcysf');
                                   // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
                                   //     return ViewSubscriber(subscriberId:null,);
@@ -170,11 +171,9 @@ class _ListSubscriber extends State<ListSubscriber> with SingleTickerProviderSta
                               padding: EdgeInsets.symmetric(horizontal: isphon ? 10 : padding),
                               child: Column(
                                 children: [
-                                  _buildCommonListTile(title: "PROFILE ID: ", subtitle: subscriber['profileId']!),
+                                  _buildCommonListTile(title: "PROFILE ID: ", subtitle: 'profileId'),
                                   const SizedBox(height: 10),
-                                  _buildCommonListTile(title: "ACCOUNT: ", subtitle: subscriber['account']!),
-                                  const SizedBox(height: 10),
-                                  _buildCommonListTile(title: "STATUS: ", subtitle: subscriber['status']!),
+                                  _buildCommonListTile(title: "COMPANY: ", subtitle:'GREY SKY INTERNET'),
                                   const SizedBox(height: 10),
                                 ],
                               ),

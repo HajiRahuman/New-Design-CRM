@@ -1,23 +1,25 @@
+import 'package:crm/AppBar.dart';
 import 'package:crm/AppStaticData.dart';
+import 'package:crm/Components/Subscriber/ViewSubscriber.dart';
 import 'package:crm/Providers/providercolors.dart';
 import 'package:crm/StaticData.dart';
 import 'package:crm/Widgets/CommonTitle.dart';
 import 'package:crm/Widgets/SizedBox.dart';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:provider/provider.dart';
 
-class ListSubscriber extends StatefulWidget {
-  const ListSubscriber({super.key});
+class ListHotel extends StatefulWidget {
+  const ListHotel({super.key});
 
   @override
-  State<ListSubscriber> createState() => _ListSubscriber();
+  State<ListHotel> createState() => _ListHotel();
 }
 
-class _ListSubscriber extends State<ListSubscriber> with SingleTickerProviderStateMixin {
+class _ListHotel extends State<ListHotel> with SingleTickerProviderStateMixin {
   ColorNotifire notifire = ColorNotifire();
   int currentPage = 1;
   final int itemsPerPage = 5;
@@ -30,21 +32,13 @@ class _ListSubscriber extends State<ListSubscriber> with SingleTickerProviderSta
       "status": "Online",
     };
   });
-AppConst obj = AppConst();
+ AppConst obj = AppConst();
   final AppConst controller = Get.put(AppConst());
-
-  void navigateToViewSubscriber(int subscriberId, BuildContext context) async {
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => ViewSubscriber(),
-    //   ),
-    // );
-  }
   @override
   Widget build(BuildContext context) {
     notifire = Provider.of<ColorNotifire>(context, listen: true);
     return Scaffold(
+      
       backgroundColor: notifire.getbgcolor,
       body: SizedBox(
         height: MediaQuery.of(context).size.height,
@@ -55,7 +49,7 @@ AppConst obj = AppConst();
               child: Column(
                 children: [
                   const SizedBoxx(),
-                  const ComunTitle(title: 'List Subscriber', path: "Users"),
+                  const ComunTitle(title: 'List Hotel', path: "Hotel"),
                   Padding(
                     padding: const EdgeInsets.only(top: 0, right: padding, left: padding, bottom: 0),
                     child: Container(
@@ -100,8 +94,26 @@ AppConst obj = AppConst();
   }
 
   Widget _buildProfile1({required bool isphon}) {
+       final notifier = Provider.of<ColorNotifire>(context);
+   
     return Column(
       children: [
+        Align(
+alignment: Alignment.topRight,
+          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              elevation: 0,
+                              backgroundColor: appMainColor,
+                              fixedSize: const Size.fromHeight(40),
+                            ),
+                            onPressed: () {},
+                            child: Text(
+                              "Add",
+                              style: mediumBlackTextStyle.copyWith(
+                                  color: Colors.white),
+                            )),
+        ),
+        const SizedBoxx(),
         Row(
           children: [
             Expanded(
@@ -121,41 +133,42 @@ AppConst obj = AppConst();
                         ),
                         child: Column(
                           children: [
-                            ListTile(
-                              title: Text(
-                                subscriber['name']!,
-                                style: mediumBlackTextStyle.copyWith(color: notifire.getMainText),
-                              ),
-                              leading: const CircleAvatar(
-                                backgroundColor: Colors.transparent,
-                                backgroundImage: AssetImage("assets/avatar2.png"),
-                              ),
-                              subtitle: Padding(
-                                padding: const EdgeInsets.only(top: 6),
-                                child: _buildCommonListTile(title: "MOBILE: ", subtitle: subscriber['mobile']!),
-                              ),
-                              trailing: InkWell(
-                                child: SvgPicture.asset(
-                                  "assets/settings.svg",
-                                  height: 18,
-                                  width: 18,
-                                  color: appGreyColor,
-                                ),
-                                onTap: (){
-                                    // navigateToViewSubscriber(
-                                    //                 subscriber.id, context);
-                                },
-                              ),
-                            ),
+                             
+                           ListTile(
+                                   
+                                    leading: const CircleAvatar(
+                                      backgroundColor: Colors.transparent,
+                                      backgroundImage: AssetImage("assets/avatar2.png"),
+                                    ),
+                                    subtitle: Padding(
+                                      padding: const EdgeInsets.only(top: 6),
+                                      child:  _buildCommonListTile(title: "LOGIN: ", subtitle: 'login'),
+                                 
+                                    ),
+                                     trailing: PopupMenuButton(
+                                      iconColor:notifire.geticoncolor ,
+                                       color: notifier.getcontiner,
+                  shadowColor: Colors.grey.withOpacity(0.5),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                                      itemBuilder: (BuildContext context){
+                                        
+                                        return[
+                                        _buildPopupAdminMenuItem()
+                                      ];})
+                                     
+                                   
+                                  ),
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: isphon ? 10 : padding),
                               child: Column(
                                 children: [
-                                  _buildCommonListTile(title: "PROFILE ID: ", subtitle: subscriber['profileId']!),
+                                  _buildCommonListTile(title: "ACCOUNT: ", subtitle: 'account'),
+                                   const SizedBox(height: 10),
+                                  _buildCommonListTile(title: "STATUS: ", subtitle: 'status'),
                                   const SizedBox(height: 10),
-                                  _buildCommonListTile(title: "ACCOUNT: ", subtitle: subscriber['account']!),
-                                  const SizedBox(height: 10),
-                                  _buildCommonListTile(title: "STATUS: ", subtitle: subscriber['status']!),
+                          
+                                    _buildCommonListTile(title: "PASSWORD: ", subtitle:'password'),
                                   const SizedBox(height: 10),
                                 ],
                               ),
@@ -174,6 +187,62 @@ AppConst obj = AppConst();
       ],
     );
   }
+ PopupMenuItem _buildPopupAdminMenuItem() {
+    return PopupMenuItem(
+      enabled: false,
+      padding: const EdgeInsets.all(0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            height: 100,
+            width: 200,
+            child: Center(
+              child: Table(
+                columnWidths: const {
+                  0: FixedColumnWidth(20),
+                },
+                children: [
+                  row(title: 'Activation', icon: Icons.edit, index: 13),
+                  row(title: 'Change Auth PWD', icon:Icons.key, index: 12),
+                 
+                 
+                 
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+bool light1 = true;
+
+TableRow row({required String title, required IconData icon, required int index}) {
+  return TableRow(children: [
+    TableRowInkWell(
+      onTap: () {
+        // controller.changePage(index);
+        Get.back();
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(top: 10),
+        child: Icon(icon, color: notifire.geticoncolor),
+      ),
+    ),
+    TableRowInkWell(
+      onTap: () {
+        // controller.changePage(index);
+        Get.back();
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 5, left: 20, top: 12, right: 20),
+        child: Text(title,
+            style: mediumBlackTextStyle.copyWith(color: notifire!.getMainText)),
+      ),
+    ),
+  ]);
+}
 
   Widget _buildCommonListTile({required String title, required String subtitle}) {
     return Row(

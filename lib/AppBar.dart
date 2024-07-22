@@ -5,10 +5,11 @@
 import 'package:crm/AppStaticData.dart';
 import 'package:crm/Providers/providercolors.dart';
 import 'package:crm/StaticData.dart';
+import 'package:crm/Widgets/SizedBox.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 
 
@@ -147,7 +148,7 @@ class _AppBarCodeState extends State<AppBarCode> {
                     : InkWell(
                         onTap: () {
                           setState(() {
-                            search = !search;
+                            _buildSearcDialogBox();
                           });
                         },
                         child: 
@@ -163,34 +164,27 @@ class _AppBarCodeState extends State<AppBarCode> {
                     : const SizedBox(
                         width: 10,
                       ),
-                const SizedBox(
-                  width: 10,
-                ),
-                InkWell(
-                  onTap: () {
-                    setState(() {
-                      darkMood = !darkMood;
-                    });
-
-                    if (notifier.isDark == false) {
-                      notifier.isavalable(true);
-                    } else {
-                      notifier.isavalable(false);
-                    }
-                  },
-                  child: SvgPicture.asset(
-                    darkMood ? "assets/sun.svg" : "assets/moon.svg",
-                    width: 20,
-                    height: 20,
-                    color: notifier.geticoncolor,
-                  ),
-                ),
+              //   const SizedBox(
+              //     width: 10,
+              //   ),
+              //  InkWell(
+              //     onTap: () {
+              //       notifier.isavalable(!notifier.isDark);
+              //     },
+              //     child: SvgPicture.asset(
+              //       notifier.isDark ? "assets/sun.svg" : "assets/moon.svg",
+              //       width: 20,
+              //       height: 20,
+              //       color: notifier.geticoncolor,
+              //     ),
+              //   ),
                 const SizedBox(
                   width: 10,
                 ),
                
                 PopupMenuButton(
-                  color: notifier.getcontiner,
+              iconColor:notifire!.geticoncolor ,
+                                       color: notifier.getcontiner,
                   shadowColor: Colors.grey.withOpacity(0.5),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
@@ -233,7 +227,9 @@ class _AppBarCodeState extends State<AppBarCode> {
                           backgroundImage: AssetImage("assets/profile.png"),
                           backgroundColor: Colors.transparent),
                   itemBuilder: (ctx) => [
-                    _buildPopupAdminMenuItem(),
+                  
+                  
+                    _buildPopupAdminMenuItem(context),
                   ],
                 ),
                 const SizedBox(
@@ -247,12 +243,13 @@ class _AppBarCodeState extends State<AppBarCode> {
     });
   }
 
-
-  PopupMenuItem _buildPopupAdminMenuItem() {
-    return PopupMenuItem(
-      enabled: false,
-      padding: const EdgeInsets.all(0),
-      child: Row(
+PopupMenuItem _buildPopupAdminMenuItem(BuildContext context) {
+  final notifier = Provider.of<ColorNotifire>(context, listen: false);
+  
+  return PopupMenuItem(
+    enabled: false,
+    padding: const EdgeInsets.all(0),
+    child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox(
@@ -265,7 +262,7 @@ class _AppBarCodeState extends State<AppBarCode> {
                 },
                 children: [
                   row(title: 'Profile', icon: 'assets/user.svg', index: 13),
-                 
+                
                   TableRow(children: [
                     Padding(
                       padding: const EdgeInsets.only(top: 10),
@@ -324,14 +321,83 @@ class _AppBarCodeState extends State<AppBarCode> {
                     )
                   ]),
                   row(title: 'Logout', icon: 'assets/log-out.svg', index: 0),
+                    row1(title: 'Theme', icon:  InkWell(
+                  onTap: () {
+                    notifier.isavalable(!notifier.isDark);
+                  },
+                  child: SvgPicture.asset(
+                    notifier.isDark ? "assets/sun.svg" : "assets/moon.svg",
+                    width: 20,
+                    height: 20,
+                    color: notifier.geticoncolor,
+                  ),
+                ), index: 0),
                 ],
               ),
             ),
           ),
         ],
       ),
-    );
-  }
+  );
+}
+
+
+TableRow row({required String title, required String icon, required int index}) {
+  return TableRow(children: [
+    TableRowInkWell(
+      onTap: () {
+        // controller.changePage(index);
+        Get.back();
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(top: 10),
+        child: SvgPicture.asset(icon,
+            width: 18, height: 18, color: notifire!.geticoncolor),
+      ),
+    ),
+    TableRowInkWell(
+      onTap: () {
+        // controller.changePage(index);
+        Get.back();
+      },
+      child: Padding(
+        padding:
+            const EdgeInsets.only(bottom: 5, left: 20, top: 12, right: 20),
+        child: Text(title,
+            style:
+                mediumBlackTextStyle.copyWith(color: notifire!.getMainText)),
+      ),
+    ),
+  ]);
+}
+TableRow row1({required String title, required Widget icon, required int index}) {
+  return TableRow(children: [
+    TableRowInkWell(
+      onTap: () {
+        // controller.changePage(index);
+        Get.back();
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(top: 10),
+        child:icon
+      ),
+    ),
+    TableRowInkWell(
+      onTap: () {
+        // controller.changePage(index);
+        Get.back();
+      },
+      child: Padding(
+        padding:
+            const EdgeInsets.only(bottom: 5, left: 20, top: 12, right: 20),
+        child: Text(title,
+            style:
+                mediumBlackTextStyle.copyWith(color: notifire!.getMainText)),
+      ),
+    ),
+  ]);
+}
+
  Future<void> _buildSearcDialogBox() {
     return showDialog(
       context: context,
@@ -466,6 +532,7 @@ class _AppBarCodeState extends State<AppBarCode> {
                                                           
                                                           ),
                                       ),
+                                      const SizedBoxx(),
 
                                        Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
@@ -520,33 +587,46 @@ class _AppBarCodeState extends State<AppBarCode> {
 
   bool light1 = true;
 
-  TableRow row(
-      {required String title, required String icon, required int index}) {
-    return TableRow(children: [
-      TableRowInkWell(
-        onTap: () {
-          // controller.changePage(index);
-          Get.back();
-        },
-        child: Padding(
-          padding: const EdgeInsets.only(top: 10),
-          child: SvgPicture.asset(icon,
-              width: 18, height: 18, color: notifire!.geticoncolor),
-        ),
-      ),
-      TableRowInkWell(
-        onTap: () {
-          // controller.changePage(index);
-          Get.back();
-        },
-        child: Padding(
-          padding:
-              const EdgeInsets.only(bottom: 5, left: 20, top: 12, right: 20),
-          child: Text(title,
-              style:
-                  mediumBlackTextStyle.copyWith(color: notifire!.getMainText)),
-        ),
-      ),
-    ]);
+  // TableRow row(
+  //     {required String title, required String icon, required int index}) {
+  //   return TableRow(children: [
+  //     TableRowInkWell(
+  //       onTap: () {
+  //         // controller.changePage(index);
+  //         Get.back();
+  //       },
+  //       child: Padding(
+  //         padding: const EdgeInsets.only(top: 10),
+  //         child: SvgPicture.asset(icon,
+  //             width: 18, height: 18, color: notifire!.geticoncolor),
+  //       ),
+  //     ),
+  //     TableRowInkWell(
+  //       onTap: () {
+  //         // controller.changePage(index);
+  //         Get.back();
+  //       },
+  //       child: Padding(
+  //         padding:
+  //             const EdgeInsets.only(bottom: 5, left: 20, top: 12, right: 20),
+  //         child: Text(title,
+  //             style:
+  //                 mediumBlackTextStyle.copyWith(color: notifire!.getMainText)),
+  //       ),
+  //     ),
+  //   ]);
+  // }
+}
+class ThemePreference {
+  static const THEME_STATUS = "THEME_STATUS";
+
+  setDarkTheme(bool value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool(THEME_STATUS, value);
+  }
+
+  Future<bool> getTheme() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(THEME_STATUS) ?? false;
   }
 }

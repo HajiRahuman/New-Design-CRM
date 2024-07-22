@@ -1,21 +1,32 @@
 
 
+import 'package:crm/AppBar.dart';
 import 'package:crm/AppStaticData/AppColors.dart';
 import 'package:flutter/material.dart';
 
 
 
 class ColorNotifire with ChangeNotifier {
-
-
-  bool _isDark = false;
+bool _isDark = false;
   bool get isDark => _isDark;
+  ThemePreference _themePreference = ThemePreference(); // Create an instance of ThemePreference
 
-  void isavalable(bool value) {
-    _isDark = value;
+  ColorNotifire() {
+    _loadTheme();
+  }
+
+  _loadTheme() async {
+    _isDark = await _themePreference.getTheme();
     notifyListeners();
   }
 
+  void isavalable(bool value) {
+    _isDark = value;
+    _themePreference.setDarkTheme(value); // Save the preference
+    notifyListeners();
+  }
+
+  
   get getIsDark => isDark;
   get getprimerycolor => isDark ? darkPrimeryColor : primeryColor;
   get getbgcolor => isDark ? darkbgcolor : bgcolor;

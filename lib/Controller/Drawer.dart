@@ -1,8 +1,7 @@
 
 import 'package:crm/AppStaticData.dart';
 import 'package:crm/CommonBottBar.dart';
-import 'package:crm/Components/DashBoard/DashBoard.dart';
-import 'package:crm/Components/Subscriber/ListSubscriber.dart';
+
 import 'package:crm/Providers/providercolors.dart';
 import 'package:crm/StaticData.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +29,7 @@ class _DarwerCodeState extends State<DarwerCode> {
 
   @override
   Widget build(BuildContext context) {
+        final notifier = Provider.of<ColorNotifire>(context);
     if (screenwidth >= breakpoint) {
       setState(() {
         ispresent = true;
@@ -73,10 +73,13 @@ class _DarwerCodeState extends State<DarwerCode> {
                         const SizedBox(
                           height: 5,
                         ),
+                       
                       ],
                     ),
                   ),
                 ),
+              
+              
                 Expanded(
                   child: SingleChildScrollView(
                     child: Padding(
@@ -96,12 +99,21 @@ class _DarwerCodeState extends State<DarwerCode> {
                                 iconpath: "assets/home.svg",
                                 index: 0,
                                 ontap: () {
-                                  controller.changePage(1);
+                                  controller.changePage(0);
+                                  Get.back();
+                                 
+                                }),
+                                 _buildSingletile(
+                                header: "Franchise",
+                                iconpath: "assets/receipt-list-alt.svg",
+                                index: 1,
+                                ontap: () {
+                                  controller.changePage(4);
                                   Get.back();
                                  
                                 }),
                               _buildexpansiontilt(
-                                index: 0,
+                                index: 3,
                                 children: Row(
                                   children: [
                                     const SizedBox(
@@ -118,15 +130,15 @@ class _DarwerCodeState extends State<DarwerCode> {
                                         ),
                                         InkWell(
                                             onTap: () {
-                                              controller.changePage(2);
+                                              controller.changePage(1);
                                               Get.back();
                                             
                                             },
                                             child: Row(
                                               children: [
-                                                _buildcomunDesh(index: 2),
+                                                _buildcomunDesh(index:3),
                                                 _buildcomuntext(
-                                                    title: 'List Subscriber', index: 2),
+                                                    title: 'List Subscriber', index: 3),
                                               ],
                                             )),
                                         _buildsizeboxwithheight(),
@@ -136,8 +148,52 @@ class _DarwerCodeState extends State<DarwerCode> {
                                   ],
                                 ),
                                 header: 'Subscriber',
+                                iconpath: 'assets/users.svg'),
+                                _buildexpansiontilt(
+                                index: 4,
+                                children: Row(
+                                  children: [
+                                    const SizedBox(
+                                      width: 12,
+                                    ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: [
+                                        SizedBox(
+                                          height: ispresent ? 12 : 10,
+                                        ),
+                                        InkWell(
+                                            onTap: () {
+                                              controller.changePage(3);
+                                              Get.back();
+                                            
+                                            },
+                                            child: Row(
+                                              children: [
+                                                _buildcomunDesh(index:4),
+                                                _buildcomuntext(
+                                                    title: 'List Hotel', index:3),
+                                              ],
+                                            )),
+                                        _buildsizeboxwithheight(),
+                                       
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                header: 'Hotel',
                                 iconpath: 'assets/grid-circle.svg'),
-                           
+                              _buildSingletile(
+                                header: "Complaints",
+                                iconpath: "assets/pen.svg",
+                                index: 2,
+                                ontap: () {
+                                  controller.changePage(6);
+                                  Get.back();
+                                }),
                           ],
                         ),
                       ),
@@ -196,19 +252,23 @@ class _DarwerCodeState extends State<DarwerCode> {
     return ListTileTheme(
       horizontalTitleGap: 12.0,
       dense: true,
-      child: ExpansionTile(
-        title: Text(
-          header,
-          style: mediumBlackTextStyle.copyWith(
-              fontSize: 14, color: notifire!.getMainText),
+      child: Theme(
+         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          
+          title: Text(
+            header,
+            style: mediumBlackTextStyle.copyWith(
+                fontSize: 14, color: notifire!.getMainText),
+          ),
+          leading: SvgPicture.asset(iconpath,
+              height: 18, width: 18, color: notifire!.getMainText),
+          tilePadding:
+              EdgeInsets.symmetric(vertical: ispresent ? 5 : 2, horizontal: 8),
+          iconColor: appMainColor,
+          collapsedIconColor: Colors.grey,
+          children: <Widget>[children],
         ),
-        leading: SvgPicture.asset(iconpath,
-            height: 18, width: 18, color: notifire!.getMainText),
-        tilePadding:
-            EdgeInsets.symmetric(vertical: ispresent ? 5 : 2, horizontal: 8),
-        iconColor: appMainColor,
-        collapsedIconColor: Colors.grey,
-        children: <Widget>[children],
       ),
     );
   }

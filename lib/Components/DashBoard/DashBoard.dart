@@ -69,8 +69,8 @@ class _DashBoard extends State<DashBoard> {
   @override
   void initState() {
     super.initState();
-    getSubscriberSummary();
-    getExpirySubscriber(today); // Fetch data for today's date
+    // getSubscriberSummary();
+    // getExpirySubscriber(today); // Fetch data for today's date
   }
 
   void navigateToViewSubscriber(int subscriberId, BuildContext context) async {
@@ -249,8 +249,8 @@ class _DashBoard extends State<DashBoard> {
                             Expanded(
                               child: _buildcompo1(
                                 title: "Total",
-                                iconpath: subscriberSummary?.totalusers ?? "0",
-                                Subscriber: " 200",
+                                iconpath:  "assets/users33.svg",
+                                Subscriber:  subscriberSummary?.totalusers ?? "0",
                                 Indicator: _buildIndicator(cardcolors[0]),
                                 maincolor: Colors.blueAccent,
                               ),
@@ -469,124 +469,127 @@ TableRow newRow({
       child: Material(
         // Added Material widget here
         color: Colors.transparent, 
-        child: ExpansionTile(
-  key: Key('ExpansionTile_${apiDataList.isNotEmpty}'), // Add a unique key
-  initiallyExpanded: apiDataList.isNotEmpty,
-  collapsedIconColor: notifire.getMainText,
-  iconColor: notifire.getMainText,
-  expandedAlignment: Alignment.topLeft,
-  leading: Text(
-    'Expiry Details',
-    style: mainTextStyle.copyWith(color: notifire.getMainText, fontSize: 18),
-  ),
-  title: TextField(
-    controller: dateInput,
-    style: mainTextStyle.copyWith(color: notifire.getMainText, fontSize: 18),
-    decoration: InputDecoration(
-      border: InputBorder.none,
-      hintStyle: mainTextStyle.copyWith(color: notifire.getMainText, fontSize: 18),
-      hintText: formattedDate.toString(),
-    ),
-    readOnly: true,
-    onTap: () => pickDate(context),
-  ),
-  children: apiDataList.isNotEmpty
-      ? [
-          ListView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: 1, // Ensure the table header is shown once
-            shrinkWrap: true,
-            itemBuilder: (context, index) {
-              return Column(
-                children: [
-                  SizedBox(
-                    height: 380,
-                    width: width,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        SizedBox(
-                          width: width < 1220 ? 500 : width,
-                          child: SingleChildScrollView(
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    children: [
-                                      Align(
-                                        alignment: Alignment.topLeft,
-                                        child: Table(
-                                          columnWidths: const {
-                                            0: FixedColumnWidth(100),
-                                            1: FixedColumnWidth(100),
-                                            2: FixedColumnWidth(100),
-                                            3: FixedColumnWidth(100),
-                                            4: FixedColumnWidth(100),
-                                          },
-                                          children: [
-                                            TableRow(
-                                              children: [
-                                                Text(
-                                                  "Profile ID",
-                                                  style: mediumBlackTextStyle.copyWith(fontSize: 16, color: appMainColor),
-                                                ),
-                                                Text(
-                                                  "Package",
-                                                  style: mediumBlackTextStyle.copyWith(fontSize: 16, color: appMainColor),
-                                                ),
-                                                Text(
-                                                  "Mobile",
-                                                  style: mediumBlackTextStyle.copyWith(fontSize: 16, color: appMainColor),
-                                                ),
-                                                Text(
-                                                  "Name",
-                                                  style: mediumBlackTextStyle.copyWith(fontSize: 16, color: appMainColor),
-                                                ),
-                                                Text(
-                                                  "Expiry",
-                                                  style: mediumBlackTextStyle.copyWith(fontSize: 16, color: appMainColor),
-                                                ),
-                                              ],
-                                            ),
-                                            dividerRow(const Color(0xff7366ff)),
-                                            for (var apiData in apiDataList) ...[
-                                              newRow(
-                                                profileid: ' ${apiData.profileid}',
-                                                package: ' ${apiData.packname}',
-                                                mobile: ' ${apiData.mobile}',
-                                                name: ' ${apiData.fullname}',
-                                                expiryTime: ' ${apiData.expiration}',
-                                              ),
-                                              dividerRow(Colors.red),
-                                            ],
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
-        ]
-      : [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'No data available. Try again later or add some data.',
+        child: Theme(
+               data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+          child: ExpansionTile(
+            key: Key('ExpansionTile_${apiDataList.isNotEmpty}'), // Add a unique key
+            initiallyExpanded: apiDataList.isNotEmpty,
+            collapsedIconColor: notifire.getMainText,
+            iconColor: notifire.getMainText,
+            expandedAlignment: Alignment.topLeft,
+            leading: Text(
+              'Expiry Details',
               style: mainTextStyle.copyWith(color: notifire.getMainText, fontSize: 18),
             ),
+            title: TextField(
+              controller: dateInput,
+              style: mainTextStyle.copyWith(color: notifire.getMainText, fontSize: 18),
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintStyle: mainTextStyle.copyWith(color: notifire.getMainText, fontSize: 18),
+                hintText: formattedDate.toString(),
+              ),
+              readOnly: true,
+              onTap: () => pickDate(context),
+            ),
+            children: apiDataList.isNotEmpty
+                ? [
+            ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: 1, // Ensure the table header is shown once
+              shrinkWrap: true,
+              itemBuilder: (context, index) {
+                return Column(
+                  children: [
+                    SizedBox(
+                      height: 380,
+                      width: width,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: [
+                          SizedBox(
+                            width: width < 1220 ? 500 : width,
+                            child: SingleChildScrollView(
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      children: [
+                                        Align(
+                                          alignment: Alignment.topLeft,
+                                          child: Table(
+                                            columnWidths: const {
+                                              0: FixedColumnWidth(100),
+                                              1: FixedColumnWidth(100),
+                                              2: FixedColumnWidth(100),
+                                              3: FixedColumnWidth(100),
+                                              4: FixedColumnWidth(100),
+                                            },
+                                            children: [
+                                              TableRow(
+                                                children: [
+                                                  Text(
+                                                    "Profile ID",
+                                                    style: mediumBlackTextStyle.copyWith(fontSize: 16, color: appMainColor),
+                                                  ),
+                                                  Text(
+                                                    "Package",
+                                                    style: mediumBlackTextStyle.copyWith(fontSize: 16, color: appMainColor),
+                                                  ),
+                                                  Text(
+                                                    "Mobile",
+                                                    style: mediumBlackTextStyle.copyWith(fontSize: 16, color: appMainColor),
+                                                  ),
+                                                  Text(
+                                                    "Name",
+                                                    style: mediumBlackTextStyle.copyWith(fontSize: 16, color: appMainColor),
+                                                  ),
+                                                  Text(
+                                                    "Expiry",
+                                                    style: mediumBlackTextStyle.copyWith(fontSize: 16, color: appMainColor),
+                                                  ),
+                                                ],
+                                              ),
+                                              dividerRow(const Color(0xff7366ff)),
+                                              for (var apiData in apiDataList) ...[
+                                                newRow(
+                                                  profileid: ' ${apiData.profileid}',
+                                                  package: ' ${apiData.packname}',
+                                                  mobile: ' ${apiData.mobile}',
+                                                  name: ' ${apiData.fullname}',
+                                                  expiryTime: ' ${apiData.expiration}',
+                                                ),
+                                                dividerRow(Colors.red),
+                                              ],
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ]
+                : [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'No data available. Try again later or add some data.',
+                style: mainTextStyle.copyWith(color: notifire.getMainText, fontSize: 18),
+              ),
+            ),
+          ],
           ),
-        ],
-)
+        )
       ),
     ),
   );

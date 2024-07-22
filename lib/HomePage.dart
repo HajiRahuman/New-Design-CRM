@@ -108,11 +108,13 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     notifire = Provider.of<ColorNotifire>(context, listen: false);
+       final notifier = Provider.of<ColorNotifire>(context);
     RxDouble? screenwidth = Get.width.obs;
     double? breakpoint = 600.0;
     if (screenwidth >= breakpoint) {
       return GetBuilder<AppConst>(builder: (controller) {
         return Scaffold(
+           backgroundColor: notifire!.getbgcolor,
           body: Column(
             children: [
               Row(
@@ -133,25 +135,27 @@ class _HomePageState extends State<HomePage> {
                           // Remove the AppBar here
                           Expanded(
                             child: Obx(() {
-                              // Widget selectedPage =
-                              //   controller.pageselecter.value as Widget;
-                              // return selectedPage;
-                              switch (controller.pageselecter.value) {
-                                case 0:
-                                  return Get.offAllNamed(Routes.homepage);
-                                case 1:
-                                  return Center(
-                                    child: Text('Dashboard Page'),
-                                  );
-                                case 2:
-                                  return ViewSubscriber(
-                                      subscriberId: controller.dynamicId.value);
+                              Widget selectedPage = controller
+                                  .page[controller.pageselecter.value];
+                              return selectedPage;
+                              // switch (controller.pageselecter.value) {
+                              //   case 0:
+                              //     return 
+                              //       Get.offAllNamed(Routes.homepage);
+                              // //  
+                              //   case 1:
+                              //     return Center(
+                              //       child: Text('Dashboard Page'),
+                              //     );
+                              //   case 2:
+                              //     return ViewSubscriber(
+                              //         subscriberId: controller.dynamicId.value);
 
-                                default:
-                                  return Center(
-                                    child: Text('Unknown Page'),
-                                  );
-                              }
+                              //   default:
+                              //     return Center(
+                              //       child: Text('Unknown Page'),
+                              //     );
+                              // }
                             }),
                           ),
                         ],
@@ -162,9 +166,12 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
-          bottomNavigationBar: const BottomAppBar(
-            child: SizedBox(
-              height: 60,
+          bottomNavigationBar:  BottomAppBar(
+               shadowColor:notifier.getprimerycolor ,
+             color: notifier.getprimerycolor,
+             surfaceTintColor: notifier.getprimerycolor,
+            child:const SizedBox(
+              // height: 60,
               child: AppBarCode(),
             ),
           ),
@@ -172,22 +179,26 @@ class _HomePageState extends State<HomePage> {
       });
     } else {
       return GetBuilder<AppConst>(builder: (controller) {
+       
         return Scaffold(
+           backgroundColor: notifire!.getbgcolor,
           // Remove the AppBar here
           drawer: const Drawer(width: 260, child: DarwerCode()),
           body: SizedBox(
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
             child: Obx(() {
-              Widget selectedPage = controller.pageselecter.value as Widget;
-              return selectedPage;
+              Widget selectedPage = controller
+                                  .page[controller.pageselecter.value];
+                              return selectedPage;
             }),
           ),
-          bottomNavigationBar: const BottomAppBar(
-            child: SizedBox(
-              height: 60,
-              child: AppBarCode(),
-            ),
+          bottomNavigationBar:  BottomAppBar(
+            shadowColor:notifier.getprimerycolor ,
+             color: notifier.getprimerycolor,
+             surfaceTintColor: notifier.getprimerycolor,
+            child:const AppBarCode(),
+            
           ),
         );
       });

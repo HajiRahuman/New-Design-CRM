@@ -5,6 +5,7 @@ import 'package:crm/AppStaticData/routes.dart';
 import 'package:crm/Components/Auth/LoginPage.dart';
 import 'package:crm/Components/DashBoard/DashBoard.dart';
 import 'package:crm/Components/Subscriber/ViewSubscriber.dart';
+import 'package:crm/HomePage.dart';
 import 'package:crm/Providers/providercolors.dart';
 import 'package:crm/splash_screen.dart';
 import 'package:flutter/material.dart';
@@ -20,12 +21,22 @@ int id=0;
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
-  const SystemUiOverlayStyle(
-    statusBarColor: Colors.black,
-    statusBarIconBrightness: Brightness.light,
+  
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ColorNotifire(),
+      child: const MyWidget(),
+    ),
   );
-  runApp(const MyWidget());
 }
+
+// void main() {
+//   const SystemUiOverlayStyle(
+//     statusBarColor: Colors.black,
+//     statusBarIconBrightness: Brightness.light,
+//   );
+//   runApp(const MyWidget());
+// }
 
 class MyWidget extends StatefulWidget {
   const MyWidget({Key? key}) : super(key: key);
@@ -55,6 +66,7 @@ class _MyWidgetState extends State<MyWidget> {
 
   @override
   Widget build(BuildContext context) {
+     final notifier = Provider.of<ColorNotifire>(context);
     logger.i('Application Started');
     // print("Main.dart Token : $token");
     return MultiProvider(
@@ -64,23 +76,24 @@ class _MyWidgetState extends State<MyWidget> {
         ),
       ],
       child: GetMaterialApp(
+        theme: notifier.isDark ? ThemeData.dark() : ThemeData.light(),
         locale: const Locale('en', 'US'),
         scrollBehavior: MyCustomScrollBehavior(),
         debugShowCheckedModeBanner: false,
         initialRoute: Routes.initial,
         getPages: getPage,
         title: 'BMS',
-        theme: ThemeData(
-            useMaterial3: false,
-            splashColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-            hoverColor: Colors.transparent,
-            fontFamily: "Gilroy",
-            dividerColor: Colors.transparent,
-            colorScheme: ColorScheme.fromSwatch().copyWith(
-              primary: const Color(0xFF0059E7),
-            )),
-        home: SplashScreen()
+        // theme: ThemeData(
+        //     useMaterial3: false,
+        //     splashColor: Colors.transparent,
+        //     highlightColor: Colors.transparent,
+        //     hoverColor: Colors.transparent,
+        //     fontFamily: "Gilroy",
+        //     dividerColor: Colors.transparent,
+        //     colorScheme: ColorScheme.fromSwatch().copyWith(
+        //       primary: const Color(0xFF0059E7),
+        //     )),
+        home:const HomePage()
       ),
     );
   }

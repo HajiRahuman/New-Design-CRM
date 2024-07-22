@@ -2,9 +2,13 @@
 import 'package:crm/AppStaticData/routes.dart';
 import 'package:crm/Components/Auth/LoginPage.dart';
 import 'package:crm/Components/DashBoard/DashBoard.dart';
+import 'package:crm/Components/Subscriber/Complaints/Complaints.dart';
 import 'package:crm/Components/Subscriber/ViewSubscriber.dart';
+import 'package:crm/Franchise/ListFranchise.dart';
+import 'package:crm/Franchise/ViewFranchise.dart';
 import 'package:crm/HomePage.dart';
-import 'package:crm/ListSubscriber.dart';
+import 'package:crm/Hotel/ListHotel.dart';
+import 'package:crm/components/Subscriber/ListSubscriber.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -133,30 +137,36 @@ class AppConst extends GetxController implements GetxService {
 
   // var page = getPage;
 
-  // var page = [
-  //   LoginPage(),
-  //   DashBoard(),
-  //   const ListSubscriber(),
-  // ].obs;
-
-  // void changePage(int newIndex) {
-  //   pageselecter.value = newIndex;
+  var page = [
+       DashBoard(),
+       const ListSubscriber(),
+        ViewSubscriber(subscriberId: null),
+        const ListHotel(),
+        const ListFranchise(),
+        ViewFranchise(resellerId: null),
+       const Complaints()
+  
  
-  // }
+   
+  ].obs;
 
-    void changePage(int newIndex, {int? id}) {
+  void changePage(int newIndex) {
     pageselecter.value = newIndex;
-    if(id !=0) dynamicId.value = id!;
-    switch (newIndex) {
-      case 1:
-        Get.toNamed(Routes.homepage);
-        break;
-      case 2:
-        Get.toNamed(Routes.viewsubscriber, parameters: {'id': id.toString()});
-        break;
-      
-      default:
-        Get.toNamed(Routes.initial);
-    }
-}
+ 
+  }
+
+//     void changePage(int newIndex, {int? id}) {
+//     pageselecter.value = newIndex;
+//     if(id !=0) dynamicId.value = id!;
+//     switch (newIndex) {
+//       case 1:
+//         Get.toNamed(Routes.homepage);
+//         break;
+//       case 2:
+//         Get.toNamed(Routes.viewsubscriber, parameters: {'id': id.toString()});
+//         break;
+//       default:
+//         Get.toNamed(Routes.initial);
+//     }
+// }
 }
