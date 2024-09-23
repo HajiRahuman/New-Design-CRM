@@ -1,15 +1,20 @@
 import 'package:crm/AppBar.dart';
 import 'package:crm/AppStaticData.dart';
-import 'package:crm/Components/Subscriber/ViewSubscriber.dart';
+import 'package:crm/AppStaticData/toaster.dart';
+
+import 'package:crm/Controller/Drawer.dart';
+import 'package:crm/Franchise/ViewFranchise.dart';
 import 'package:crm/Providers/providercolors.dart';
-import 'package:crm/StaticData.dart';
+
 import 'package:crm/Widgets/CommonTitle.dart';
 import 'package:crm/Widgets/SizedBox.dart';
+import 'package:crm/model/reseller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
+
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../service/reseller.dart' as resellerSrv;
 
 class ListFranchise extends StatefulWidget {
   const ListFranchise({super.key});
@@ -19,26 +24,58 @@ class ListFranchise extends StatefulWidget {
 }
 
 class _ListFranchise extends State<ListFranchise> with SingleTickerProviderStateMixin {
-  ColorNotifire notifire = ColorNotifire();
+ 
   int currentPage = 1;
   final int itemsPerPage = 5;
-  final List<Map<String, String>> subscribers = List.generate(20, (index) {
-    return {
-      "name": "RAHMAN $index",
-      "mobile": "739377399",
-      "profileId": "rahman",
-      "account": "Active",
-      "status": "Online",
-    };
-  });
- AppConst obj = AppConst();
-  final AppConst controller = Get.put(AppConst());
+   bool isSearching = false;
+  bool row = false;
+  String selectedValue1 = 'Subscriber ID';
+
+  List<ResellerList> listResller = [];
+  bool isLoading = false;
+
+  
+  int limit = 5;
+  Future<void> getListResller() async {
+    ResellerListResp resp = await resellerSrv.resellerList();
+    setState(() {
+      if (resp.error) alert(context, resp.msg);
+      listResller = resp.error == true ? [] : resp.data ?? [];
+    });
+  }
+
+  int id=0;
+  getIdLevelID() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    id = pref.getInt('id') as int;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getListResller();
+    getIdLevelID();
+  }
+
+
+
+  void navigateToViewReseller(int resellerId, BuildContext context) async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ViewFranchise (resellerId: resellerId),
+      ),
+    );
+  }
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
-    notifire = Provider.of<ColorNotifire>(context, listen: true);
+   notifire = Provider.of<ColorNotifire>(context, listen:true);
+       final notifier = Provider.of<ColorNotifire>(context);
     return Scaffold(
-      
-      backgroundColor: notifire.getbgcolor,
+       key: _scaffoldKey,
+     drawer: DarwerCode(), 
+      backgroundColor:notifier.getbgcolor,
       body: SizedBox(
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
@@ -54,7 +91,7 @@ class _ListFranchise extends State<ListFranchise> with SingleTickerProviderState
                     padding: const EdgeInsets.only(top: 0, right: padding, left: padding, bottom: 0),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: notifire.getcontiner,
+                        color:notifier.getcontiner,
                         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
                       ),
                       child: Column(
@@ -83,38 +120,45 @@ class _ListFranchise extends State<ListFranchise> with SingleTickerProviderState
           },
         ),
       ),
+        bottomNavigationBar:  BottomAppBar(
+            shadowColor:notifier.getprimerycolor ,
+             color: notifier.getprimerycolor,
+             surfaceTintColor: notifier.getprimerycolor,
+            child: BottomNavBar(scaffoldKey: _scaffoldKey),
+            
+          ),
     );
   }
 
-  List<Map<String, String>> getItemsForCurrentPage() {
-    final startIndex = (currentPage - 1) * itemsPerPage;
-    final endIndex = startIndex + itemsPerPage;
-    return subscribers.sublist(
-      startIndex,
-      endIndex > subscribers.length ? subscribers.length : endIndex,
-    );
-  }
+  
 
   Widget _buildProfile1({required bool isphon}) {
+      final startIndex = (currentPage - 1) * itemsPerPage;
+  final endIndex = (startIndex + itemsPerPage <  listResller.length)
+      ? startIndex + itemsPerPage
+      :  listResller.length;
+
+  final paginatedList =  listResller.sublist(startIndex, endIndex);
+   final notifier = Provider.of<ColorNotifire>(context);
     return Column(
       children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-                IconButton(onPressed: (){}, icon:const Icon(Icons.visibility)),
-              IconButton(onPressed: (){}, icon:const Icon(Icons.refresh)),
-              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  elevation: 0,
-                                  backgroundColor: appMainColor,
-                                  fixedSize: const Size.fromHeight(40),
-                                ),
-                                onPressed: () {},
-                                child: Text(
-                                  "Add",
-                                  style: mediumBlackTextStyle.copyWith(
-                                      color: Colors.white),
-                                )),
+                IconButton(onPressed: () async {
+                      navigateToViewReseller(
+                          id, context);
+                    }, icon: Icon(Icons.visibility,color: notifier.getMainText)),
+              IconButton(  onPressed: () async {
+                      setState(() {
+                        isLoading = true;
+                      });
+                      await getListResller();
+                      setState(() {
+                        isLoading = false;
+                      });
+                    }, icon:Icon(Icons.refresh, color: notifier.getMainText,)),
+              
             ],
           ),
         
@@ -125,9 +169,9 @@ class _ListFranchise extends State<ListFranchise> with SingleTickerProviderState
               child: ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: getItemsForCurrentPage().length,
+                itemCount: paginatedList.length,
                 itemBuilder: (context, index) {
-                  final subscriber = getItemsForCurrentPage()[index];
+                  final reseller = paginatedList[index];
                   return Column(
                     children: [
                       Container(
@@ -138,20 +182,13 @@ class _ListFranchise extends State<ListFranchise> with SingleTickerProviderState
                         ),
                         child: Column(
                           children: [
-                            ListTile(
-                              title: Text(
-                                subscriber['name']!,
-                                style: mediumBlackTextStyle.copyWith(color: notifire.getMainText),
-                              ),
-                              leading: const CircleAvatar(
-                                backgroundColor: Colors.transparent,
-                                backgroundImage: AssetImage("assets/avatar1.png"),
-                              ),
-                              subtitle: Padding(
-                                padding: const EdgeInsets.only(top: 6),
-                                child: _buildCommonListTile(title: "MOBILE: ", subtitle: subscriber['mobile']!),
-                              ),
-                              trailing: InkWell(
+                            
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: isphon ? 10 : padding),
+                              child: Column(
+                                children: [
+                                    
+                                  _buildCommonListTile2(title: reseller.fullName,subtitle: InkWell(
                                 child: SvgPicture.asset(
                                   "assets/settings.svg",
                                   height: 18,
@@ -159,22 +196,20 @@ class _ListFranchise extends State<ListFranchise> with SingleTickerProviderState
                                   color: appGreyColor,
                                 ),
                                 onTap: (){
-                                     controller.changePage(5);
-// print('hxfcysf');
-                                  // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
-                                  //     return ViewSubscriber(subscriberId:null,);
-                                  //   }));
+                                   
+
+                                  navigateToViewReseller(
+                                                    reseller.id, context);
                                 },
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: isphon ? 10 : padding),
-                              child: Column(
-                                children: [
-                                  _buildCommonListTile(title: "PROFILE ID: ", subtitle: 'profileId'),
-                                  const SizedBox(height: 10),
-                                  _buildCommonListTile(title: "COMPANY: ", subtitle:'GREY SKY INTERNET'),
-                                  const SizedBox(height: 10),
+                              ), ),
+                                   _buildCommonListTile(title: "NAME", subtitle:': ${reseller.fullName}}'),
+                                                                  
+                                   _buildCommonListTile(title: "MOBILE", subtitle:': ${reseller.mobile}}'),
+                                                                   
+                                  _buildCommonListTile(title: "PROFILE ID", subtitle:': ${reseller.profileId}}'),
+                                  
+                                  _buildCommonListTile(title: "COMPANY", subtitle:': ${reseller.company}}'),
+                                 
                                 ],
                               ),
                             ),
@@ -192,26 +227,64 @@ class _ListFranchise extends State<ListFranchise> with SingleTickerProviderState
       ],
     );
   }
+Widget  _buildCommonListTile2({
+  required String title,
+  required Widget subtitle,
+}) {
+  final notifier = Provider.of<ColorNotifire>(context, listen: false);
 
-  Widget _buildCommonListTile({required String title, required String subtitle}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
+  return Container(
+    padding:const EdgeInsets.symmetric(vertical:3), // Control the gap between items
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        RichText(
-          text: TextSpan(
-            children: [
-              TextSpan(text: title, style: mediumGreyTextStyle),
-              TextSpan(text: subtitle, style: mediumBlackTextStyle.copyWith(color: notifire.getMainText)),
-            ],
+        Text(
+          title,
+          style: mediumGreyTextStyle,
+        ),
+       
+        subtitle
+      ],
+    ),
+  );
+}
+
+Widget _buildCommonListTile({
+  required String title,
+  required String subtitle,
+}) {
+  final notifier = Provider.of<ColorNotifire>(context, listen: false);
+
+  return Container(
+    padding: const EdgeInsets.symmetric(vertical: 3), // Control the gap between items
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start, // Align children to start to handle long text
+      children: [
+        Expanded(
+          child: Text(
+            title,
+            style: mediumGreyTextStyle,
+          ),
+        ),
+        const SizedBox(width: 10), // Add some spacing between title and subtitle
+        Expanded(
+          child: Text(
+            subtitle,
+            style: mediumBlackTextStyle.copyWith(
+              color: notifier.getMainText,
+            ),
+          
           ),
         ),
       ],
-    );
-  }
+    ),
+  );
+}
+
 
   Widget _buildPaginationControls() {
     final notifier = Provider.of<ColorNotifire>(context);
-    final totalPages = (subscribers.length / itemsPerPage).ceil();
+    final totalPages = (listResller.length / itemsPerPage).ceil();
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -225,7 +298,7 @@ class _ListFranchise extends State<ListFranchise> with SingleTickerProviderState
                 }
               : null,
         ),
-        Text("Page $currentPage of $totalPages",style:  mediumBlackTextStyle.copyWith(color: notifire.getMainText)),
+        Text("Page $currentPage of $totalPages",style:  mediumBlackTextStyle.copyWith(color:notifier.getMainText)),
         IconButton(
           icon:Icon(Icons.arrow_forward,      color: notifier.geticoncolor),
           onPressed: currentPage < totalPages

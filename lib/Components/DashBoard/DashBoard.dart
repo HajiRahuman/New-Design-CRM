@@ -1,9 +1,11 @@
 
 
 
+import 'package:crm/AppBar.dart';
 import 'package:crm/AppStaticData.dart';
 import 'package:crm/AppStaticData/toaster.dart';
 import 'package:crm/Components/Subscriber/ViewSubscriber.dart';
+import 'package:crm/Controller/Drawer.dart';
 import 'package:crm/Providers/providercolors.dart';
 import 'package:crm/Widgets/CommonTitle.dart';
 import 'package:crm/Widgets/SizedBox.dart';
@@ -24,7 +26,7 @@ class DashBoard extends StatefulWidget {
   State<DashBoard> createState() => _DashBoard();
 }
 
-class _DashBoard extends State<DashBoard> {
+class _DashBoard extends State<DashBoard> with SingleTickerProviderStateMixin{
   
   @override
   void dispose() {
@@ -39,11 +41,12 @@ class _DashBoard extends State<DashBoard> {
   ];
 
   final GlobalKey<ScaffoldState> _key = GlobalKey();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final formKey = GlobalKey<FormState>();
   String email = '';
   String passwd = '';
   DateTime today = DateTime.now();
-  int touchedIndex = -1;
+  
   TextEditingController dateInput = TextEditingController();
   String selectedDate = '';
   bool isSearching = false;
@@ -65,12 +68,13 @@ class _DashBoard extends State<DashBoard> {
       });
     }
   }
-
+  int currentPage = 1;
+  final int itemsPerPage = 5;
   @override
   void initState() {
     super.initState();
-    // getSubscriberSummary();
-    // getExpirySubscriber(today); // Fetch data for today's date
+    getSubscriberSummary();
+    getExpirySubscriber(today); // Fetch data for today's date
   }
 
   void navigateToViewSubscriber(int subscriberId, BuildContext context) async {
@@ -90,18 +94,26 @@ class _DashBoard extends State<DashBoard> {
     });
   }
 
-  ColorNotifire notifire = ColorNotifire();
+  
 
   @override
   Widget build(BuildContext context) {
-    notifire = Provider.of<ColorNotifire>(context, listen: true);
+    notifire = Provider.of<ColorNotifire>(context, listen:true);
+       final notifier = Provider.of<ColorNotifire>(context);
+       double _calculateProgress(String? value, String? total) {
+  int categoryValue = int.tryParse(value ?? '0') ?? 0;
+  int totalValue = int.tryParse(total ?? '0') ?? 1; // Ensure total is at least 1 to avoid division by zero
+  return totalValue > 0 ? categoryValue / totalValue : 0.0;
+}
     return Scaffold(
+      drawer: DarwerCode(), 
+         key: _scaffoldKey,
       body: Form(
              key: formKey,
           child: Container(
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
-            color: notifire.getbgcolor,
+            color: notifier.getbgcolor,
             child: LayoutBuilder(
               builder: (context, constraints) {
                 if (constraints.maxWidth < 600) {
@@ -111,54 +123,60 @@ class _DashBoard extends State<DashBoard> {
                       children: [
                            const SizedBoxx(),
                         const ComunTitle(title: 'Dashboard', path: "Default"),
+                       _buildcompo1(
+  title: "Total",
+  iconpath: "assets/users33.svg",
+  Subscriber: subscriberSummary?.totalusers ?? "0",
+  Indicator: _buildIndicator(cardcolors[0], 1.0), // Full progress for total users
+  maincolor: const Color(0xff2F3F95),
+  progressValue: 1.0, // Full bar for total users
+),
                         _buildcompo1(
-                          title: "Total",
-                          iconpath: "assets/users33.svg",
-                          Subscriber: subscriberSummary?.totalusers ?? "0",
-                          Indicator: _buildIndicator(cardcolors[0]),
-                          maincolor: Colors.blueAccent,
-                        ),
-                        _buildcompo1(
-                          title: "Active",
-                          iconpath: "assets/users33.svg",
-                          Subscriber: subscriberSummary?.active ?? "0",
-                          Indicator: _buildIndicator(cardcolors[1]),
-                            maincolor: Colors.pinkAccent,
-                        ),
-                        _buildcompo1(
-                          title: "Expiry",
-                          iconpath: "assets/box-check33.svg",
-                          Subscriber: subscriberSummary?.deactive ?? "0",
-                          Indicator: _buildIndicator(cardcolors[2]),
-                          maincolor: Colors.deepOrangeAccent,
-          
-                        ),
-                        _buildcompo1(
-                          title: "Online",
-                          iconpath: "assets/wallet33.svg",
-                          Subscriber: subscriberSummary?.mainonline ?? "0",
-                          Indicator: _buildIndicator(cardcolors[3]),
-                           maincolor: Colors.deepPurpleAccent,
-                        ),
-                        _buildcompo1(
-                          title: "Offline",
-                          iconpath: "assets/coins29.svg",
-                          Subscriber: subscriberSummary?.offline ?? "0",
-                          Indicator: _buildIndicator(cardcolors[0]),
-                            maincolor: const Color(0xff0CAF60),
-                        ),
+  title: "Active",
+  iconpath: "assets/user29.svg",
+  Subscriber: subscriberSummary?.active ?? "0",
+  Indicator: _buildIndicator(cardcolors[1], _calculateProgress(subscriberSummary?.active, subscriberSummary?.totalusers)),
+  maincolor: const Color(0xff43A047),
+  progressValue: _calculateProgress(subscriberSummary?.active, subscriberSummary?.totalusers), // Add this line
+),
+                       
+                     _buildcompo1(
+  title: "Online",
+  iconpath: "assets/wallet33.svg",
+  Subscriber: subscriberSummary?.mainonline ?? "0",
+  Indicator: _buildIndicator(cardcolors[2], _calculateProgress(subscriberSummary?.mainonline, subscriberSummary?.totalusers)),
+  maincolor: const Color(0xff25D366),
+  progressValue: _calculateProgress(subscriberSummary?.mainonline, subscriberSummary?.totalusers), // Add progressValue here
+),
+_buildcompo1(
+    title: "Offline",
+  iconpath: "assets/coins29.svg",
+ Subscriber: subscriberSummary?.offline ?? "0",
+  Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.offline, subscriberSummary?.totalusers)),
+  maincolor: const Color(0xffFF6F00),
+  progressValue: _calculateProgress(subscriberSummary?.offline, subscriberSummary?.totalusers), // Add progressValue here
+),
+ _buildcompo1(
+  title: "Expiry",
+  iconpath: "assets/box-check33.svg",
+  Subscriber: subscriberSummary?.deactive ?? "0",
+  Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.deactive, subscriberSummary?.totalusers)),
+  maincolor: const Color(0xffE53935),
+  progressValue: _calculateProgress(subscriberSummary?.deactive, subscriberSummary?.totalusers), // Add progressValue here
+),
+_buildcompo1(
+  title: "Hold",
+  iconpath: "assets/lock.svg",
+  Subscriber: subscriberSummary?.hold ?? "0",
+  Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.hold, subscriberSummary?.totalusers)),
+  maincolor: const Color(0xffFF4081),
+  progressValue: _calculateProgress(subscriberSummary?.hold, subscriberSummary?.totalusers), // Add progressValue here
+),
+                      
                         
                      _buildcompo2(width: constraints.maxWidth),
                         const SizedBoxx(),
-                          // ElevatedButton(onPressed: (){
-      //                      Navigator.push(
-      //   context,
-      //   MaterialPageRoute(
-      //     builder: (context) => ListSubscriber(),
-      //   ),
-      // );
-      //                   }, child: Text('click'))
-                      ],
+                                              ],
                     ),
                   );
                 } else if (constraints.maxWidth < 1000) {
@@ -171,60 +189,71 @@ class _DashBoard extends State<DashBoard> {
                         Row(
                           children: [
                             Expanded(
-                              child: _buildcompo1(
-                                title: "Total",
-                                iconpath: "assets/dollar-circle33.svg",
-                                Subscriber: subscriberSummary?.totalusers ?? "0",
-                                Indicator: _buildIndicator(cardcolors[0]),
-                                maincolor: Colors.blueAccent,
-                              ),
+                              child:  _buildcompo1(
+  title: "Total",
+  iconpath: "assets/users33.svg",
+  Subscriber: subscriberSummary?.totalusers ?? "0",
+  Indicator: _buildIndicator(cardcolors[0], 1.0), // Full progress for total users
+  maincolor: const Color(0xff2F3F95),
+  progressValue: 1.0, // Full bar for total users
+),
                             ),
                             Expanded(
                               child: _buildcompo1(
-                                title: "Active",
-                                iconpath: "assets/users33.svg",
-                                Subscriber: subscriberSummary?.active ?? "0",
-                                Indicator: _buildIndicator(cardcolors[1]),
-                                  maincolor: Colors.pinkAccent,
-                              ),
+  title: "Active",
+  iconpath: "assets/user29.svg",
+  Subscriber: subscriberSummary?.active ?? "0",
+  Indicator: _buildIndicator(cardcolors[1], _calculateProgress(subscriberSummary?.active, subscriberSummary?.totalusers)),
+  maincolor: const Color(0xff43A047),
+  progressValue: _calculateProgress(subscriberSummary?.active, subscriberSummary?.totalusers), // Add this line
+),
                             ),
                           ],
                         ),
                         Row(
                           children: [
                             Expanded(
-                              child: _buildcompo1(
-                                title: "Expiry",
-                                iconpath: "assets/box-check33.svg",
-                                Subscriber: subscriberSummary?.deactive ?? "0",
-                                Indicator: _buildIndicator(cardcolors[2]),
-                                 maincolor: Colors.deepOrangeAccent,
-                              ),
+                              child:  _buildcompo1(
+  title: "Online",
+  iconpath: "assets/wallet33.svg",
+  Subscriber: subscriberSummary?.mainonline ?? "0",
+  Indicator: _buildIndicator(cardcolors[2], _calculateProgress(subscriberSummary?.mainonline, subscriberSummary?.totalusers)),
+  maincolor: const Color(0xff25D366),
+  progressValue: _calculateProgress(subscriberSummary?.mainonline, subscriberSummary?.totalusers), // Add progressValue here
+),
                             ),
                             Expanded(
-                              child: _buildcompo1(
-                                title: "Online",
-                                iconpath: "assets/wallet33.svg",
-                                Subscriber: subscriberSummary?.mainonline ?? "0",
-                                Indicator: _buildIndicator(cardcolors[3]),
-                                 maincolor: Colors.deepPurpleAccent,
-                              ),
+                              child:_buildcompo1(
+    title: "Offline",
+  iconpath: "assets/coins29.svg",
+ Subscriber: subscriberSummary?.offline ?? "0",
+  Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.offline, subscriberSummary?.totalusers)),
+  maincolor: const Color(0xffFF6F00),
+  progressValue: _calculateProgress(subscriberSummary?.offline, subscriberSummary?.totalusers), // Add progressValue here
+),
                             ),
                           ],
                         ),
                         Row(
                           children: [
                             Expanded(
-                              child: _buildcompo1(
-                                title: "Offline",
-                                iconpath: "assets/coins29.svg",
-                                Subscriber: subscriberSummary?.offline ?? "0",
-                                Indicator: _buildIndicator(cardcolors[0]),
-                                
-                            maincolor: const Color(0xff0CAF60),
-                              ),
+                              child:_buildcompo1(
+  title: "Expiry",
+  iconpath: "assets/box-check33.svg",
+  Subscriber: subscriberSummary?.deactive ?? "0",
+  Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.deactive, subscriberSummary?.totalusers)),
+  maincolor: const Color(0xffE53935),
+  progressValue: _calculateProgress(subscriberSummary?.deactive, subscriberSummary?.totalusers), // Add progressValue here
+),
                             ),
-            
+            Expanded(child: _buildcompo1(
+  title: "Hold",
+  iconpath: "assets/lock.svg",
+  Subscriber: subscriberSummary?.hold ?? "0",
+  Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.hold, subscriberSummary?.totalusers)),
+  maincolor: const Color(0xffFF4081),
+  progressValue: _calculateProgress(subscriberSummary?.hold, subscriberSummary?.totalusers), // Add progressValue here
+),)
                           ],
                         ),
                         Row(
@@ -247,57 +276,74 @@ class _DashBoard extends State<DashBoard> {
                         Row(
                           children: [
                             Expanded(
-                              child: _buildcompo1(
-                                title: "Total",
-                                iconpath:  "assets/users33.svg",
-                                Subscriber:  subscriberSummary?.totalusers ?? "0",
-                                Indicator: _buildIndicator(cardcolors[0]),
-                                maincolor: Colors.blueAccent,
-                              ),
+                              child:  _buildcompo1(
+  title: "Total",
+  iconpath: "assets/users33.svg",
+  Subscriber: subscriberSummary?.totalusers ?? "0",
+  Indicator: _buildIndicator(cardcolors[0], 1.0), // Full progress for total users
+  maincolor: const Color(0xff2F3F95),
+  progressValue: 1.0, // Full bar for total users
+),
+
                             ),
                             Expanded(
                               child: _buildcompo1(
-                                title: "Active",
-                                iconpath: "assets/users33.svg",
-                                Subscriber: subscriberSummary?.active ?? "0",
-                                Indicator: _buildIndicator(cardcolors[1]),
-                                 maincolor: Colors.pinkAccent,
-                              ),
+  title: "Active",
+  iconpath: "assets/user29.svg",
+  Subscriber: subscriberSummary?.active ?? "0",
+  Indicator: _buildIndicator(cardcolors[1], _calculateProgress(subscriberSummary?.active, subscriberSummary?.totalusers)),
+  maincolor: const Color(0xff43A047),
+  progressValue: _calculateProgress(subscriberSummary?.active, subscriberSummary?.totalusers), // Add this line
+),
                             ),
                             Expanded(
-                              child: _buildcompo1(
-                                title: "Expiry",
-                                iconpath: "assets/box-check33.svg",
-                                Subscriber: subscriberSummary?.deactive ?? "0",
-                                Indicator: _buildIndicator(cardcolors[2]),
-                                 maincolor: Colors.deepOrangeAccent,
-                              ),
+                              child:  _buildcompo1(
+  title: "Online",
+  iconpath: "assets/wallet33.svg",
+  Subscriber: subscriberSummary?.mainonline ?? "0",
+  Indicator: _buildIndicator(cardcolors[2], _calculateProgress(subscriberSummary?.mainonline, subscriberSummary?.totalusers)),
+  maincolor: const Color(0xff25D366),
+  progressValue: _calculateProgress(subscriberSummary?.mainonline, subscriberSummary?.totalusers), // Add progressValue here
+),
                             ),
                             Expanded(
-                              child: _buildcompo1(
-                                title: "Online",
-                                iconpath: "assets/wallet33.svg",
-                                Subscriber: subscriberSummary?.mainonline ?? "0",
-                                Indicator: _buildIndicator(cardcolors[3]),
-                                maincolor: Colors.deepPurpleAccent,
-                              ),
+                              child:  _buildcompo1(
+    title: "Offline",
+  iconpath: "assets/coins29.svg",
+ Subscriber: subscriberSummary?.offline ?? "0",
+  Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.offline, subscriberSummary?.totalusers)),
+  maincolor: const Color(0xffFF6F00),
+  progressValue: _calculateProgress(subscriberSummary?.offline, subscriberSummary?.totalusers), // Add progressValue here
+),
                             ),
                           ],
                         ),
                         Row(
                           children: [
                             Expanded(
-                              child: _buildcompo1(
-                                title: "Offline",
-                                iconpath: "assets/coins29.svg",
-                                Subscriber: subscriberSummary?.offline ?? "0",
-                                Indicator: _buildIndicator(cardcolors[0]),
-                                 maincolor: const Color(0xff0CAF60),
-                              ),
-                            ),
+                              child:
+
+_buildcompo1(
+  title: "Expiry",
+  iconpath: "assets/box-check33.svg",
+  Subscriber: subscriberSummary?.deactive ?? "0",
+  Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.deactive, subscriberSummary?.totalusers)),
+  maincolor: const Color(0xffE53935),
+  progressValue: _calculateProgress(subscriberSummary?.deactive, subscriberSummary?.totalusers), // Add progressValue here
+),
+                           ),
                            
                           ],
                         ),
+
+                        Row(children: [Expanded(child: _buildcompo1(
+  title: "Hold",
+  iconpath: "assets/lock.svg",
+  Subscriber: subscriberSummary?.hold ?? "0",
+  Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.hold, subscriberSummary?.totalusers)),
+  maincolor: const Color(0xffFF4081),
+  progressValue: _calculateProgress(subscriberSummary?.hold, subscriberSummary?.totalusers), // Add progressValue here
+),)],),
                          Row(
                           children: [
                             Expanded(
@@ -317,6 +363,13 @@ class _DashBoard extends State<DashBoard> {
             ),
           ),
         ),
+       bottomNavigationBar:  BottomAppBar(
+            shadowColor:notifier.getprimerycolor ,
+             color: notifier.getprimerycolor,
+             surfaceTintColor: notifier.getprimerycolor,
+            child: BottomNavBar(scaffoldKey: _scaffoldKey),
+            
+          ),
     );
   }
 Widget _buildcompo1({
@@ -325,7 +378,9 @@ Widget _buildcompo1({
   required String Subscriber,
   required Widget Indicator,
   required Color maincolor,
+  required double progressValue, // Add this parameter
 }) {
+  final notifier = Provider.of<ColorNotifire>(context);
   return Padding(
     padding: const EdgeInsets.all(15.0),
     child: Material(
@@ -334,7 +389,7 @@ Widget _buildcompo1({
         height: 100,
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(Radius.circular(12)),
-          color: notifire.getcontiner,
+          color: notifier.getcontiner,
           boxShadow: boxShadow,
         ),
         child: Column(
@@ -364,129 +419,70 @@ Widget _buildcompo1({
               ),
               subtitle: Text(
                 Subscriber,
-                style: mainTextStyle.copyWith(color: notifire.getMainText),
+                style: mainTextStyle.copyWith(color: notifier.getMainText),
               ),
             ),
-            SizedBox(height: 8),
-            Indicator,
+            _buildIndicator(maincolor, progressValue), // Pass progress value
           ],
         ),
       ),
     ),
   );
 }
-
-
-  Widget _buildIndicator(Color color) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0),
-      child: ClipRRect(
-         borderRadius: BorderRadius.circular(8),
-        child: SizedBox(
-             height: 8,
-          child: LinearProgressIndicator(
-            value: 0.7,
-            valueColor: AlwaysStoppedAnimation<Color>(color),
-            backgroundColor: Colors.grey[300],
-          ),
+  Widget _buildIndicator(Color color, double progressValue) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 15.0),
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: SizedBox(
+        height: 8,
+        child: LinearProgressIndicator(
+          value: progressValue, // Set progress value (0.0 to 1.0)
+          valueColor: AlwaysStoppedAnimation<Color>(color),
+          backgroundColor: Colors.grey[300],
         ),
       ),
-    );
-  }
- TableRow divider({required Color color}) {
-  return TableRow(
-    children: List.generate(5, (index) => Divider(color: color, height: 30,)),
+    ),
   );
 }
 
-TableRow newRow({
-  required String profileid,
-  required String package,
-  required String mobile,
-  required String name,
-  required String expiryTime,
-}) {
-  return TableRow(
-    children: [
-      Padding(
-        padding: const EdgeInsets.symmetric(vertical: 5),
-        child: Text(profileid, style: TextStyle(color: notifire.getMainText),
-        ),
-      ),
-      Padding(
-        padding: const EdgeInsets.symmetric(vertical: 5),
-        child: Text(
-          package,
-          // style: mediumBlackTextStyle.copyWith(color: notifire.getMainText),
-          style: TextStyle(color: notifire.getMainText),
-          overflow: TextOverflow.ellipsis,
-          maxLines: 1,
-        ),
-      ),
-      Padding(
-        padding: const EdgeInsets.symmetric(vertical: 5),
-        child: Text(
-          mobile,
-          style: mediumBlackTextStyle.copyWith(color: notifire.getMainText),
-          overflow: TextOverflow.ellipsis,
-          maxLines: 1,
-        ),
-      ),
-      Padding(
-        padding: const EdgeInsets.symmetric(vertical: 5),
-        child: Text(
-          name,
-          style: mediumBlackTextStyle.copyWith(color: notifire.getMainText),
-          overflow: TextOverflow.ellipsis,
-          maxLines: 1,
-        ),
-      ),
-      Padding(
-        padding: const EdgeInsets.symmetric(vertical: 5),
-        child: Text(
-          expiryTime,
-          style: mediumBlackTextStyle.copyWith(color: notifire.getMainText),
-          overflow: TextOverflow.ellipsis,
-          maxLines: 1,
-        ),
-      ),
-    ],
-  );
-}   
+Widget _buildcompo2({required double width}) {
+   final startIndex = (currentPage - 1) * itemsPerPage;
+  final endIndex = (startIndex + itemsPerPage <  apiDataList.length)
+      ? startIndex + itemsPerPage
+      :  apiDataList.length;
 
-
- Widget _buildcompo2({required double width}) {
+  final paginatedList =  apiDataList.sublist(startIndex, endIndex);
+   final notifier = Provider.of<ColorNotifire>(context);
   return Padding(
     padding: const EdgeInsets.all(padding),
     child: Container(
-      // height: 500,
       padding: const EdgeInsets.all(padding),
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(12)),
-        color: notifire.getcontiner,
+        color: notifier.getcontiner,
         boxShadow: boxShadow,
       ),
       child: Material(
-        // Added Material widget here
         color: Colors.transparent, 
         child: Theme(
-               data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
           child: ExpansionTile(
-            key: Key('ExpansionTile_${apiDataList.isNotEmpty}'), // Add a unique key
+            key: Key('ExpansionTile_${apiDataList.isNotEmpty}'),
             initiallyExpanded: apiDataList.isNotEmpty,
-            collapsedIconColor: notifire.getMainText,
-            iconColor: notifire.getMainText,
+            collapsedIconColor: notifier.getMainText,
+            iconColor: notifier.getMainText,
             expandedAlignment: Alignment.topLeft,
             leading: Text(
-              'Expiry Details',
-              style: mainTextStyle.copyWith(color: notifire.getMainText, fontSize: 18),
+              'Expiry',
+              style: mainTextStyle.copyWith(color: notifier.getMainText),
             ),
             title: TextField(
               controller: dateInput,
-              style: mainTextStyle.copyWith(color: notifire.getMainText, fontSize: 18),
+              style:  mainTextStyle1.copyWith(color: notifier.getMainText),
               decoration: InputDecoration(
                 border: InputBorder.none,
-                hintStyle: mainTextStyle.copyWith(color: notifire.getMainText, fontSize: 18),
+                hintStyle:  mainTextStyle1.copyWith(color: notifier.getMainText),
                 hintText: formattedDate.toString(),
               ),
               readOnly: true,
@@ -494,114 +490,152 @@ TableRow newRow({
             ),
             children: apiDataList.isNotEmpty
                 ? [
-            ListView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: 1, // Ensure the table header is shown once
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                return Column(
+          ListView.builder(
+  shrinkWrap: true,
+  physics: const NeverScrollableScrollPhysics(),
+  itemCount: paginatedList.length,
+  itemBuilder: (context, index) {
+    final expirySubs = paginatedList[index];
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.withOpacity(0.3)),
+          ),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(0),
+                child: Column(
                   children: [
-                    SizedBox(
-                      height: 380,
-                      width: width,
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: [
-                          SizedBox(
-                            width: width < 1220 ? 500 : width,
-                            child: SingleChildScrollView(
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      children: [
-                                        Align(
-                                          alignment: Alignment.topLeft,
-                                          child: Table(
-                                            columnWidths: const {
-                                              0: FixedColumnWidth(100),
-                                              1: FixedColumnWidth(100),
-                                              2: FixedColumnWidth(100),
-                                              3: FixedColumnWidth(100),
-                                              4: FixedColumnWidth(100),
-                                            },
-                                            children: [
-                                              TableRow(
-                                                children: [
-                                                  Text(
-                                                    "Profile ID",
-                                                    style: mediumBlackTextStyle.copyWith(fontSize: 16, color: appMainColor),
-                                                  ),
-                                                  Text(
-                                                    "Package",
-                                                    style: mediumBlackTextStyle.copyWith(fontSize: 16, color: appMainColor),
-                                                  ),
-                                                  Text(
-                                                    "Mobile",
-                                                    style: mediumBlackTextStyle.copyWith(fontSize: 16, color: appMainColor),
-                                                  ),
-                                                  Text(
-                                                    "Name",
-                                                    style: mediumBlackTextStyle.copyWith(fontSize: 16, color: appMainColor),
-                                                  ),
-                                                  Text(
-                                                    "Expiry",
-                                                    style: mediumBlackTextStyle.copyWith(fontSize: 16, color: appMainColor),
-                                                  ),
-                                                ],
-                                              ),
-                                              dividerRow(const Color(0xff7366ff)),
-                                              for (var apiData in apiDataList) ...[
-                                                newRow(
-                                                  profileid: ' ${apiData.profileid}',
-                                                  package: ' ${apiData.packname}',
-                                                  mobile: ' ${apiData.mobile}',
-                                                  name: ' ${apiData.fullname}',
-                                                  expiryTime: ' ${apiData.expiration}',
-                                                ),
-                                                dividerRow(Colors.red),
-                                              ],
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                    _buildCommonListTile(
+                      title: "PROFILE ID",
+                      subtitle:": ${expirySubs.profileid}",
+                      subtitleStyle:const TextStyle(color: appMainColor),  // Customize style if needed
+                      onSubtitleTap: () {
+                        // Navigate to viewSubscriber when profileid is tapped
+                         navigateToViewSubscriber(
+                                    expirySubs.uid, context);
+                      },
+                    ),
+                    
+                    _buildCommonListTile(title: "PACKAGE", subtitle: ': ${expirySubs.packname}'),
+                   
+                    _buildCommonListTile(title: "NAME", subtitle: ': ${expirySubs.fullname}'),
+                    
+                    _buildCommonListTile(title: "MOBILE", subtitle: ': ${expirySubs.mobile}'),
+                  
+                    _buildCommonListTile(
+                      title: "EXPIRY TIME",
+                      subtitle: ': ${expirySubs.expiration.isNotEmpty
+                          ? DateFormat.jm().format(DateTime.parse(expirySubs.expiration))
+                          : "---"}',
                     ),
                   ],
-                );
-              },
-            ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+      ],
+    );
+  },
+),
+
+              _buildPaginationControls()
           ]
                 : [
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Text(
-                'No data available. Try again later or add some data.',
-                style: mainTextStyle.copyWith(color: notifire.getMainText, fontSize: 18),
+              child: Center(
+                child: Text(
+                  'No records found.',
+                  
+                  style: mainTextStyle.copyWith(color: notifire!.getMainText, fontSize: 18),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
           ],
           ),
-        )
+        ),
       ),
     ),
   );
 }
-TableRow dividerRow(Color color) {
-  return TableRow(
+
+Widget _buildCommonListTile({
+ required String title,
+  required String subtitle,
+  TextStyle? subtitleStyle,
+  VoidCallback? onSubtitleTap, 
+}) {
+  final notifier = Provider.of<ColorNotifire>(context, listen: false);
+
+  return Container(
+    padding: const EdgeInsets.symmetric(vertical: 3), // Control the gap between items
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start, // Align children to start to handle long text
+      children: [
+        Expanded(
+          child: Text(
+            title,
+            style: mediumGreyTextStyle,
+          ),
+        ),
+        const SizedBox(width: 10), // Add some spacing between title and subtitle
+        Expanded(
+          child:  GestureDetector(
+                onTap: onSubtitleTap,  // Tapping will trigger this function
+                child: Text(
+                  subtitle,
+                  style: subtitleStyle ?? mediumBlackTextStyle.copyWith(
+                    color: notifier.getMainText,
+                  ),
+                ),
+              ),
+        ),
+      ],
+    ),
+  );
+}
+
+
+
+Widget _buildPaginationControls() {
+  final notifier = Provider.of<ColorNotifire>(context);
+  final totalPages = (apiDataList.length / itemsPerPage).ceil();
+  
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.center,
     children: [
-      SizedBox(height: 10, child: Divider(color: color)),
-      SizedBox(height: 10, child: Divider(color: color)),
-      SizedBox(height: 10, child: Divider(color: color)),
-      SizedBox(height: 10, child: Divider(color: color)),
-      SizedBox(height: 10, child: Divider(color: color)),
+      IconButton(
+        icon: Icon(Icons.arrow_back, color: notifier.geticoncolor),
+        onPressed: currentPage > 1
+            ? () {
+                setState(() {
+                  currentPage--;
+                });
+              }
+            : null,
+      ),
+      Text(
+        "Page $currentPage of $totalPages",
+        style: mediumBlackTextStyle.copyWith(color: notifier.getMainText),
+      ),
+      IconButton(
+        icon: Icon(Icons.arrow_forward, color: notifier.geticoncolor),
+        onPressed: currentPage < totalPages
+            ? () {
+                setState(() {
+                  currentPage++;
+                });
+              }
+            : null,
+      ),
     ],
   );
 }

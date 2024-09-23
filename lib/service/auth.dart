@@ -34,10 +34,11 @@ Future<void> logout() async {
   pref.remove('authToken');
   pref.remove('cookies');
   pref.setBool('login', true);
-  Navigator.pushReplacement(
-      navigatorKey.currentContext as BuildContext,
-      MaterialPageRoute(
-          builder: (context) =>
-              LoginPage()));
+   Navigator.pushAndRemoveUntil(
+    navigatorKey.currentContext as BuildContext,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+      (Route<dynamic> route) => false,
+    );
+
   
 }

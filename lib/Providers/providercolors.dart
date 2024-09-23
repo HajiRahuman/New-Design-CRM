@@ -20,6 +20,11 @@ bool _isDark = false;
     notifyListeners();
   }
 
+
+  setDarkMode(bool value) {
+    _isDark = value;
+    notifyListeners(); // This will trigger a rebuild
+  }
   void isavalable(bool value) {
     _isDark = value;
     _themePreference.setDarkTheme(value); // Save the preference

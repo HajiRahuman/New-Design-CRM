@@ -1,8 +1,8 @@
 
 import 'package:crm/model/hotel.dart';
 import './http.dart' as http;
-Future<HotelResp> listHotel(int index,int limit) async {
-  final resp = await http.get('hotel?index=$index&limit=$limit');
+Future<HotelResp> listHotel() async {
+  final resp = await http.get('hotel');
   return HotelResp.toJson((resp));
 }
 

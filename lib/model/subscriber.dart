@@ -325,6 +325,13 @@ String mac;
   int voiceid;
   String authreject;
   String authreject_dt;
+
+  String pon;
+  bool onustatus;
+  String onutx;
+  String onurx;
+  String oltname;
+  
   // int ip6mode;
   // int ipv4id;
   // int ipv6id;
@@ -367,6 +374,12 @@ String mac;
     required this.voiceid,
       required this.authreject,
       required this.authreject_dt,
+      required this.oltname,
+      required this.onustatus,
+      required this.onutx,
+      required this.onurx,
+      required this.pon,
+
     // required this.ip6mode,
     // required this.ipv4id,
     // required this.ipv6id
@@ -414,7 +427,15 @@ String mac;
       soc: resp['soc'],
       voiceid:resp['voiceid'],
        authreject:resp['authreject'],
-        authreject_dt:resp['authreject_dt']
+        authreject_dt:resp['authreject_dt'],
+
+
+
+        oltname:resp['oltname'],
+        onustatus:resp['onustatus'],
+        onutx:resp['onutx'],
+        onurx:resp['onurx'],
+        pon:resp['pon'],
       // ip6mode: resp['ip6mode'],
       // ipv4id: resp['ipv4id'],
       // ipv6id: resp['ipv6id']
@@ -1702,6 +1723,86 @@ class SubsComplaintLogResp {
   data: data['data'] is List
   ? List<SubsComplaintLogDet>.from(
   data['data'].map((e) => SubsComplaintLogDet.toJson(e)))
+      : []);
+  }
+  }
+
+
+class EmployeeList {
+   final int id;
+  // final int circle;
+  // final int levelid;
+  // final int resellerSub;
+  // final String fullName;
+  final String profileId;
+  // final String mobile;
+  // final int landline;
+  // final String email;
+  // final String email1;
+  // final int rstatus;
+  // final List<int> levelMenu;
+  // final String password;
+
+ 
+ 
+ 
+  
+
+  EmployeeList( {
+   
+   required this.id,
+    // required this.circle,
+    // required this.levelid,
+    // required this.resellerSub,
+    // required this.fullName,
+    required this.profileId,
+    // required this.mobile,
+    // required this.landline,
+    // required this.email,
+    // required this.email1,
+    // required this.rstatus,
+    // required this.levelMenu,
+    // required this.password,
+    });
+
+  factory EmployeeList.toJson(Map<dynamic, dynamic> json){
+    return EmployeeList(
+
+    
+     id: json['id'],
+      // circle: json['circle'],
+      // levelid: json['levelid'],
+      // resellerSub: json['reseller_sub'],
+      // fullName: json['full_name'],
+      profileId: json['profileid'],
+      // mobile: json['mobile'],
+      // landline: json['landline'],
+      // email: json['email'],
+      // email1: json['email1'],
+      // rstatus: json['rstatus'],
+      // levelMenu: List<int>.from(json['level_menu']),
+      // password: json['password'],
+    );
+  }
+
+}
+
+class EmployeeListResp {
+  final String msg;
+  final bool error;
+  final List<EmployeeList>? data;
+
+  EmployeeListResp({required this.msg, required this.error, this.data});
+
+  factory EmployeeListResp.toJson(Map<dynamic, dynamic> data) {
+
+
+  return EmployeeListResp(
+  error: data['error'],
+  msg: data['msg'],
+  data: data['data'] is List
+  ? List<EmployeeList>.from(
+  data['data'].map((e) => EmployeeList.toJson(e)))
       : []);
   }
   }

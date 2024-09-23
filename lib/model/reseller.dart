@@ -159,7 +159,7 @@ class ResellarDet {
   final int addonType;
   final int vpnType;
   // final int resellerUnder;
-  final int wallet;
+  final dynamic wallet;
   final int rStatus;
   final int distId;
   final int subdistId;
@@ -652,17 +652,20 @@ class viewResellerPackPriceResp {
     );
   }
 }
-
 class ResellerPackData {
   final int packid;
   final String packname;
   final int packmode;
+  final String ulspeed;
+  final String dlspeed;
   final List<viewResellerPackPriceDet> plan;
 
   ResellerPackData({
     required this.packid,
     required this.packname,
     required this.packmode,
+     required this.ulspeed,
+      required this.dlspeed,
     required this.plan,
   });
 
@@ -674,6 +677,8 @@ class ResellerPackData {
       packid: json['packid'],
       packname: json['packname'],
       packmode: json['packmode'],
+         ulspeed: json['ulspeed'],
+           dlspeed: json['dlspeed'],
       plan: plan,
     );
   }

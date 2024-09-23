@@ -1,15 +1,20 @@
 import 'package:crm/AppBar.dart';
 import 'package:crm/AppStaticData.dart';
+import 'package:crm/AppStaticData/toaster.dart';
+import 'package:crm/Components/Subscriber/AddSubscriber/AddSubscriber.dart';
 import 'package:crm/Components/Subscriber/ViewSubscriber.dart';
+import 'package:crm/Controller/Drawer.dart';
 import 'package:crm/Providers/providercolors.dart';
 import 'package:crm/StaticData.dart';
 import 'package:crm/Widgets/CommonTitle.dart';
 import 'package:crm/Widgets/SizedBox.dart';
+import 'package:crm/model/subscriber.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:provider/provider.dart';
+import '../../service/subscriber.dart' as subscriberSrv;
 
 class ListSubscriber extends StatefulWidget {
   const ListSubscriber({super.key});
@@ -22,22 +27,46 @@ class _ListSubscriber extends State<ListSubscriber> with SingleTickerProviderSta
   ColorNotifire notifire = ColorNotifire();
   int currentPage = 1;
   final int itemsPerPage = 5;
-  final List<Map<String, String>> subscribers = List.generate(20, (index) {
-    return {
-      "name": "RAHMAN $index",
-      "mobile": "739377399",
-      "profileId": "rahman",
-      "account": "Active",
-      "status": "Online",
-    };
-  });
- AppConst obj = AppConst();
-  final AppConst controller = Get.put(AppConst());
+   bool isSearching = false;
+  bool row = false;
+  String selectedValue1 = 'Subscriber ID';
+  
+  List<SubscriberDet> listSubscriber = [];
+  bool isLoading = false;
+  
+  int limit = 5;
+  Future<void> getListSubscriber() async {
+    ListSubscriberResp resp = await subscriberSrv.listSubscriber();
+    setState(() {
+      if (resp.error) alert(context, resp.msg);
+      listSubscriber = resp.error == true ? [] : resp.data ?? [];
+    });
+  }
+
   @override
+  void initState() {
+    super.initState();
+    getListSubscriber();
+  }
+
+
+
+
+  void navigateToViewSubscriber(int subscriberId, BuildContext context) async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ViewSubscriber(subscriberId: subscriberId),
+      ),
+    );
+  }
+ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   Widget build(BuildContext context) {
-    notifire = Provider.of<ColorNotifire>(context, listen: true);
+    notifire = Provider.of<ColorNotifire>(context, listen:true);
+       final notifier = Provider.of<ColorNotifire>(context);
     return Scaffold(
-      
+      drawer: DarwerCode(), 
+      key: _scaffoldKey,
       backgroundColor: notifire.getbgcolor,
       body: SizedBox(
         height: MediaQuery.of(context).size.height,
@@ -68,34 +97,39 @@ class _ListSubscriber extends State<ListSubscriber> with SingleTickerProviderSta
                                 ),
                               ),
                             ],
-                          ),
-                          
+                          ), 
                         ],
                       ),
                     ),
                   ),
-                  _buildPaginationControls(),
-                  const SizedBoxx(),
-                  
+                
+                  const SizedBoxx(),  
                 ],
               ),
             );
           },
         ),
       ),
+      bottomNavigationBar:  BottomAppBar(
+            shadowColor:notifier.getprimerycolor ,
+             color: notifier.getprimerycolor,
+             surfaceTintColor: notifier.getprimerycolor,
+            child: BottomNavBar(scaffoldKey: _scaffoldKey),
+            
+          ),
     );
   }
 
-  List<Map<String, String>> getItemsForCurrentPage() {
-    final startIndex = (currentPage - 1) * itemsPerPage;
-    final endIndex = startIndex + itemsPerPage;
-    return subscribers.sublist(
-      startIndex,
-      endIndex > subscribers.length ? subscribers.length : endIndex,
-    );
-  }
+ 
 
   Widget _buildProfile1({required bool isphon}) {
+       final startIndex = (currentPage - 1) * itemsPerPage;
+  final endIndex = (startIndex + itemsPerPage <  listSubscriber.length)
+      ? startIndex + itemsPerPage
+      :  listSubscriber.length;
+
+  final paginatedList =  listSubscriber.sublist(startIndex, endIndex);
+   final notifier = Provider.of<ColorNotifire>(context);
     return Column(
       children: [
            Row(
@@ -107,26 +141,31 @@ class _ListSubscriber extends State<ListSubscriber> with SingleTickerProviderSta
                                   backgroundColor: appMainColor,
                                   fixedSize: const Size.fromHeight(40),
                                 ),
-                                onPressed: () {},
+                                onPressed: () {
+                                   Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
+                        return AddSubscriber();
+                      }));
+                                },
                                 child: Text(
                                   "Add",
                                   style: mediumBlackTextStyle.copyWith(
                                       color: Colors.white),
                                 )),
-                                IconButton(onPressed: (){}, icon:const Icon(Icons.refresh, color: Colors.black),)
+                                IconButton( onPressed: () async {
+                     getListSubscriber();
+                    }, icon:Icon(Icons.refresh, color: notifier.getMainText),)
             ],
           ),
-        
-        const SizedBoxx(),
+          const SizedBox(height: 10),
         Row(
           children: [
             Expanded(
               child: ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: getItemsForCurrentPage().length,
+                itemCount: paginatedList.length,
                 itemBuilder: (context, index) {
-                  final subscriber = getItemsForCurrentPage()[index];
+                  final subscriber = paginatedList[index];
                   return Column(
                     children: [
                       Container(
@@ -137,45 +176,67 @@ class _ListSubscriber extends State<ListSubscriber> with SingleTickerProviderSta
                         ),
                         child: Column(
                           children: [
-                            ListTile(
-                              title: Text(
-                                subscriber['name']!,
-                                style: mediumBlackTextStyle.copyWith(color: notifire.getMainText),
-                              ),
-                              leading: const CircleAvatar(
-                                backgroundColor: Colors.transparent,
-                                backgroundImage: AssetImage("assets/avatar2.png"),
-                              ),
-                              subtitle: Padding(
-                                padding: const EdgeInsets.only(top: 6),
-                                child: _buildCommonListTile(title: "MOBILE: ", subtitle: subscriber['mobile']!),
-                              ),
-                              trailing: InkWell(
+                            
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: isphon ? 10 : padding),
+                              child: Column(
+                                children: [
+                            //       ListTile(
+                            //   title: Text(
+                            //     subscriber.fullname,
+                            //     style: mediumBlackTextStyle.copyWith(color: notifire.getMainText),
+                            //   ),
+            
+                            //   trailing: InkWell(
+                            //     child: SvgPicture.asset(
+                            //       "assets/settings.svg",
+                            //       height: 18,
+                            //       width: 18,
+                            //       color: appGreyColor,
+                            //     ),
+                            //      onTap: () {
+                            //                     navigateToViewSubscriber(
+                            //                         subscriber.id, context);
+                            //                   },
+                            //   ),
+                            // ),
+                   _buildCommonListTile2(title:   subscriber.fullname, subtitle: InkWell(
                                 child: SvgPicture.asset(
                                   "assets/settings.svg",
                                   height: 18,
                                   width: 18,
                                   color: appGreyColor,
                                 ),
-                                onTap: (){
-                                     controller.changePage(2);
-// print('hxfcysf');
-                                  // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
-                                  //     return ViewSubscriber(subscriberId:null,);
-                                  //   }));
-                                },
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: isphon ? 10 : padding),
-                              child: Column(
-                                children: [
-                                  _buildCommonListTile(title: "PROFILE ID: ", subtitle: subscriber['profileId']!),
-                                  const SizedBox(height: 10),
-                                  _buildCommonListTile(title: "ACCOUNT: ", subtitle: subscriber['account']!),
-                                  const SizedBox(height: 10),
-                                  _buildCommonListTile(title: "STATUS: ", subtitle: subscriber['status']!),
-                                  const SizedBox(height: 10),
+                                 onTap: () {
+                                                navigateToViewSubscriber(
+                                                    subscriber.id, context);
+                                              },
+                              ),),
+                     _buildCommonListTile(title: "MOBILE", subtitle: ": ${subscriber.mobile}"),
+                                  _buildCommonListTile(title: "PROFILE", subtitle:  ": ${subscriber.profileid}"),
+                                                                     
+  _buildCommonListTile1(
+                                  title: "ACCOUNT",
+                                  subtitle:  " ${subscriber.acctstatus}",
+                                  subtitleColor: subscriber.acctstatus == 'Active'
+                                      ? const Color(0xff43A047) // Green for Active
+                                      : const Color(0xFFEE4B2B), // Red for Inactive
+                                  borderColor: subscriber.acctstatus == 'Active'
+                                      ? const Color(0xff43A047) // Green border for Active
+                                      : const Color(0xFFEE4B2B), // Red border for Inactive
+                                ),
+                                
+                                _buildCommonListTile1(
+                                  title: "STATUS",
+                                  subtitle:  " ${subscriber.conn}",
+                                  subtitleColor: subscriber.conn == 'Online'
+                                      ? const Color(0xff25D366) // Green for Online
+                                      : const Color(0xFFEE4B2B), // Red for Offline
+                                  borderColor: subscriber.conn == 'Online'
+                                      ? const Color(0xff25D366) // Green border for Online
+                                      : const Color(0xFFEE4B2B), // Red border for Offline
+                                ),
+  
                                 ],
                               ),
                             ),
@@ -190,29 +251,111 @@ class _ListSubscriber extends State<ListSubscriber> with SingleTickerProviderSta
             ),
           ],
         ),
+        _buildPaginationControls()
       ],
     );
   }
+  
+Widget _buildCommonListTile1({
+  required String title,
+  required String subtitle,
+  Color? subtitleColor,
+  Color? borderColor, // Optional border color parameter
+}) {
+  final notifier = Provider.of<ColorNotifire>(context, listen: false);
 
-  Widget _buildCommonListTile({required String title, required String subtitle}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
+  return 
+  Container(
+    padding:const EdgeInsets.symmetric(vertical:2), // Control the gap between items
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        RichText(
-          text: TextSpan(
-            children: [
-              TextSpan(text: title, style: mediumGreyTextStyle),
-              TextSpan(text: subtitle, style: mediumBlackTextStyle.copyWith(color: notifire.getMainText)),
-            ],
+        Expanded(
+          child: Text(
+            title,
+            style: mediumGreyTextStyle,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child:Container(
+                padding: const EdgeInsets.fromLTRB(3,0, 3,0), // Add padding for better visual appearance
+                decoration: BoxDecoration(
+                  border: Border.all(color: borderColor ?? Colors.transparent), // Use provided border color or transparent if not provided
+                  borderRadius: BorderRadius.circular(4), // Border radius
+                ),
+                child: Text(
+                  textAlign: TextAlign.center,
+                  subtitle,
+                  style: mediumBlackTextStyle.copyWith(
+                    color: subtitleColor ?? notifier.getMainText, // Use the provided color or the default color from notifier
+                  ),
+                ),
+        )
+        ),
+        
+      ],
+    ),
+  );
+  
+  
+}
+
+Widget _buildCommonListTile({
+  required String title,
+  required String subtitle,
+}) {
+  final notifier = Provider.of<ColorNotifire>(context, listen: false);
+
+  return Container(
+    padding: const EdgeInsets.symmetric(vertical: 3), // Control the gap between items
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start, // Align children to start to handle long text
+      children: [
+        Expanded(
+          child: Text(
+            title,
+            style: mediumGreyTextStyle,
+          ),
+        ),
+        const SizedBox(width: 10), // Add some spacing between title and subtitle
+        Expanded(
+          child: Text(
+            subtitle,
+            style: mediumBlackTextStyle.copyWith(
+              color: notifier.getMainText,
+            ),
+          
           ),
         ),
       ],
-    );
-  }
+    ),
+  );
+}
+Widget  _buildCommonListTile2({
+  required String title,
+  required Widget subtitle,
+}) {
+  final notifier = Provider.of<ColorNotifire>(context, listen: false);
 
+  return Container(
+    padding:const EdgeInsets.symmetric(vertical:3), // Control the gap between items
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: mediumGreyTextStyle,
+        ),
+       
+        subtitle
+      ],
+    ),
+  );
+}
   Widget _buildPaginationControls() {
     final notifier = Provider.of<ColorNotifire>(context);
-    final totalPages = (subscribers.length / itemsPerPage).ceil();
+    final totalPages = (listSubscriber.length / itemsPerPage).ceil();
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [

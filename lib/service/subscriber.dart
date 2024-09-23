@@ -4,8 +4,8 @@ import './http.dart' as http;
 import 'package:dio/dio.dart' as dio;
 
 
-Future<ListSubscriberResp> listSubscriber(int index, int limit) async {
-  final resp = await http.get('subscriber?index=$index&limit=$limit');
+Future<ListSubscriberResp> listSubscriber() async {
+  final resp = await http.get('subscriber');
   return ListSubscriberResp.toJson((resp));
 }
 
@@ -207,5 +207,18 @@ class SubscriberInfoComplaint {
 
 Future<Map<String, dynamic>> addResellerComplaint(int id,body) async {
   final response = await http.put('complaints/$id',body);
+  return response;
+}
+
+
+
+Future<EmployeeListResp> GetEmpList() async {
+  final resp = await http.get('employee');
+  return EmployeeListResp.toJson(resp);
+}
+
+
+Future<Map<String, dynamic>> updatePaySts(int id,body) async {
+  final response = await http.put('renewal/$id/invoicePayment',body);
   return response;
 }

@@ -57,8 +57,7 @@ class MyAppState extends State<LoginPage> {
   bool isSubscriber = false;
   bool isFranchise = true;
   bool _isSubmitted = false;
-  AppConst obj = AppConst();
-  final AppConst controller = Get.put(AppConst());
+  String username='';
 
   getMenuAccess() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -66,7 +65,9 @@ class MyAppState extends State<LoginPage> {
     isIspAdmin = pref.getBool('isIspAdmin') as bool;
     id = pref.getInt('id') as int;
     isSubscriber = pref.getBool('isSubscriber') as bool;
-    print('IsSubscriber----${id}');
+    username = pref.getString('username') as String;
+    
+    print('Usernameeeeeeeeeeeee----${username}');
     if (!isIspAdmin && levelid > 4) {}
   }
 
@@ -206,6 +207,8 @@ class MyAppState extends State<LoginPage> {
   }
 
   Widget _buildlogin({required double width}) {
+     double screenWidth = MediaQuery.of(context).size.width;
+    final notifier = Provider.of<ColorNotifire>(context, listen: false);
     return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
         child: Container(
@@ -239,15 +242,13 @@ class MyAppState extends State<LoginPage> {
                             fit: BoxFit.cover, // Adjust the fit as needed
                           ),
                         ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: RadioListTile(
+                       
+                            RadioListTile(
                                 controlAffinity:
                                     ListTileControlAffinity.leading,
                                 title: Text('Franchise',
                                     style: mediumBlackTextStyle.copyWith(
-                                        color: notifire.getMainText)),
+                                        color: notifire.getMainText,fontSize: screenWidth * 0.04,)),
                                 value: true,
                                 groupValue: isFranchise,
                                 onChanged: (val) {
@@ -260,14 +261,13 @@ class MyAppState extends State<LoginPage> {
                                   });
                                 },
                               ),
-                            ),
-                            Expanded(
-                              child: RadioListTile(
+                            
+                            RadioListTile(
                                 controlAffinity:
                                     ListTileControlAffinity.leading,
                                 title: Text('Subscriber',
-                                    style: mediumBlackTextStyle.copyWith(
-                                        color: notifire.getMainText)),
+                                   style: mediumBlackTextStyle.copyWith(
+                                        color: notifire.getMainText,fontSize: screenWidth * 0.04,)),
                                 value: true,
                                 groupValue: _isSubsloginEnabled,
                                 onChanged: (val) {
@@ -280,16 +280,16 @@ class MyAppState extends State<LoginPage> {
                                   });
                                 },
                               ),
-                            ),
-                          ],
-                        ),
+                            
+                          
                         const SizedBox(
                           height: 21,
                         ),
                         TextFormField(
+                          
                           autofocus: true,
                           controller: usernameController,
-                          style: const TextStyle(color: Colors.black),
+                           style: TextStyle(color:notifier.getMainText),
                           keyboardType: TextInputType.text,
                           decoration: InputDecoration(
                             enabledBorder: OutlineInputBorder(
@@ -332,7 +332,7 @@ class MyAppState extends State<LoginPage> {
                           autofocus: true,
                           obscureText: _obscurePassword,
                           controller: passwordController,
-                          style: const TextStyle(color: Colors.black),
+                           style: TextStyle(color:notifier.getMainText),
                           decoration: InputDecoration(
                               enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(25),
@@ -356,11 +356,12 @@ class MyAppState extends State<LoginPage> {
                                   "assets/lock.svg",
                                   height: 18,
                                   width: 18,
+                                  // ignore: deprecated_member_use
                                   color: notifire.geticoncolor,
                                 )),
                               ),
                               suffixIcon: IconButton(
-                                color: Colors.black,
+                                color:  notifier.geticoncolor,
                                 icon: Icon(
                                   _obscurePassword
                                       ? Icons.visibility_off
@@ -399,65 +400,55 @@ class MyAppState extends State<LoginPage> {
                         ),
                         ElevatedButton(
                             onPressed: () async {
-                              setState(() {
-                                _isSubmitted = true;
-                              });
+  setState(() {
+    _isSubmitted = true;
+  });
 
-                              if (_formKey.currentState!.validate()) {
-                                final authResp = await (_isSubsloginEnabled
-                                    ? auth_service.Subslogin(
-                                        usernameController.text,
-                                        passwordController.text,
-                                      )
-                                    : isFranchise
-                                        ? auth_service.login(
-                                            usernameController.text,
-                                            passwordController.text,
-                                          )
-                                        : null); // Handle the case where neither condition is true, if needed
+  if (_formKey.currentState!.validate()) {
+    
+    final authResp = await (_isSubsloginEnabled
+    ? auth_service.Subslogin(
+        usernameController.text,
+        passwordController.text,
+      )
+    : isFranchise
+        ? auth_service.login(
+            usernameController.text,
+            passwordController.text,
+          )
+        : null); // Handle the case where neither condition is true, if needed
 
-                                alert(context, authResp!['msg'],
-                                    authResp['error']);
+    alert(context, authResp!['msg'], authResp['error']);
 
-                                if (authResp['error'] == false) {
-                                  SharedPreferences prefs =
-                                      await SharedPreferences.getInstance();
-                                  prefs.setString(
-                                      "authToken", authResp['token']);
-                                  prefs.setBool(
-                                      "savePassword", _checkboxListTile);
-                                  prefs.setInt(
-                                      "level_id", authResp['level_id'] ?? 111);
-                                  prefs.setInt("id", authResp['id']);
-                                  prefs.setBool(
-                                      'isIspAdmin', authResp['isIspAdmin']);
-                                  prefs.setBool(
-                                      'isSubscriber', authResp['isSubscriber']);
-                                  if (_checkboxListTile) {
-                                    prefs.setString(
-                                        "username", usernameController.text);
-                                    prefs.setString(
-                                        "password", passwordController.text);
-                                  }
-                                  getMenuAccess();
-                                  if (_isSubsloginEnabled) {
-print("ID-------$id");
-                                    Get.toNamed(
-                                        '/viewSubscriber/${id}'); // controller.changePage(3);
-                                    // If Subslogin was called, navigate to ViewSubscriber()
-                                    // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
-                                    //   return ViewSubscriber(subscriberId: id,);
-                                    // }));
-                                  } else if (isFranchise) {
-                                    // Otherwise, navigate to Dashboard()
-                                    controller.changePage(1);
-                                    // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
-                                    //   return DashBoard();
-                                    // }));
-                                  }
-                                }
-                              }
-                            },
+    if (authResp['error'] == false) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString("authToken", authResp['token']);
+      prefs.setBool("savePassword", _checkboxListTile);
+      prefs.setInt("level_id", authResp['level_id'] ?? 111);
+      prefs.setInt("id", authResp['id']);
+      prefs.setBool('isIspAdmin', authResp['isIspAdmin']);
+      prefs.setBool('isSubscriber', authResp['isSubscriber']);
+       prefs.setString("username", authResp['username']);
+      if (_checkboxListTile) {
+        prefs.setString("username", usernameController.text);
+        prefs.setString("password", passwordController.text);
+      }
+   getMenuAccess();
+      if (_isSubsloginEnabled) {
+        // If Subslogin was called, navigate to ViewSubscriber()
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
+          return ViewSubscriber(subscriberId: id,);
+        }));
+      } else if (isFranchise){
+        // Otherwise, navigate to Dashboard()
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
+          return DashBoard();
+        }));
+      }
+    }
+  }
+},
+
                             style: ElevatedButton.styleFrom(
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(24)),

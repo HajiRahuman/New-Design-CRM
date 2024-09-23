@@ -3,8 +3,8 @@ import './http.dart' as http;
 import 'package:dio/dio.dart' as dio ;
 
 
-Future<ResellerListResp> resellerList(int index,int limit) async {
-  final resp = await http.get('reseller/list?index=$index&limit=$limit');
+Future<ResellerListResp> resellerList() async {
+  final resp = await http.get('reseller/list');
   return ResellerListResp.toJson((resp));
 }
 
