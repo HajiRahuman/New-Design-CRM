@@ -135,8 +135,8 @@ Future<Map<String, dynamic>> resellerRenewalSubs(body) async {
 }
 
 
-Future<InvoiceDetResp> getInvoice(int index, int limit, int uid) async {
-  final resp = await http.get('invoice?index=$index&limit=$limit&uid=$uid');
+Future<InvoiceDetResp> getInvoice(int uid) async {
+  final resp = await http.get('invoice?uid=$uid');
   return InvoiceDetResp.toJson(resp);
 }
 
@@ -221,4 +221,12 @@ Future<EmployeeListResp> GetEmpList() async {
 Future<Map<String, dynamic>> updatePaySts(int id,body) async {
   final response = await http.put('renewal/$id/invoicePayment',body);
   return response;
+}
+
+
+
+
+Future<SessionRptResp> sessionRpt(int Id,int index ,int limit,bool isDayReport,{String startDate = '', String endDate = ''}) async {
+  final resp = await http.get('subscriber/$Id/sessionRpt/?index=$index&limit=$limit&isDayReport=$isDayReport&starttime=$startDate&endtime=$endDate');
+  return SessionRptResp.toJson((resp));
 }

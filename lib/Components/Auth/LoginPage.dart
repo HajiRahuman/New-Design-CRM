@@ -2,6 +2,7 @@ import 'package:crm/AppStaticData/AppStaticData.dart';
 import 'package:crm/AppStaticData/routes.dart';
 import 'package:crm/AppStaticData/toaster.dart';
 import 'package:crm/Components/DashBoard/DashBoard.dart';
+import 'package:crm/Components/DashBoard/SubscriberDashBoard.dart';
 import 'package:crm/Components/Subscriber/ViewSubscriber.dart';
 import 'package:crm/Providers/providercolors.dart';
 import 'package:crm/StaticData.dart';
@@ -291,39 +292,41 @@ class MyAppState extends State<LoginPage> {
                           controller: usernameController,
                            style: TextStyle(color:notifier.getMainText),
                           keyboardType: TextInputType.text,
-                          decoration: InputDecoration(
-                            enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25),
-                                borderSide: BorderSide(
-                                    color: notifire.isDark
-                                        ? notifire.geticoncolor
-                                        : Colors.grey.shade200)),
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25),
-                                borderSide: BorderSide(
-                                    color: notifire.isDark
-                                        ? notifire.geticoncolor
-                                        : Colors.grey.shade200)),
-                            hintText: "Username",
-                            hintStyle: mediumGreyTextStyle,
-                            prefixIcon: SizedBox(
-                              height: 20,
-                              width: 50,
-                              child: Center(
-                                  child: SvgPicture.asset(
-                                "assets/at.svg",
-                                height: 18,
-                                width: 18,
-                                color: notifire.geticoncolor,
-                              )),
-                            ),
-                          ),
+                         decoration: InputDecoration(
+                              enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(25),
+                                  borderSide: BorderSide(
+                                      color: notifire.isDark
+                                          ? notifire.geticoncolor
+                                          : Colors.grey.shade200)),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(25),
+                                  borderSide: BorderSide(
+                                      color: notifire.isDark
+                                          ? notifire.geticoncolor
+                                          : Colors.grey.shade200)),
+                              hintText: "Username",
+                              hintStyle: mediumGreyTextStyle,
+                              prefixIcon: SizedBox(
+                                height: 20,
+                                width: 50,
+                                child: Center(
+                                    child: SvgPicture.asset(
+                                  "assets/at.svg",
+                                  height: 18,
+                                  width: 18,
+                                  // ignore: deprecated_member_use
+                                  color: notifire.geticoncolor,
+                                )),
+                              ),
+                         ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Username is required';
                             }
                             return null;
                           },
+
                         ),
                         const SizedBox(
                           height: 19.8,
@@ -437,7 +440,7 @@ class MyAppState extends State<LoginPage> {
       if (_isSubsloginEnabled) {
         // If Subslogin was called, navigate to ViewSubscriber()
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
-          return ViewSubscriber(subscriberId: id,);
+          return SubscriberDashBoard(subscriberId: id,);
         }));
       } else if (isFranchise){
         // Otherwise, navigate to Dashboard()

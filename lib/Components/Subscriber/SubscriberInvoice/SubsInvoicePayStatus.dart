@@ -16,7 +16,7 @@ import '../../../service/subscriber.dart' as subscriberSrv;
 
 class InvoicePaymentStatus extends StatefulWidget {
   int invoiceId;
-  int totAmt;
+  dynamic totAmt;
   
 
   InvoicePaymentStatus(

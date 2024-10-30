@@ -55,16 +55,14 @@ class _SettingNotificationState extends State<SettingNotification> {
                 return SingleChildScrollView(
                   child: Column(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(padding),
-                        child: Column(
+                      Column(
                           children: [
                             if (resellerDet != null)
                               Row(
                                 children: [
                                   Expanded(
                                     child: Padding(
-                                      padding: const EdgeInsets.all(padding),
+                                      padding: const EdgeInsets.all(8),
                                       child: _buildProfile1(isphon: true),
                                     ),
                                   ),
@@ -72,7 +70,7 @@ class _SettingNotificationState extends State<SettingNotification> {
                               ),
                           ],
                         ),
-                      ),
+                      
                       const SizedBoxx(),
                     ],
                   ),
@@ -90,14 +88,14 @@ class _SettingNotificationState extends State<SettingNotification> {
     return Column(
       children: [
         Container(
-          padding: EdgeInsets.all(isphon ? 10 : padding),
+        
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Colors.grey.withOpacity(0.3)),
           ),
           child: Column(
             children: [
-              _buildSwitchListTile("Prefix", resellerDet!.settings.broadbandPrefixStatus),
+              _buildSwitchListTile("BroadBand Prefix", resellerDet!.settings.broadbandPrefixStatus),
             ],
           ),
         ),
@@ -105,7 +103,7 @@ class _SettingNotificationState extends State<SettingNotification> {
         const SizedBox(height: 10),
            Container(
       
-           padding: EdgeInsets.all(isphon ? 10 : padding),
+          
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: Colors.grey.withOpacity(0.3)),
@@ -120,7 +118,7 @@ class _SettingNotificationState extends State<SettingNotification> {
           const SizedBox(height: 10),
  Container(
       
-           padding: EdgeInsets.all(isphon ? 10 : padding),
+          
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: Colors.grey.withOpacity(0.3)),
@@ -135,7 +133,7 @@ class _SettingNotificationState extends State<SettingNotification> {
           const SizedBox(height: 10),
           Container(
       
-           padding: EdgeInsets.all(isphon ? 10 : padding),
+          
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: Colors.grey.withOpacity(0.3)),
@@ -150,7 +148,7 @@ class _SettingNotificationState extends State<SettingNotification> {
           const SizedBox(height: 10),
            Container(
       
-           padding: EdgeInsets.all(isphon ? 10 : padding),
+          
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: Colors.grey.withOpacity(0.3)),
@@ -165,7 +163,7 @@ class _SettingNotificationState extends State<SettingNotification> {
           const SizedBox(height: 10),
            Container(
       
-           padding: EdgeInsets.all(isphon ? 10 : padding),
+          
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: Colors.grey.withOpacity(0.3)),
@@ -180,7 +178,7 @@ class _SettingNotificationState extends State<SettingNotification> {
           const SizedBox(height: 10),
             Container(
       
-           padding: EdgeInsets.all(isphon ? 10 : padding),
+          
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: Colors.grey.withOpacity(0.3)),
@@ -195,7 +193,7 @@ class _SettingNotificationState extends State<SettingNotification> {
           const SizedBox(height: 10),
           Container(
       
-           padding: EdgeInsets.all(isphon ? 10 : padding),
+          
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: Colors.grey.withOpacity(0.3)),
@@ -211,7 +209,7 @@ class _SettingNotificationState extends State<SettingNotification> {
            const SizedBox(height: 10),
           Container(
       
-           padding: EdgeInsets.all(isphon ? 10 : padding),
+          
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: Colors.grey.withOpacity(0.3)),
@@ -227,7 +225,7 @@ class _SettingNotificationState extends State<SettingNotification> {
            const SizedBox(height: 10),
           Container(
       
-           padding: EdgeInsets.all(isphon ? 10 : padding),
+          
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: Colors.grey.withOpacity(0.3)),
@@ -243,7 +241,7 @@ class _SettingNotificationState extends State<SettingNotification> {
            const SizedBox(height: 10),
           Container(
       
-           padding: EdgeInsets.all(isphon ? 10 : padding),
+          
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: Colors.grey.withOpacity(0.3)),
@@ -259,7 +257,7 @@ class _SettingNotificationState extends State<SettingNotification> {
            const SizedBox(height: 10),
           Container(
       
-           padding: EdgeInsets.all(isphon ? 10 : padding),
+          
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: Colors.grey.withOpacity(0.3)),
@@ -275,7 +273,7 @@ class _SettingNotificationState extends State<SettingNotification> {
            const SizedBox(height: 10),
           Container(
       
-           padding: EdgeInsets.all(isphon ? 10 : padding),
+          
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: Colors.grey.withOpacity(0.3)),
@@ -291,7 +289,7 @@ class _SettingNotificationState extends State<SettingNotification> {
            const SizedBox(height: 10),
           Container(
       
-           padding: EdgeInsets.all(isphon ? 10 : padding),
+          
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: Colors.grey.withOpacity(0.3)),
@@ -307,7 +305,7 @@ class _SettingNotificationState extends State<SettingNotification> {
            const SizedBox(height: 10),
           Container(
       
-           padding: EdgeInsets.all(isphon ? 10 : padding),
+          
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: Colors.grey.withOpacity(0.3)),
@@ -323,7 +321,7 @@ class _SettingNotificationState extends State<SettingNotification> {
            const SizedBox(height: 10),
           Container(
       
-           padding: EdgeInsets.all(isphon ? 10 : padding),
+          
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: Colors.grey.withOpacity(0.3)),
@@ -339,7 +337,7 @@ class _SettingNotificationState extends State<SettingNotification> {
            const SizedBox(height: 10),
           Container(
       
-           padding: EdgeInsets.all(isphon ? 10 : padding),
+          
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: Colors.grey.withOpacity(0.3)),
@@ -355,7 +353,7 @@ class _SettingNotificationState extends State<SettingNotification> {
            const SizedBox(height: 10),
           Container(
       
-           padding: EdgeInsets.all(isphon ? 10 : padding),
+          
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: Colors.grey.withOpacity(0.3)),

@@ -4,6 +4,7 @@
 
 import 'package:crm/AppStaticData/AppStaticData.dart';
 import 'package:crm/Components/DashBoard/DashBoard.dart';
+import 'package:crm/Components/DashBoard/SubscriberDashBoard.dart';
 import 'package:crm/Components/Subscriber/SubscriberInvoice/SubscriberInvoice.dart';
 import 'package:crm/Layout/Search.dart';
 import 'package:crm/Providers/providercolors.dart';
@@ -97,20 +98,32 @@ getMenuAccess() async {
           icon:  Icon(Icons.home,color: notifier.geticoncolor),
           onPressed: () {
             setState(() {
+              if(isSubscriber==false){
                   Navigator.pushAndRemoveUntil(
                       navigatorKey.currentContext as BuildContext,
                       MaterialPageRoute(
                           builder: (context) => DashBoard()),
                       (Route<dynamic> route) => false,
                   );
+              }else{
+                Navigator.pushAndRemoveUntil(
+                      navigatorKey.currentContext as BuildContext,
+                      MaterialPageRoute(
+                          builder: (context) => SubscriberDashBoard(subscriberId: id,)),
+                      (Route<dynamic> route) => false,
+                  ); 
+              }
             });
+          
           },
         ),
         IconButton(
           icon:  Icon(Icons.search,color: notifier.geticoncolor,),
           onPressed: () {
             setState(() {
+              if(isSubscriber==false){
                _buildSearcDialogBox();
+              }
             });
           },
         ),
@@ -226,6 +239,8 @@ TableRow row1({required String title, required String  icon}) {
         bool newTheme = !notifier.isDark;
         notifier.setDarkMode(newTheme);
         await ThemePreference().setDarkTheme(newTheme);
+        // ignore: use_build_context_synchronously
+        Navigator.of(context).pop();
       },
       child: Padding(
         padding: const EdgeInsets.only(bottom: 5, left: 20, top: 12, right: 20),

@@ -47,8 +47,8 @@ class MyAppState extends State<SubscriberInvoice> {
   bool isLoading = false;
 
 
-  int currentPage = 0;
-  int limit = 3;
+  int currentPage = 1;
+
 
   bool _isMounted = false;
 
@@ -94,9 +94,9 @@ class MyAppState extends State<SubscriberInvoice> {
     super.dispose();
   }
 
-  Future<void> GetSubsInvoice(int index, int limit) async {
+  Future<void> GetSubsInvoice() async {
     InvoiceDetResp resp =
-    await subscriberSrv.getInvoice(index, limit, widget.subscriberId!);
+    await subscriberSrv.getInvoice(widget.subscriberId!);
     if (!_isMounted) return; // Check if the widget is still mounted
     setState(() {
       if (resp.error) alert(context, resp.msg);
@@ -113,7 +113,7 @@ class MyAppState extends State<SubscriberInvoice> {
     GetEmployeeList();
     initializeForm();
     _isMounted = true;
-    GetSubsInvoice(currentPage, limit);
+    GetSubsInvoice();
     getISP_Logo();
     
 
@@ -152,18 +152,17 @@ Future<void> GetEmployeeList() async {
   int? taxMode;
   double? taxAmt = 0;
   late pw.Document pdf;
-
-  void generateInvoice(int invid) {
+void generateInvoice(int invid) {
     pdf = pw.Document();
 
     final invoice = listSubsInvoive.firstWhere((element) => element.invid == invid);
-      DateTime expirationDate = DateTime.parse(invoice.expiration); // Parse the date string
-String expiryDate = DateFormat('MMM d, yyyy, h:mm:ss a').format(expirationDate);
- DateTime InvoiceDate = DateTime.parse(invoice.createdon); // Parse the date string
-String inviDate = DateFormat('MMM d, yyyy, h:mm:ss a').format(expirationDate);
+//       DateTime expirationDate = DateTime.parse(invoice.expiration); // Parse the date string
+// String expiryDate = DateFormat('MMM d, yyyy, h:mm:ss a').format(expirationDate);
+//  DateTime InvoiceDate = DateTime.parse(invoice.createdon); // Parse the date string
+// String inviDate = DateFormat('MMM d, yyyy, h:mm:ss a').format(expirationDate);
 
-DateTime PayedDate = DateTime.parse(invoice.paydate); // Parse the date string
-String payDate = DateFormat('MMM d, yyyy, h:mm:ss a').format(expirationDate);
+// DateTime PayedDate = DateTime.parse(invoice.paydate); // Parse the date string
+// String payDate = DateFormat('MMM d, yyyy, h:mm:ss a').format(expirationDate);
 
     String serviceType = '';
     if (invoice.packtype == "1,2") {
@@ -184,213 +183,467 @@ String payDate = DateFormat('MMM d, yyyy, h:mm:ss a').format(expirationDate);
       print("TaX Amount----$taxAmt");
       return taxAmt;
     }
+    pw.Widget buildCell(String text) {
+    return pw.Padding(
+      padding: const pw.EdgeInsets.all(8.0),
+      child: pw.Text(text, style: pw.TextStyle(color: PdfColors.black)),
+    );
+  }
+
+  pw.Widget buildHeaderCell(String text) {
+    return pw.Padding(
+      padding: const pw.EdgeInsets.all(8.0),
+      child: pw.Text(
+        text,
+        style: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white),
+      ),
+    );
+  }
+
+
+  pw.Widget tableHeader(String text) {
+    return pw.Padding(
+      padding: const pw.EdgeInsets.all(8.0),
+      child: pw.Text(
+        text,
+       style: pw.TextStyle(font: pw.Font.timesBold()),
+        textAlign: pw.TextAlign.center,
+      ),
+    );
+  }
+
+  pw.Widget tableCell(String text) {
+    return pw.Padding(
+      padding: const pw.EdgeInsets.all(8.0),
+      child: pw.Text(
+        text,
+         style: pw.TextStyle(font: pw.Font.times()),
+        textAlign: pw.TextAlign.center,
+      ),
+    );
+  }
+
+  pw.Widget _buildCommonListTile({
+  required String title,
+  required String subtitle,
+}) {
+  final notifier = Provider.of<ColorNotifire>(context, listen: false);
+
+  return pw.Container(
+    padding: const pw.EdgeInsets.symmetric(vertical: 3), // Control the gap between items
+    child: pw.Row(
+      crossAxisAlignment: pw.CrossAxisAlignment.start, // Align children to start to handle long text
+      children: [
+        pw.Expanded(
+          child: pw.Text(
+            title,
+           style: pw.TextStyle(font: pw.Font.times()),
+          ),
+        ),
+      pw.SizedBox(width: 10), // Add some spacing between title and subtitle
+        pw.Expanded(
+          child: pw.Text(
+            subtitle,
+              style: pw.TextStyle(font: pw.Font.timesBold()),
+          
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+  pw.Widget _buildCommonListTile1({
+  required String title,
+  required String subtitle,
+}) {
+  final notifier = Provider.of<ColorNotifire>(context, listen: false);
+
+  return pw.Container(
+    padding: const pw.EdgeInsets.symmetric(vertical: 3), // Control the gap between items
+    child: pw.Row(
+      crossAxisAlignment: pw.CrossAxisAlignment.start, // Align children to start to handle long text
+      children: [
+        pw.Expanded(
+          child: pw.Text(
+            title,
+           style: pw.TextStyle(font: pw.Font.timesBold()),
+          ),
+        ),
+      pw.SizedBox(width: 10), // Add some spacing between title and subtitle
+        pw.Expanded(
+          child: pw.Text(
+            subtitle,
+              style: pw.TextStyle(font: pw.Font.timesBold()),
+          
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+
+
+
+
     pdf.addPage(
       pw.Page(
         build: (context) {
-          return pw.Column(
+          return 
+        pw.Container(
+            padding: const pw.EdgeInsets.all(8),
+        decoration: pw.BoxDecoration(
+          // borderRadius: pw.BorderRadius.circular(10),
+          border: pw.Border.all(color: PdfColors.grey), // Corrected color reference
+        ),
+          child: 
+          pw.Container(
+            //  padding: const pw.EdgeInsets.all(8),
+        decoration: pw.BoxDecoration(
+          // borderRadius: pw.BorderRadius.circular(10),
+          border: pw.Border.all(color: PdfColors.black), // Corrected color reference
+        ),
+            child: 
+          
+          pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text('Tax Invoice', style:  pw.TextStyle(fontSize: 20,fontWeight: pw.FontWeight.bold)),
-              pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                children: [
-                  
-                  pw.Text('Grey Sky Internet Services Pvt Ltd.\n'
-                      'GSTIN 33AAJCG9282G1ZC\n'
-                      'No.17/34e, Santhaiyadi Street, Udangudi,\n'
-                      'Thoothukudi, Tamil Nadu, 628203,\n'
-                      'Mobile: 9442887912'),
-                  pw.Image(
-                    pw.MemoryImage(
-                      base64Decode(logo.first.ispLogo), // Assuming logo is fetched and stored as base64
-                    ),
-                    width: 200,
-                    height: 200,
-                  ),
-                ],
-              ),
-              pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                children: [
-                  pw.Container(
-                    width: 200,
-                    child: pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        pw.Text('Shipping Address:-', style:  pw.TextStyle(fontSize: 15,fontWeight: pw.FontWeight.bold)),
-                        pw.SizedBox(height: 10),
-                        pw.Text('${invoice.subname}\n ${invoice.subaddress}'),
-                        pw.SizedBox(height: 50),
-                        pw.Text('Billing Address:-', style:  pw.TextStyle(fontSize: 15,fontWeight: pw.FontWeight.bold)),
-                        pw.SizedBox(height: 10),
-                        pw.Text('Billing Address:\n${invoice.subname}\n ${invoice.subbilladdress}'),
-                      ],
-                    ),
-                  ),
-                  pw.SizedBox(width: 100),
-                  pw.Align(
-                    alignment: pw.Alignment.topRight,
-                    child: pw.Expanded(
-                      child: pw.Container(
-                        width: 250,
-                        child: pw.Column(
-                          crossAxisAlignment: pw.CrossAxisAlignment.start,
-                          children: [
-                            // pw.Text('Invoice ID: ${invoice.invid}'),
-                            //  pw.SizedBox(height: 10),
-                            pw.Text('Invoice: ${invoice.invno}'),
-                             pw.SizedBox(height: 10),
-                            // pw.Text('Dated: ${inviDate.isNotEmpty  ? DateFormat.yMd().add_jm().format(DateTime.parse(inviDate)) : "---"}'),
-                            //  pw.SizedBox(height: 10),
-                            // pw.Text('Billing Period: ${'Billing Period'}'),
-                            //  pw.SizedBox(height: 10),
-                            pw.Text('Paid Status: ${invoice.payStatus == 1 ? 'Unpaid' : 'Paid'}'),
-                             pw.SizedBox(height: 10),
-                            //   pw.Text('Paid Date: ${'Paid Date'}'),
-                            //  pw.SizedBox(height: 10),
-                            pw.Text('ProfileID: ${invoice.subname}'),
-                             pw.SizedBox(height: 10),
-                            pw.Text('Service Type: ${serviceType}'),
-                            //  pw.SizedBox(height: 10),
-                            // pw.Text('Validity: ${expiryDate.isNotEmpty  ? DateFormat.yMd().add_jm().format(DateTime.parse(expiryDate)) : "---"}'),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              pw.SizedBox(height: 20),
-              pw.Center(child:
-              pw.Text('Item Details',  style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold,decoration: pw.TextDecoration.underline))),
-              pw.SizedBox(height: 10),
-             pw.Table(
-              border: pw.TableBorder.all(),
-                children: [
-                  pw.TableRow(
-                    children: [
-                      pw.Container(
-                        height: 40,
-                        child: pw.Center(child: pw.Text('Item', style:  pw.TextStyle(fontSize: 15,fontWeight: pw.FontWeight.bold))),
-                      ),
-                      pw.Container(
-                      height: 40,
-                        child: pw.Center(child: pw.Text('Item Value', style:  pw.TextStyle(fontSize: 15, fontWeight: pw.FontWeight.bold))),
-                      ),
-                       pw.Container(
-                      height: 40,
-                        child: pw.Center(child: pw.Text('Tax Type', style:  pw.TextStyle(fontSize: 15, fontWeight: pw.FontWeight.bold))),
-                      ),
-                       pw.Container(
-                      height: 40,
-                        child: pw.Center(child: pw.Text('Tax Rate', style:  pw.TextStyle(fontSize: 15, fontWeight: pw.FontWeight.bold))),
-                      ),
-                      pw.Container(
-                        height: 40,
-                        child: pw.Center(child: pw.Text('Tax Amount', style:  pw.TextStyle(fontSize: 15, fontWeight: pw.FontWeight.bold))),
-                      ),
-                      pw.Container(
-                        height: 40,
-                        child: pw.Center(child: pw.Text('Amount', style: pw.TextStyle(fontSize: 15, fontWeight: pw.FontWeight.bold))),
-                      ),
-                    ],
-                  ), 
-                  pw.TableRow(
-                    children: [
-                      pw.Container(
-                        height: 40,
-                        child: pw.Center(child: pw.Text(invoice.packname, style: const pw.TextStyle(fontSize: 15))),
-                      ),
-                      pw.Container(
-                         height: 40,
-                        child: pw.Center(child: pw.Text(invoice.allamount.toString(), style: const pw.TextStyle(fontSize: 15))),
-                      ),
-                       pw.Container(
-                         height: 40,
-                        child: pw.Center(child: pw.Text('CGST\nSGST', style: const pw.TextStyle(fontSize: 15))),
-                      ),
-                       pw.Container(
-                         height: 40,
-                        child: pw.Center(child: pw.Text('9%\n9%', style: const pw.TextStyle(fontSize: 15))),
-                      ),
-                      pw.Container(
-                        height: 40,
-                        child: pw.Center(child: pw.Text(invoice.alltaxamt.toString(), style: const pw.TextStyle(fontSize: 15))),
-                      ),
-                      pw.Container(
-                      height: 40,
-                        child: pw.Center(child: pw.Text(invoice.totalamount.toString(), style: const pw.TextStyle(fontSize: 15))),
-                      ),
-                    ],
-                  ),
-]
-              ),
-
-
-
-              pw.SizedBox(height: 10),
-              pw.Align(
-                alignment: pw.Alignment.bottomRight,
-                child: pw.Column(
-                    children: [
-                  pw.Text('Taxable Amount: ${invoice.allamount}',style: const pw.TextStyle(fontSize: 15)),
-                  pw.SizedBox(height: 5),
-                  pw.Text('CGST 9% & SGST 9%: ${taxAmt!+taxAmt!}',style: const pw.TextStyle(fontSize: 15)),
-                    
-                      pw.SizedBox(height:10),
-                  pw.Text('Grand Total: ${invoice.totalamount}',style:  const pw.TextStyle(fontSize: 20, color: PdfColors.green) ),
-                ])
-              ),
-              pw.Divider(),
-              pw.Center(child:
-          pw.Text(
-          'Amount Chargeable (in words) INR ${invoice.totalamount.toWords().toUpperCase()} Rupee Only',
-          style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
+              pw.Padding(
+                   padding: const pw.EdgeInsets.all(8),
+                child: 
+            pw.Stack(children: [
+         pw.Row(
+          
+          children: [   
+    pw.Image(
+      pw.MemoryImage(
+        base64Decode(logo.first.ispLogo), // Assuming logo is fetched and stored as base64
+      ),
+      width: 80,
+      height: 80,
+    ),
+    pw.SizedBox(width: 20),
+    pw.RichText(
+      text: pw.TextSpan(
+        children: [
+          pw.TextSpan(
+            text: "Grey Sky Internet Services Pvt Ltd.\n",
+            style: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: pw.Font.timesBold()),
           ),
+          pw.TextSpan(
+            text: "No.17/34e, Santhaiyadi Street, Udangudi,\nThoothukudi, Tamil Nadu, 628203,\nPAN: AAAAA1234A\n",
+            style: pw.TextStyle(font: pw.Font.times()),
+          ),
+          pw.TextSpan(
+            text: "gsnisp@gmail.com\n",
+            style: pw.TextStyle(font: pw.Font.times()),
+          ),
+          pw.TextSpan(
+            text: "9442887912\n",
+            style: pw.TextStyle(font: pw.Font.times()),
+          ),
+          pw.TextSpan(
+            text: "GSTIN 33AAJCG9282G1ZC\n",
+            style: pw.TextStyle(font: pw.Font.times()),
+          ),
+        ],
+      ),
+    ),
+
+   
+         ]
+         ),
+    pw.Positioned(
+            bottom: 8,
+  right: 8,
+              child: pw.RichText(
+      text: pw.TextSpan(
+        children: [
+          pw.TextSpan(
+            text: "Tax Invoice\n",
+            style: pw.TextStyle(fontSize: 18, font: pw.Font.timesBold()),
+          ),
+          pw.TextSpan(
+            text: "Invoice# ",
+            style: pw.TextStyle(font: pw.Font.times()),
+          ),
+           pw.TextSpan(
+            text: invoice.invno,
+            style: pw.TextStyle(font: pw.Font.timesBold()),
+          ),
+        ],
+      ),
+    ),
+            ),
+            
+ 
+            ]
+            ),
               ),
-              pw.Divider(),
-               pw.SizedBox(height: 5),
-                        pw.Align(
-                          alignment: pw.Alignment.bottomLeft,
-                          child:
-              pw.RichText(
-            text:  pw.TextSpan(
-              children: <pw.TextSpan>[
-               pw.TextSpan(
-                  text: 'Company`s Bank Details:',
-                  style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)
-                ),
-                const pw.TextSpan(
-                  text: '\nAccount name : Grey Sky Internet Services Pvt Ltd',
-                   style: pw.TextStyle(fontSize: 12)
-                ),
-               const pw.TextSpan(
-                  text: '\nSBI Account No : 20509877576',
-                  style: pw.TextStyle(
-                
-                    fontSize: 12,
-                   
+ pw.Table(
+                border: pw.TableBorder.all(),
+                columnWidths: {
+                  0:const pw.FlexColumnWidth(2),
+                  1:const pw.FlexColumnWidth(2),
+                  2:const pw.FlexColumnWidth(1),
+                  3:const pw.FlexColumnWidth(1),
+                },
+                children: [
+                   pw.TableRow(
+                    children: [
+                      pw.Padding(
+                         padding: const pw.EdgeInsets.all(8.0),
+                        child: 
+                    pw.RichText(
+  text: pw.TextSpan(
+    children: [
+      pw.TextSpan(
+        text: "Invoice Date : ${invoice.invdate.isNotEmpty  ? DateFormat.yMd().add_jm().format(DateTime.parse(invoice.invdate)) : "---"}\n",
+        style: pw.TextStyle(
+          font: pw.Font.times(),
+          lineSpacing: 4, // Adjust the value for space between lines
+        ),
+      ),
+      pw.TextSpan(
+        text: "Billing Period : ${'Billing Period'}\n",
+        style: pw.TextStyle(
+          font: pw.Font.times(),
+          lineSpacing: 4, // Same as above to keep consistent spacing
+        ),
+      ),
+      pw.TextSpan(
+        text: 'Paid Status : ${invoice.payStatus == 1 ? 'Unpaid' : 'Paid'}',
+        style: pw.TextStyle(
+          font: pw.Font.times(),
+          lineSpacing: 4, // Consistent line spacing
+        ),
+      ),
+    ],
+  ),
+),
+                      ),
+pw.Padding(
+    padding: const pw.EdgeInsets.all(8.0),
+  child: 
+      pw.RichText(
+      text: pw.TextSpan(
+        children: [
+        
+          pw.TextSpan(
+            text: "Place Of Supply : Tamil Nadu\n",
+            style: pw.TextStyle(font: pw.Font.times(),
+               lineSpacing: 4, 
+            ),
+            
+          ),
+          pw.TextSpan(
+             text: "Service Type : ${invoice.packtype == "1,2" ? 'Internet & Voice' : (invoice.packtype == "1,3" ? 'Internet & OTT' : 'Internet')}\n",
+            style: pw.TextStyle(font: pw.Font.times(),
+               lineSpacing: 4, 
+            ),
+          ),
+          pw.TextSpan(
+            text: 'Validity : ${invoice.expiration.isNotEmpty  ? DateFormat.yMd().add_jm().format(DateTime.parse(invoice.expiration)) : "---"}\n',
+            style: pw.TextStyle(font: pw.Font.times(),
+               lineSpacing: 4, 
+            ),
+          ),
+          pw.TextSpan(
+            text: 'GST : 22AAAAA0000A1Z8',
+            style: pw.TextStyle(font: pw.Font.times(),
+               lineSpacing: 4, 
+            ),
+          ),
+        ],
+      ),
+    ),
+),
+                    ],
                   ),
-                ),
-                
-                const pw.TextSpan(
-                  text: '\nSBI IFSC Code : SBIN0002283',
-                  style: pw.TextStyle(
-                
-                    fontSize: 12,
-                   
+                  // First row: Invoice and Billing details
+                 
+                  // Second Section: Bill To and Ship To
+                  pw.TableRow(
+                    decoration:const pw.BoxDecoration(color: PdfColors.grey300),
+                    children: [
+                      pw.Padding(
+                        
+                           padding: const pw.EdgeInsets.all(8.0),
+                        child: 
+                      pw.Text('Bill To',  style: pw.TextStyle(font: pw.Font.timesBold(),lineSpacing: 4, )),),
+
+                      pw.Padding(
+                           padding: const pw.EdgeInsets.all(8.0),
+                        child: 
+                     pw.Text('Ship To',  style: pw.TextStyle(font: pw.Font.timesBold(),lineSpacing: 4, )))
+                     
+                    ],
                   ),
+                  pw.TableRow(
+                    children: [
+                      pw.Padding(
+                        
+                           padding: const pw.EdgeInsets.all(8.0),
+                        child: 
+                      pw.Text('${invoice.subname}\n ${invoice.subbilladdress}',  style: pw.TextStyle(font: pw.Font.times(),lineSpacing: 4, )),),
+                     pw.Padding(
+                        
+                           padding: const pw.EdgeInsets.all(8.0),
+                        child: 
+                      pw.Text('${invoice.subname}\n ${invoice.subaddress}',  style: pw.TextStyle(font: pw.Font.times(),lineSpacing: 4, )),),
+                    ],
+                  ),
+
+                  
+                ],
+              ),
+             pw.Table(
+              border:pw. TableBorder.all(
+                color: PdfColors.black, // Border color
+                width: 1,            // Border width
+              ),
+              columnWidths: {
+                   0:const pw.FlexColumnWidth(1.5),
+                1:const pw.FlexColumnWidth(4.7),
+                2:const pw.FlexColumnWidth(4),
+                3:const pw.FlexColumnWidth(4.7),
+                4:const pw.FlexColumnWidth(4.7),
+                5:const pw.FlexColumnWidth(4.7),
+                  6:const pw.FlexColumnWidth(4.7),
+                    7:const pw.FlexColumnWidth(4.7),
+                8:const pw.FlexColumnWidth(4.7),
+                9:const pw.FlexColumnWidth(5.7),
+            
+              },
+              children: [
+                pw.TableRow(
+                    decoration:const pw.BoxDecoration(color: PdfColors.grey300),
+                  children: [
+                     tableHeader('#'),
+                    tableHeader('Item'),
+                    tableHeader('Rate'),
+                    tableHeader('CGST\n%'),
+                    tableHeader('CGST\nAmt'),
+                    tableHeader('SGST\n%'),
+                    tableHeader('SGST\nAmt'),
+                    tableHeader('IGST\n%'),
+                     tableHeader('IGST\nAmt'),
+                    tableHeader('Amount'),
+                  ],
+                ),
+                pw.TableRow(
+                  children: [
+                      tableCell("1"),
+                    tableCell(invoice.packname),
+                    tableCell(invoice.allamount.toString()),
+                    tableCell('9'),
+                    tableCell(invoice.alltaxamt.toString()),
+                    tableCell('9'),
+                    tableCell(invoice.alltaxamt.toString()),
+                    tableCell('0'),
+                    tableCell('--'),
+                    tableCell(invoice.totalamount.toString()),
+                  ],
                 ),
               ],
             ),
+          pw.Spacer(),
+ pw.Table(
+                border: pw.TableBorder.all(),
+                columnWidths: {
+                  0:const pw.FlexColumnWidth(2),
+                  1:const pw.FlexColumnWidth(2),
+                  2:const pw.FlexColumnWidth(1),
+                  3:const pw.FlexColumnWidth(1),
+                },
+                children: [
+                   pw.TableRow(
+                    children: [
+                    pw.Padding(
+    padding: const pw.EdgeInsets.all(8.0),
+  child: 
+      pw.RichText(
+      text: pw.TextSpan(
+        children: [
+        
+          pw.TextSpan(
+            text: "Total In Words\n",
+            style: pw.TextStyle(font: pw.Font.timesBold(),
+               lineSpacing: 4, 
+            ),
+            
           ),
-        ),
-      
-              pw.SizedBox(height: 5),
+          pw.TextSpan(
+             text: "INR ${invoice.totalamount.toWords().toUpperCase()} Rupee Only\n",
+            style: pw.TextStyle(font: pw.Font.times(),
+               lineSpacing: 4, 
+            ),
+          ),
+          pw.TextSpan(
+                  text: 'Companys Bank Details:\n',
+                 style: pw.TextStyle(font: pw.Font.timesBold(),
+               lineSpacing: 4, 
+                
+                ),
+                ),
+                 pw.TextSpan(
+                  text: 'Account name : Grey Sky Internet Services Pvt Ltd\n',
+                 style: pw.TextStyle(font: pw.Font.timesItalic(),
+               lineSpacing: 4, 
+                
+                ),
+                ),
+                pw.TextSpan(
+                  text: 'SBI Account No : 20509877576',
+                 style: pw.TextStyle(font: pw.Font.timesItalic(),
+               lineSpacing: 4, 
+                
+                ),
+                ),
+                
+                pw.TextSpan(
+                  text: '\nSBI IFSC Code : SBIN0002283',
+                  style: pw.TextStyle(font: pw.Font.timesItalic(),
+               lineSpacing: 4, 
+                
+                ),
+                ),
+        ],
+      ),
+    ),
+), 
+
+pw.Padding(
+    padding: const pw.EdgeInsets.all(8.0),
+  child: 
+     pw.Column(children: [
+      pw.Text('Sub Total',  style: pw.TextStyle(font: pw.Font.timesBold(),lineSpacing: 4, )),
+_buildCommonListTile(title: '(Tax Exclusive)',subtitle: invoice.allamount.toString()),
+_buildCommonListTile(title: 'CGST (9%)',subtitle: invoice.alltaxamt.toString()),
+_buildCommonListTile(title: 'SGST (9%)',subtitle: invoice.alltaxamt.toString()),
+_buildCommonListTile1(title: 'Total',subtitle: invoice.totalamount.toString()),
+_buildCommonListTile1(title: 'Balance Due',subtitle:invoice.totalamount.toString()),
+
+     ])
+),
+                    ],
+                  ),
+                
+                  
+                ],
+              ),
+ 
+ 
+           
+              pw.SizedBox(height: 10),
           pw.Center(child:
-              pw.Text('*** This is a Computer Generated Invoice ***',  style: pw.TextStyle(fontSize: 12))),
+              pw.Text('*** This is computer generated receipt no signature required ***',  style: pw.TextStyle(font: pw.Font.timesBold()))),
+                 pw.Spacer(),
             ],
-          );
+          ),
+          ),
+        );
         },
       ),
     );
@@ -440,7 +693,14 @@ Future<String> savePDF(int invid) async {
 }
   @override
   Widget build(BuildContext context) {
-    final notifier = Provider.of<ColorNotifire>(context, listen: false);
+      final startIndex = (currentPage - 1) * itemsPerPage;
+  final endIndex = (startIndex + itemsPerPage <  listSubsInvoive.length)
+      ? startIndex + itemsPerPage
+      :  listSubsInvoive.length;
+
+  final paginatedList =  listSubsInvoive.sublist(startIndex, endIndex);
+   final notifier = Provider.of<ColorNotifire>(context);
+    
      double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
             backgroundColor:notifier.getbgcolor,
@@ -463,10 +723,10 @@ Future<String> savePDF(int invid) async {
                           shrinkWrap: true,
                           physics: const BouncingScrollPhysics(),
                           scrollDirection: Axis.vertical,
-                          itemCount: listSubsInvoive .length,
+                         itemCount: paginatedList.length,
                           itemBuilder: (context, index) {
-                            final invoice =  listSubsInvoive[index];
-                    //                         
+                      
+                           final invoice = paginatedList[index];                 
                             return Column(
                               children: [
                                 Container(
@@ -530,7 +790,7 @@ Future<String> savePDF(int invid) async {
                                                     ),
                                               ).then((val) => {
                                                   // print('dialog--$val'),
-                                                  if (val)   GetSubsInvoice(currentPage, limit)
+                                                  if (val)   GetSubsInvoice()
                                                 });
                                                     },
                                                   ),
@@ -627,9 +887,11 @@ Future<String> savePDF(int invid) async {
                                                                   total:'${invoice.totalamount}',
                                                                   status:invoice.invstatus == 1 ? 'Active':'Cancelled',
                                                                   type:invoice.invtype == 1 ? 'Normal':'GST',
-                                                                  inviDate: invoice.invdate.isNotEmpty  ? "${DateFormat.yMd().add_jm().format(DateTime.parse(invoice.invdate))}" : "---",
+                                                                  inviDate: invoice.invdate,
                                                                   payType:invoice.payStatus == 1 ? 'Unpaid':'Paid',
-                                                                  payVali:invoice.invdate.isNotEmpty  ? "${DateFormat.yMd().add_jm().format(DateTime.parse(invoice.paydate))}" : "---",//
+                                                                  payVali:invoice.invdate,//
+                                                                    // payVali:invoice.invdate.isNotEmpty  ? "${DateFormat.yMd().add_jm().format(DateTime.parse(invoice.paydate))}" : "---",//
+                                                            
                                                             
                                                               ),
                                                               // dividerRow(Colors.red),
@@ -659,7 +921,7 @@ Future<String> savePDF(int invid) async {
                                         
                                      _buildCommonListTile(title: 'PRICE NAME', subtitle: ': ${invoice.pricename}'),
                                        
-                                    _buildCommonListTile(title: 'VALIDITY DATE', subtitle:': ${invoice.invdate.isNotEmpty  ? "${DateFormat.yMd().add_jm().format(DateTime.parse(invoice.expiration))}" : "---"}'),
+                                    _buildCommonListTile(title: 'VALIDITY DATE', subtitle:': ${invoice.expiration.isNotEmpty  ? "${DateFormat.yMd().add_jm().format(DateTime.parse(invoice.expiration))}" : "---"}'),
                                       
                                     ],
                                   ),
@@ -796,21 +1058,6 @@ final notifier = Provider.of<ColorNotifire>(context, listen: false);
     ],
   );
 }
-  String formattedDate =
-      DateFormat('yyyy-MM-dd').format(DateTime.now());
-  Future<void> _selectDate(BuildContext context) async {
-    DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1950),
-      lastDate: DateTime(2100),
-    );
-    if (picked != null) {
-      setState(() {
-        formattedDate = DateFormat('yyyy-MM-dd').format(picked);
-        form?.control('paydate').value = formattedDate;
-      });
-    }
-  }
+ 
 
 }

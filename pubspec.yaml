@@ -85,6 +85,7 @@ dependencies:
   flutter_neumorphic_plus: ^3.3.0
   reactive_dropdown_search: ^4.0.0
   mime: ^1.0.6
+  percent_indicator: ^4.2.2
 
 
 dev_dependencies:

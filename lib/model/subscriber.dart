@@ -386,61 +386,47 @@ String mac;
   });
 
   factory SubscriberFullDet.toJson(Map<dynamic, dynamic> resp) {
-    return SubscriberFullDet(
-      id: resp['id'],
-      mac: resp['mac'],
-      // resellerid: resp['resellerid'],
-      circleid: resp['circleid'],
-      acctype: resp['acctype'],
-      resellerid: resp['resellerid'],
-      enablemac: resp['enablemac'],
-      usermode: resp['usermode'],
-      packid: resp['packid'],
-      profileid: resp['profileid'],
-      conn: resp['conn'],
-      expiration: resp['expiration'],
-      packname: resp['packname'],
-      packmode: resp['packmode'],
-      rpackname: resp['rpackname'] ?? ' ',
-      pricename: resp['pricename'],
-      // dllimit: resp['dllimit'],
-      // totallimit: resp['totallimit'],
-      conntype: resp['conntype'],
-      // ipv4: resp['ipv4'],
-      // ipv6: resp['ipv6'],
-      simultaneoususe: resp['simultaneoususe'],
-      createdon: resp['createdon'],
-      info: SubscriberInfo.toJson(resp['info']),
-      // address_book: (resp['address_book'] as List<dynamic>)
-      //     .map((address) => AddressBook.toJson(address))
-      //     .toList(),
-      address_book: List<AddressBook>.from(
-          resp['address_book'].map((address) => AddressBook.toJson(address))),
-      acctstatus: resp['acctstatus'],
-      authpsw: resp['authpsw'],
-      ipmode: resp['ipmode'],
-      username: resp['username'],
-      callingstationid: resp['callingstationid'],
-      framedipaddress : resp['framedipaddress'],
-      nasipaddress: resp['nasipaddress'],
-      srvusermode: resp['srvusermode'],
-      soc: resp['soc'],
-      voiceid:resp['voiceid'],
-       authreject:resp['authreject'],
-        authreject_dt:resp['authreject_dt'],
-
-
-
-        oltname:resp['oltname'],
-        onustatus:resp['onustatus'],
-        onutx:resp['onutx'],
-        onurx:resp['onurx'],
-        pon:resp['pon'],
-      // ip6mode: resp['ip6mode'],
-      // ipv4id: resp['ipv4id'],
-      // ipv6id: resp['ipv6id']
-    );
-  }
+  return SubscriberFullDet(
+    id: resp['id'] ?? 0,                
+    mac: resp['mac'] ?? '',
+    circleid: resp['circleid'] ?? 0,
+    acctype: resp['acctype'] ?? 0,
+    resellerid: resp['resellerid'] ?? 0,
+    enablemac: resp['enablemac'] ?? 0,
+    usermode: resp['usermode'] ?? false,
+    packid: resp['packid'] ?? 0,
+    profileid: resp['profileid'] ?? '',  
+    conn: resp['conn'] ?? '', 
+    expiration: resp['expiration'] ?? '',  
+    packname: resp['packname'] ?? '',  
+    packmode: resp['packmode'] ?? '',  
+    rpackname: resp['rpackname'] ?? '',  
+    pricename: resp['pricename'] ?? '',  
+    conntype: resp['conntype'] ?? 0,
+    simultaneoususe: resp['simultaneoususe'] ?? 0,
+    createdon: resp['createdon'] ?? '',  
+    info: SubscriberInfo.toJson(resp['info'] ?? {}),
+    address_book: List<AddressBook>.from(
+        (resp['address_book'] ?? []).map((address) => AddressBook.toJson(address))),
+    acctstatus: resp['acctstatus'] ?? '',  
+    authpsw: resp['authpsw'] ?? '',  
+    ipmode: resp['ipmode'] ?? '', 
+    username: resp['username'] ?? '', 
+    callingstationid: resp['callingstationid'] ?? '', 
+    framedipaddress: resp['framedipaddress'] ?? '',  
+    nasipaddress: resp['nasipaddress'] ?? '',  
+    srvusermode: resp['srvusermode'] ?? 0,
+    soc: resp['soc'] ?? 0,
+    voiceid: resp['voiceid'] ?? 0,
+    authreject: resp['authreject'] ?? '',  
+    authreject_dt: resp['authreject_dt'] ?? '',  
+    oltname: resp['oltname'] ?? '',  
+    onustatus: resp['onustatus'] ?? false,
+    onutx: resp['onutx'] ?? '',  
+    onurx: resp['onurx'] ?? '',  
+    pon: resp['pon'] ?? '',  
+  );
+}
 }
 
 class SubscriberFullDetResp {
@@ -1321,8 +1307,8 @@ class InvoiceDet {
   // int alldistamt;
   int allsubdistamt;
   // double allreselleramt;
-  double allamount;
-  double alltaxamt;
+  dynamic allamount;
+  dynamic alltaxamt;
   int packmode;
   String createdon;
   String invdate;
@@ -1806,4 +1792,94 @@ class EmployeeListResp {
       : []);
   }
   }
+
+
+
+  
+
+class SessionRpt {
+  String acctsessionid;
+  String acctuniqueid;
+  String username;
+  String nasipaddress;
+  String nasportid;
+  String nasporttype;
+  String acctstarttime;
+  String acctstoptime;
+  String callingstationid;
+  String acctsessiontime;
+  String acctinputoctets;
+  String acctoutputoctets;
+  String framedipaddress;
+  String protocol;
+  String connStatus;
+  String packid;
+  String packname;
+
+  SessionRpt({
+    required this.acctsessionid,
+    required this.acctuniqueid,
+    required this.username,
+    required this.nasipaddress,
+    required this.nasportid,
+    required this.nasporttype,
+    required this.acctstarttime,
+    required this.acctstoptime,
+    required this.callingstationid,
+    required this.acctsessiontime,
+    required this.acctinputoctets,
+    required this.acctoutputoctets,
+    required this.framedipaddress,
+    required this.protocol,
+    required this.connStatus,
+    required this.packid,
+    required this.packname,
+  });
+
+  factory SessionRpt.toJson(Map<String, dynamic> json) {
+    return SessionRpt(
+      acctsessionid: json['acctsessionid'] ?? '',
+      acctuniqueid: json['acctuniqueid'] ?? '',
+      username: json['username'] ?? '',
+      nasipaddress: json['nasipaddress'] ?? '',
+      nasportid: json['nasportid'] ?? '',
+      nasporttype: json['nasporttype'] ?? '',
+      acctstarttime: json['acctstarttime'] ?? '',
+      acctstoptime: json['acctstoptime'] ?? '',
+      callingstationid: json['callingstationid'] ?? '',
+      acctsessiontime: json['acctsessiontime'] ?? '',
+      acctinputoctets: json['acctinputoctets'] ?? '',
+      acctoutputoctets: json['acctoutputoctets'] ?? '',
+      framedipaddress: json['framedipaddress'] ?? '',
+      protocol: json['protocol'] ?? '',
+      connStatus: json['conn_status'] ?? '',
+      packid: json['packid'] ?? '',
+      packname: json['packname'] ?? '',
+    );
+  }
+}
+
+class SessionRptResp {
+  bool error;
+  String msg;
+  List<SessionRpt> data;
+
+  SessionRptResp({
+    required this.error,
+    required this.msg,
+    required this.data,
+  });
+
+  
+  factory SessionRptResp.toJson(Map<dynamic, dynamic> data) {
+    return SessionRptResp(
+        error: data['error'],
+        msg: data['msg'],
+        data: data['data'] is List
+            ? List<SessionRpt>.from(
+                data['data'].map((e) => SessionRpt.toJson(e)))
+            : []);
+  }
+  }
+
 

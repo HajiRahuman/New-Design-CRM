@@ -1,5 +1,5 @@
 
-import 'package:crm/AppStaticData.dart';
+import 'package:crm/AppStaticData/AppStaticData.dart';
 import 'package:crm/Providers/providercolors.dart';
 
 

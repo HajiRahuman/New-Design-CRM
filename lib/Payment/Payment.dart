@@ -71,7 +71,7 @@ class _MainScreenState extends State<Payment> {
                style: TextStyle(
                                     color: notifier.getMainText,
                                     fontWeight: FontWeight.w700,
-                                      fontSize: screenWidth * 0.02,),
+                                      fontSize: screenWidth * 0.04,),
                                 ),
             
               const SizedBox(height: 20),

@@ -1,5 +1,6 @@
 
-import 'package:crm/AppStaticData.dart';
+
+import 'package:crm/AppStaticData/AppStaticData.dart';
 import 'package:crm/AppStaticData/toaster.dart';
 import 'package:crm/CommonBottBar.dart';
 import 'package:crm/Components/DashBoard/DashBoard.dart';
@@ -7,8 +8,8 @@ import 'package:crm/Components/Subscriber/AddSubscriber/AddSubscriber.dart';
 import 'package:crm/Components/Subscriber/Complaints/AddComplaints.dart';
 import 'package:crm/Components/Subscriber/Complaints/Complaints.dart';
 import 'package:crm/Components/Subscriber/ListSubscriber.dart';
-import 'package:crm/Components/Subscriber/SubscriberInvoice/SubscriberInvoice.dart';
-import 'package:crm/Franchise/ListFranchise.dart';
+import 'package:crm/Components/Subscriber/ViewSubscriber.dart';
+
 import 'package:crm/Franchise/ViewFranchise.dart';
 import 'package:crm/Hotel/HotelAddUser.dart';
 import 'package:crm/Hotel/ListHotel.dart';
@@ -19,12 +20,12 @@ import 'package:crm/Support/RefundPolicy.dart';
 import 'package:crm/Support/PrivacyPolicy.dart';
 import 'package:crm/Support/Terms&Conditions.dart';
 import 'package:crm/model/reseller.dart';
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+
 
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+
 
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -103,7 +104,7 @@ Future<void> getMenuAccess() async {
       // print("levelid: $levelid");
       // print("isSubscriber: $isSubscriber");
     });
-    if (!isIspAdmin && levelid > 4 && !isSubscriber) {
+    if (!isIspAdmin && levelid > 4 && levelid==12&& !isSubscriber) {
       fetchData();
     }
   }
@@ -340,7 +341,26 @@ bool checkLevelAndAdmin() {
                             ),
                             
                           ),
+ Visibility(
+                          visible: isSubscriber==true,
+                            
 
+                            child:
+                            _buildSingletile1(
+                              header: 'Overview',
+                                iconpath: Icon(Icons.list, color: notifier.getMainText),
+                              ontap: () {
+                                Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ViewSubscriber(subscriberId:id),
+                                            ),
+                                          );
+                              },
+                            ),
+                            
+                          ),
                            Visibility(
                                visible: (levelid == 14 || levelid <=3 || isIspAdmin) ? true :false,
                             child: _buildDivider(title: 'HOTEL')

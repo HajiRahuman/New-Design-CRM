@@ -5,6 +5,7 @@ import 'package:crm/AppStaticData/logger.dart';
 import 'package:crm/AppStaticData/routes.dart';
 import 'package:crm/Components/Auth/LoginPage.dart';
 import 'package:crm/Components/DashBoard/DashBoard.dart';
+import 'package:crm/Components/DashBoard/SubscriberDashBoard.dart';
 
 import 'package:crm/Components/Subscriber/ViewSubscriber.dart';
 import 'package:crm/HomePage.dart';
@@ -86,7 +87,7 @@ class _MyWidgetState extends State<MyWidget> {
       navigatorKey: navigatorKey,
       title: 'CRM',
      
-        home: token == null || token!.isEmpty ? LoginPage() : isSubscriber ? ViewSubscriber(subscriberId:id )  : DashBoard(),
+        home: token == null || token!.isEmpty ? LoginPage() : isSubscriber ? SubscriberDashBoard(subscriberId:id )  : DashBoard(),
       ),
     );
   }

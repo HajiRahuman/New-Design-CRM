@@ -1,20 +1,19 @@
 import 'package:crm/AppBar.dart';
-import 'package:crm/AppStaticData.dart';
+
+import 'package:crm/AppStaticData/AppStaticData.dart';
 import 'package:crm/AppStaticData/toaster.dart';
-import 'package:crm/Components/Subscriber/ViewSubscriber.dart';
+
 import 'package:crm/Controller/Drawer.dart';
 import 'package:crm/Hotel/ChangeAuthPwdHotel.dart';
 import 'package:crm/Hotel/HotelAddUser.dart';
 import 'package:crm/Providers/providercolors.dart';
-import 'package:crm/StaticData.dart';
+
 import 'package:crm/Widgets/CommonTitle.dart';
 import 'package:crm/Widgets/SizedBox.dart';
 import 'package:crm/model/hotel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
+
 import 'package:provider/provider.dart';
 import '../../service/hotel.dart' as hotelSrv;
 

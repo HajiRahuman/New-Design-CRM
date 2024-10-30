@@ -46,7 +46,7 @@ class MyAppState extends State<ViewFranchise> with SingleTickerProviderStateMixi
 
   final formkey = GlobalKey<FormState>();
   int selectedIndex = 0;
-  PageController _pageController = PageController();
+  final PageController _pageController = PageController();
 
 
   void fetchData() async {

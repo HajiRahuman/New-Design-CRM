@@ -1,5 +1,4 @@
 
-import 'package:animated_segmented_tab_control/animated_segmented_tab_control.dart';
 import 'package:crm/AppBar.dart';
 import 'package:crm/AppStaticData/AppStaticData.dart';
 import 'package:crm/AppStaticData/toaster.dart';
@@ -9,7 +8,6 @@ import 'package:crm/Components/Subscriber/Complaints/Complaints.dart';
 import 'package:crm/Components/Subscriber/MacBinding.dart';
 import 'package:crm/Components/Subscriber/SessionCheck&Stop.dart';
 import 'package:crm/Components/Subscriber/SubscriberRenewal.dart';
-import 'package:crm/Components/Subscriber/UpdateAccountType.dart';
 import 'package:crm/Components/Subscriber/UpdateAuthPwd.dart';
 import 'package:crm/Components/Subscriber/UpdatePackage&Validity.dart';
 import 'package:crm/Components/Subscriber/UpdateProfileId.dart';
@@ -29,9 +27,7 @@ import 'package:crm/model/subscriber.dart';
 import 'package:crm/service/subscriber.dart' as subscriberSrv;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
+
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -100,7 +96,7 @@ class MyAppState extends State<ViewSubscriber> with SingleTickerProviderStateMix
       await fetchData1();
     } catch (e) {
       // Handle any errors if needed
-      print('Error loading data: $e');
+      // print('Error loading data: $e');
     } finally {
       setState(() {
         isLoading = false;
@@ -630,7 +626,7 @@ Widget build(BuildContext context) {
                                                                                     ),
                                                                                     children:
                                                                                         [
-                                              _buildCommonListTile(title: "NAME", subtitle:': ${widget.subscriberDet?.info.fullname ??'N/A'}'),
+                                              _buildCommonListTile(title: "NAME", subtitle:': ${widget.subscriberDet!.info!.fullname}'),
                                                                                       
                                                                                       _buildCommonListTile(title: "ACCOUNT ID", subtitle:': ${widget.subscriberDet?.id ??'N/A'}'),
                                                                                       
@@ -662,11 +658,11 @@ Widget build(BuildContext context) {
                                                                                       
                                                                                       _buildCommonListTile(title: "CREATED DATE", subtitle: ': ${widget.subscriberDet?.createdon ??'N/A'}'),
                                                                                       
-                                                                                      _buildCommonListTile(title: "MOBILE", subtitle:': ${widget.subscriberDet?.info.mobile ??'N/A'}'),
+                                                                                      _buildCommonListTile(title: "MOBILE", subtitle:': ${widget.subscriberDet?.info?.mobile ??'N/A'}'),
                                                                                       
-                                                                                      _buildCommonListTile(title: "EMAIL", subtitle:  ': ${widget.subscriberDet?.info.emailpri ??'N/A'}'),
+                                                                                      _buildCommonListTile(title: "EMAIL", subtitle:  ': ${widget.subscriberDet!.info?.emailpri ??'N/A'}'),
                                                                                       
-                                                                                      _buildCommonListTile(title: "GST", subtitle: ': ${widget.subscriberDet?.info.ugst ??'N/A'}'),
+                                                                                      _buildCommonListTile(title: "GST", subtitle: ': ${widget.subscriberDet!.info?.ugst ??'N/A'}'),
                                                                                       
                                               
                                               ]
@@ -714,7 +710,7 @@ Widget build(BuildContext context) {
                                                                                       
                                                                                        if (widget.subscriberDet!.address_book.length >1) 
                                                                                       Visibility(
-                                                                                          visible:widget.subscriberDet!.info.addressflag=true    ,
+                                                                                          visible:widget.subscriberDet!.info!.addressflag=true    ,
                                                                                         child: _buildCommonListTile(title: "BILLING ADDRESS", subtitle: ': ${widget.subscriberDet!.address_book.isNotEmpty
                                                               ? widget.subscriberDet!.address_book[1].address.toString()
                                                               : 'N/A'}'),
@@ -825,7 +821,7 @@ PopupMenuItem _buildPopupAdminMenuItem() {
                    if (widget.subscriberDet?.conn == 'Online' && isSubscriber==false)
                 row(title: 'Session Check/Stop', icon: Icons.fact_check),
                 row(title: 'Upload Document', icon: Icons.upload_file),
-                  if (widget.subscriberDet!.info.addressflag == true)
+                  if (widget.subscriberDet!.info?.addressflag! == true)
                   row(title: 'Upload Document(Different Address)', icon: Icons.upload_file),
                 row(title: 'Upload Picture', icon: Icons.people),
                 row(title: 'Upload Signature', icon: Icons.edit),
@@ -891,7 +887,7 @@ TableRow row({required String title, required IconData icon}) {
                                                   resellerid:widget.subscriberDet!.resellerid,
                                                   mac:widget.subscriberDet!.mac,
                                                   srvusermode: widget.subscriberDet!.srvusermode,
-                                                aliceid: widget.subscriberDet!.info.aliceid,
+                                                aliceid: widget.subscriberDet!.info!.aliceid,
                                                 );
 
                                               })).then((val) => {
@@ -1196,8 +1192,27 @@ TableRow row({required String title, required IconData icon}) {
       },
       child: Padding(
         padding: const EdgeInsets.only(bottom: 5, left: 20, top: 12, right: 20),
-        child: Text(title,
-            style: mediumBlackTextStyle.copyWith(color:notifier.getMainText)),
+        child: Stack(
+          // alignment: Alignment.topRight, // Align badge to top right
+          children: [
+            Text(
+              title,
+              style: mediumBlackTextStyle.copyWith(color: notifier.getMainText),
+            ),
+            if (title == 'Session Check/Stop') 
+              Positioned(
+                // top: -5, 
+                right: -0.1,
+                child: Badge(
+                  label: Text(
+                                              '${widget.subscriberDet!.soc}', 
+                                              style: const TextStyle(color: Colors.white),
+                                            ),
+                                      
+                ),
+              ),
+          ],
+        ),
       ),
     ),
   ]);

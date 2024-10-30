@@ -2,7 +2,7 @@
 
 
 import 'package:crm/AppBar.dart';
-import 'package:crm/AppStaticData.dart';
+import 'package:crm/AppStaticData/AppStaticData.dart';
 import 'package:crm/AppStaticData/toaster.dart';
 import 'package:crm/Components/Subscriber/ViewSubscriber.dart';
 import 'package:crm/Controller/Drawer.dart';

@@ -1,10 +1,10 @@
 
-import 'package:crm/AppStaticData.dart';
+import 'package:crm/AppStaticData/AppStaticData.dart';
 import 'package:crm/Providers/providercolors.dart';
-import 'package:crm/StaticData.dart';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+
+
 import 'package:provider/provider.dart';
 class ComunTitle extends StatefulWidget {
   final String title;

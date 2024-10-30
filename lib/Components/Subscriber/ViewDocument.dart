@@ -443,7 +443,8 @@
 
 
 
-import 'package:crm/AppStaticData.dart';
+
+import 'package:crm/AppStaticData/AppStaticData.dart';
 import 'package:crm/AppStaticData/toaster.dart';
 
 
@@ -462,9 +463,9 @@ import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:provider/provider.dart';
 import 'package:reactive_forms/reactive_forms.dart';
-import 'package:widget_zoom/widget_zoom.dart';
+
 import '../../model/subscriber.dart';
-import 'package:image/image.dart' as img;
+
 import 'package:pdf/widgets.dart' as pw;
 import 'package:mime/mime.dart';
 
