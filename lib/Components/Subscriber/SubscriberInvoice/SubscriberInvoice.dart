@@ -25,6 +25,8 @@ import 'dart:io';
 import 'package:num_to_words/num_to_words.dart';
 
 
+import 'package:flutter/services.dart' show rootBundle;
+
 
 
 
@@ -152,17 +154,19 @@ Future<void> GetEmployeeList() async {
   int? taxMode;
   double? taxAmt = 0;
   late pw.Document pdf;
-void generateInvoice(int invid) {
+Future<void> generateInvoice(int invid) async {
     pdf = pw.Document();
 
     final invoice = listSubsInvoive.firstWhere((element) => element.invid == invid);
-//       DateTime expirationDate = DateTime.parse(invoice.expiration); // Parse the date string
-// String expiryDate = DateFormat('MMM d, yyyy, h:mm:ss a').format(expirationDate);
-//  DateTime InvoiceDate = DateTime.parse(invoice.createdon); // Parse the date string
-// String inviDate = DateFormat('MMM d, yyyy, h:mm:ss a').format(expirationDate);
+final customFont = pw.Font.ttf(await rootBundle.load("assets/fonts/Roboto-Regular.ttf"));
 
-// DateTime PayedDate = DateTime.parse(invoice.paydate); // Parse the date string
-// String payDate = DateFormat('MMM d, yyyy, h:mm:ss a').format(expirationDate);
+
+
+pw.TextStyle commonTextStyle = pw.TextStyle(
+  font: pw.Font.timesBold(), 
+  fontFallback: [customFont], // Wrap in a list
+);
+
 
     String serviceType = '';
     if (invoice.packtype == "1,2") {
@@ -229,8 +233,10 @@ void generateInvoice(int invid) {
 }) {
   final notifier = Provider.of<ColorNotifire>(context, listen: false);
 
-  return pw.Container(
-    padding: const pw.EdgeInsets.symmetric(vertical: 3), // Control the gap between items
+  return 
+  pw.Column(children: [
+  pw.Container(
+    padding: const pw.EdgeInsets.fromLTRB(5, 0, 5, 0), // Control the gap between items
     child: pw.Row(
       crossAxisAlignment: pw.CrossAxisAlignment.start, // Align children to start to handle long text
       children: [
@@ -244,12 +250,15 @@ void generateInvoice(int invid) {
         pw.Expanded(
           child: pw.Text(
             subtitle,
-              style: pw.TextStyle(font: pw.Font.timesBold()),
+              style: commonTextStyle,
           
           ),
         ),
       ],
     ),
+  ),
+    pw.Divider()
+  ]
   );
 }
 
@@ -259,36 +268,58 @@ void generateInvoice(int invid) {
 }) {
   final notifier = Provider.of<ColorNotifire>(context, listen: false);
 
-  return pw.Container(
-    padding: const pw.EdgeInsets.symmetric(vertical: 3), // Control the gap between items
+  return 
+  pw.Column(children: [
+  pw.Container(
+  padding: const pw.EdgeInsets.fromLTRB(5, 0, 5, 0),// Control the gap between items
     child: pw.Row(
       crossAxisAlignment: pw.CrossAxisAlignment.start, // Align children to start to handle long text
       children: [
         pw.Expanded(
           child: pw.Text(
             title,
-           style: pw.TextStyle(font: pw.Font.timesBold()),
+           style: pw.TextStyle(font: pw.Font.times()),
           ),
         ),
       pw.SizedBox(width: 10), // Add some spacing between title and subtitle
         pw.Expanded(
           child: pw.Text(
             subtitle,
-              style: pw.TextStyle(font: pw.Font.timesBold()),
+             style: commonTextStyle,
           
           ),
         ),
       ],
     ),
+  ),
+//  pw. Divider()
+  ]
   );
 }
 
 
 
+  pw.Widget _buildCommonListTile3({required String title, required String subtitle}) {
+    return pw.Row(
+      mainAxisAlignment: pw.MainAxisAlignment.start,
+      children: [
+        pw.RichText(
+          text: pw.TextSpan(
+            children: [
+               pw.TextSpan(text: title,  style: pw.TextStyle(font: pw.Font.times()),),
+              pw.TextSpan(text: subtitle, style: pw.TextStyle(font: pw.Font.timesBold()),),
+            ]
+          ),
+        ),
+      ],
+    );
+  }
+
 
 
     pdf.addPage(
       pw.Page(
+         
         build: (context) {
           return 
         pw.Container(
@@ -328,7 +359,7 @@ void generateInvoice(int invid) {
       text: pw.TextSpan(
         children: [
           pw.TextSpan(
-            text: "Grey Sky Internet Services Pvt Ltd.\n",
+            text: "Grey Sky Internet Services Pvt Ltd\n",
             style: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: pw.Font.timesBold()),
           ),
           pw.TextSpan(
@@ -336,7 +367,7 @@ void generateInvoice(int invid) {
             style: pw.TextStyle(font: pw.Font.times()),
           ),
           pw.TextSpan(
-            text: "gsnisp@gmail.com\n",
+            text: "bmssupport@gsisp.in\n",
             style: pw.TextStyle(font: pw.Font.times()),
           ),
           pw.TextSpan(
@@ -344,7 +375,11 @@ void generateInvoice(int invid) {
             style: pw.TextStyle(font: pw.Font.times()),
           ),
           pw.TextSpan(
-            text: "GSTIN 33AAJCG9282G1ZC\n",
+            text: "GSTIN : ${invoice.supplierGst}\n",
+            style: pw.TextStyle(font: pw.Font.times()),
+          ),
+           pw.TextSpan(
+            text: "HSN : ${invoice.bushsn}\n",
             style: pw.TextStyle(font: pw.Font.times()),
           ),
         ],
@@ -394,70 +429,41 @@ void generateInvoice(int invid) {
                     children: [
                       pw.Padding(
                          padding: const pw.EdgeInsets.all(8.0),
-                        child: 
-                    pw.RichText(
-  text: pw.TextSpan(
-    children: [
-      pw.TextSpan(
-        text: "Invoice Date : ${invoice.invdate.isNotEmpty  ? DateFormat.yMd().add_jm().format(DateTime.parse(invoice.invdate)) : "---"}\n",
-        style: pw.TextStyle(
-          font: pw.Font.times(),
-          lineSpacing: 4, // Adjust the value for space between lines
-        ),
-      ),
-      pw.TextSpan(
-        text: "Billing Period : ${'Billing Period'}\n",
-        style: pw.TextStyle(
-          font: pw.Font.times(),
-          lineSpacing: 4, // Same as above to keep consistent spacing
-        ),
-      ),
-      pw.TextSpan(
-        text: 'Paid Status : ${invoice.payStatus == 1 ? 'Unpaid' : 'Paid'}',
-        style: pw.TextStyle(
-          font: pw.Font.times(),
-          lineSpacing: 4, // Consistent line spacing
-        ),
-      ),
-    ],
-  ),
-),
+                        child: pw.Column(children: [
+                         _buildCommonListTile3(title: 'Invoice Date ',subtitle:': ${invoice.invdate.isNotEmpty  ? DateFormat.yMd().add_jm().format(DateTime.parse(invoice.invdate)) : "---"}'),
+                         pw.SizedBox(height: 8),
+                           _buildCommonListTile3(title: 'Billing Period ',subtitle:': ${invoice.invdate.isNotEmpty  ? DateFormat('MM-dd-yyyy').format(DateTime.parse(invoice.invdate).toLocal()): "---" } To ${invoice.expiration.isNotEmpty  ? DateFormat('MM-dd-yyyy').format(DateTime.parse(invoice.expiration).toLocal()):"---"}'),
+                            pw.SizedBox(height: 8),
+                            _buildCommonListTile3(title: 'Paid Status ',subtitle:': ${invoice.payStatus == 1 ? 'Unpaid' : 'Paid'}'),
+                             if(invoice.payStatus==2)
+                             pw.SizedBox(height: 8),
+                            if(invoice.payStatus==2)
+                              _buildCommonListTile3(title: 'Paid Date ',subtitle:': ${invoice.paydate.isNotEmpty  ? DateFormat.yMMMMd('en_US').format(DateTime.parse(invoice.paydate).toLocal()): "---" }'),
+                               pw.SizedBox(height: 8),
+                              _buildCommonListTile3(title: 'Customer Mobile ',subtitle:': ${invoice.mobile}'),
+                        ])
+                      
+
                       ),
 pw.Padding(
     padding: const pw.EdgeInsets.all(8.0),
   child: 
-      pw.RichText(
-      text: pw.TextSpan(
-        children: [
-        
-          pw.TextSpan(
-            text: "Place Of Supply : Tamil Nadu\n",
-            style: pw.TextStyle(font: pw.Font.times(),
-               lineSpacing: 4, 
-            ),
-            
-          ),
-          pw.TextSpan(
-             text: "Service Type : ${invoice.packtype == "1,2" ? 'Internet & Voice' : (invoice.packtype == "1,3" ? 'Internet & OTT' : 'Internet')}\n",
-            style: pw.TextStyle(font: pw.Font.times(),
-               lineSpacing: 4, 
-            ),
-          ),
-          pw.TextSpan(
-            text: 'Validity : ${invoice.expiration.isNotEmpty  ? DateFormat.yMd().add_jm().format(DateTime.parse(invoice.expiration)) : "---"}\n',
-            style: pw.TextStyle(font: pw.Font.times(),
-               lineSpacing: 4, 
-            ),
-          ),
-          pw.TextSpan(
-            text: 'GST : 22AAAAA0000A1Z8',
-            style: pw.TextStyle(font: pw.Font.times(),
-               lineSpacing: 4, 
-            ),
-          ),
-        ],
-      ),
-    ),
+  pw.Column(children: [
+                         _buildCommonListTile3(title: 'Place Of Supply ',subtitle:': Tamil Nadu'),
+                         pw.SizedBox(height: 8),
+                           _buildCommonListTile3(title: 'Service Type ',subtitle:': ${invoice.packtype == "1,2" ? 'Internet & Voice' : (invoice.packtype == "1,3" ? 'Internet & OTT' : 'Internet')}'),
+                            pw.SizedBox(height: 8),
+                            _buildCommonListTile3(title: 'Validity ',subtitle:': ${invoice.expiration.isNotEmpty  ? DateFormat.yMMMMd('en_US').add_jm() .format(DateTime.parse(invoice.expiration).toLocal()): "---" }'),
+                            if(invoice.recipientGst.isNotEmpty)
+                             pw.SizedBox(height: 8),
+                             if(invoice.recipientGst.isNotEmpty)
+                              _buildCommonListTile3(title: 'GST ',subtitle:': ${invoice.recipientGst}'),
+                               pw.SizedBox(height: 8),
+                              _buildCommonListTile3(title: 'State Code ',subtitle:': 33'),
+                        ])
+                      
+
+     
 ),
                     ],
                   ),
@@ -529,7 +535,7 @@ pw.Padding(
                     tableHeader('SGST\nAmt'),
                     tableHeader('IGST\n%'),
                      tableHeader('IGST\nAmt'),
-                    tableHeader('Amount'),
+                    tableHeader('Total\nAmount'),
                   ],
                 ),
                 pw.TableRow(
@@ -575,7 +581,7 @@ pw.Padding(
             
           ),
           pw.TextSpan(
-             text: "INR ${invoice.totalamount.toWords().toUpperCase()} Rupee Only\n",
+             text: "Indian Rupees ${invoice.totalamount.toWords().toUpperCase()} Rupees Only\n",
             style: pw.TextStyle(font: pw.Font.times(),
                lineSpacing: 4, 
             ),
@@ -609,24 +615,30 @@ pw.Padding(
                 
                 ),
                 ),
+              //    pw.TextSpan(
+              //     text: '\nBRANCH : Branch',
+              //     style: pw.TextStyle(font: pw.Font.timesItalic(),
+              //  lineSpacing: 4, 
+                
+              //   ),
+              //   ),
         ],
       ),
     ),
 ), 
 
-pw.Padding(
-    padding: const pw.EdgeInsets.all(8.0),
-  child: 
+
      pw.Column(children: [
-      pw.Text('Sub Total',  style: pw.TextStyle(font: pw.Font.timesBold(),lineSpacing: 4, )),
-_buildCommonListTile(title: '(Tax Exclusive)',subtitle: invoice.allamount.toString()),
+     
+_buildCommonListTile(title: 'Sub Total\n(Tax Exclusive)',subtitle: invoice.allamount.toString()),
+
 _buildCommonListTile(title: 'CGST (9%)',subtitle: invoice.alltaxamt.toString()),
 _buildCommonListTile(title: 'SGST (9%)',subtitle: invoice.alltaxamt.toString()),
-_buildCommonListTile1(title: 'Total',subtitle: invoice.totalamount.toString()),
-_buildCommonListTile1(title: 'Balance Due',subtitle:invoice.totalamount.toString()),
+_buildCommonListTile(title: 'Total',subtitle: '₹ ${invoice.totalamount.toString()}'),
+_buildCommonListTile1(title: 'Balance Due',subtitle:'₹ ${invoice.balancedue.toString()}'),
 
      ])
-),
+
                     ],
                   ),
                 
@@ -638,7 +650,7 @@ _buildCommonListTile1(title: 'Balance Due',subtitle:invoice.totalamount.toString
            
               pw.SizedBox(height: 10),
           pw.Center(child:
-              pw.Text('*** This is computer generated receipt no signature required ***',  style: pw.TextStyle(font: pw.Font.timesBold()))),
+              pw.Text('*** This is computer generated invoice no signature required ***',  style: pw.TextStyle(font: pw.Font.timesBold()))),
                  pw.Spacer(),
             ],
           ),
@@ -839,11 +851,11 @@ Future<String> savePDF(int invid) async {
                                                                      textAlign: TextAlign.center,
                                                                   style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
                                                                 ),
-                                                                Text(
-                                                                  "COUPON",
-                                                                     textAlign: TextAlign.center,
-                                                                   style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
-                                                                ),
+                                                                // Text(
+                                                                //   "COUPON",
+                                                                //      textAlign: TextAlign.center,
+                                                                //    style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                                // ),
                                                                 Text(
                                                                   "TOTAL",
                                                                      textAlign: TextAlign.center,
@@ -870,7 +882,7 @@ Future<String> savePDF(int invid) async {
                                                                 style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
                                                                 ),
                                                                  Text(
-                                                                  "PAYMENT VALIDITY",
+                                                                  "DUE DATE",
                                                                      textAlign: TextAlign.center,
                                                                 style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
                                                                 ),
@@ -883,13 +895,13 @@ Future<String> savePDF(int invid) async {
                                                               newRow(
                                                                  amount:'${invoice.allamount}',
                                                                   tax:'${invoice.alltaxamt}',
-                                                                  coupon:'${'coupon'}',
+                                                                  // coupon:'${'coupon'}',
                                                                   total:'${invoice.totalamount}',
                                                                   status:invoice.invstatus == 1 ? 'Active':'Cancelled',
-                                                                  type:invoice.invtype == 1 ? 'Normal':'GST',
-                                                                  inviDate: invoice.invdate,
+                                                                  type:invoice.invtype == 1 ? 'NON-GST':'GST',
+                                                                  inviDate: invoice.invdate.isNotEmpty  ? DateFormat.yMMMMd('en_US').format(DateTime.parse(invoice.invdate).toLocal()): "---",
                                                                   payType:invoice.payStatus == 1 ? 'Unpaid':'Paid',
-                                                                  payVali:invoice.invdate,//
+                                                                  payVali:invoice.expiration.isNotEmpty  ? DateFormat.yMMMMd('en_US').add_jm() .format(DateTime.parse(invoice.expiration).toLocal()): "---",//
                                                                     // payVali:invoice.invdate.isNotEmpty  ? "${DateFormat.yMd().add_jm().format(DateTime.parse(invoice.paydate))}" : "---",//
                                                             
                                                             
@@ -921,7 +933,7 @@ Future<String> savePDF(int invid) async {
                                         
                                      _buildCommonListTile(title: 'PRICE NAME', subtitle: ': ${invoice.pricename}'),
                                        
-                                    _buildCommonListTile(title: 'VALIDITY DATE', subtitle:': ${invoice.expiration.isNotEmpty  ? "${DateFormat.yMd().add_jm().format(DateTime.parse(invoice.expiration))}" : "---"}'),
+                                    _buildCommonListTile(title: 'VALIDITY DATE', subtitle:': ${invoice.expiration.isNotEmpty  ? DateFormat.yMMMMd('en_US').add_jm() .format(DateTime.parse(invoice.expiration).toLocal()): "---" }'),
                                       
                                     ],
                                   ),
@@ -1006,7 +1018,7 @@ Widget _buildCommonListTile({
 TableRow newRow({
   required String amount,
   required String tax,
-  required String coupon,
+  // required String coupon,
   required String total,
   required String status,
   required String type,
@@ -1027,10 +1039,10 @@ final notifier = Provider.of<ColorNotifire>(context, listen: false);
         padding: const EdgeInsets.symmetric(vertical: 5),
         child: SizedBox(child: Text(tax, textAlign: TextAlign.center,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText))),
       ),
-      Padding(
-        padding: const EdgeInsets.symmetric(vertical: 5),
-        child: Text("coupon", textAlign: TextAlign.center,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
-      ),
+      // Padding(
+      //   padding: const EdgeInsets.symmetric(vertical: 5),
+      //   child: Text("coupon", textAlign: TextAlign.center,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
+      // ),
      Padding(
         padding: const EdgeInsets.symmetric(vertical: 5),
         child: Text("$total" , textAlign: TextAlign.center,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),

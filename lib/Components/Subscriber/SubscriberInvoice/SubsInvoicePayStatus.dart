@@ -2,6 +2,7 @@ import 'dart:core';
 
 import 'package:crm/AppStaticData/AppStaticData.dart';
 import 'package:crm/AppStaticData/toaster.dart';
+import 'package:crm/Controller/Drawer.dart';
 import 'package:crm/Providers/providercolors.dart';
 
 import 'package:crm/model/subscriber.dart';
@@ -98,344 +99,350 @@ Map<String, int> pay_status = {
       notifire = Provider.of<ColorNotifire>(context, listen:true);
        final notifier = Provider.of<ColorNotifire>(context);
      double screenWidth = MediaQuery.of(context).size.width;
-    return   Padding(
-                                                padding:  EdgeInsets.all(8.0),
-                                                child:ReactiveForm(
-                                                  formGroup: form!,
-                                                  child: Column(children: [
-  const SizedBox(height: 15),
-           Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Invoice Payment",
-                      style: TextStyle(
-                        fontSize: screenWidth * 0.04,
-                       
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                   CircleAvatar(
-                                                                        radius: 20,
-                                                                        child: IconButton(
-                                                                          onPressed: () {
-                                                                            Navigator.of(
-                                                                                context)
-                                                                                .pop();
-                                                                          },
-                                                                          icon: const Icon(
-                                                                            Icons
-                                                                                .close_rounded,
-                                                                                color: Colors.black,
+    return   Scaffold(
+        // key: _scaffoldKey ,
+              // drawer: DarwerCode(),
+               backgroundColor: notifier.getbgcolor,
+      body: Padding(
+                                                  padding:  EdgeInsets.all(8.0),
+                                                  child:ReactiveForm(
+                                                    formGroup: form!,
+                                                    child: SingleChildScrollView(
+                                                      child: Column(children: [
+                                                        const SizedBox(height: 15),
+                                                                 Padding(
+                                                                      padding: const EdgeInsets.all(8.0),
+                                                                      child: Row(
+                                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                        children: [
+                                                                          Text(
+                                                                            "Invoice Payment",
+                                                                              style: TextStyle(
+                                    color: notifier.getMainText,
+                                    fontWeight: FontWeight.w700,
+                                      fontSize: screenWidth * 0.05,),
                                                                           ),
-                                                                        ),
+                                                                         CircleAvatar(
+                                                                            radius: 20,
+                                                                            child: IconButton(
+                                                                              onPressed: () {
+                                                                                Navigator.of(
+                                                                                    context)
+                                                                                    .pop();
+                                                                              },
+                                                                              icon: const Icon(
+                                                                                Icons
+                                                                                    .close_rounded,
+                                                                                    color: Colors.black,
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                        ],
                                                                       ),
-                  ],
-                ),
-              ),
-            
-            const SizedBox(height: 25),
-
-  Padding(
-   padding: const EdgeInsets.symmetric(horizontal: 18.0),
-    child: ReactiveDropdownField<
-                                                                int>(
-                                                          formControlName:
-                                                              'pay_status',
-                                                       
-                                  
-                                   style: TextStyle(color: notifier.getMainText),
-                                                                          dropdownColor: notifier.getcontiner,
-                                                                       
-                                                                         decoration: InputDecoration(
-                                                                           contentPadding: EdgeInsets.only(left: 15),
-                                                              
-                                                                            hintStyle: mediumGreyTextStyle.copyWith(
-                                          fontSize: 13),
-                                                                            hintText: 'Payment Status',
-                                                                          enabledBorder: OutlineInputBorder(
-                                  borderRadius:BorderRadius .circular(10.0),
-                                  borderSide: BorderSide(
-                                      color: notifier.isDark
-                                          ? notifier.geticoncolor
-                                          : Colors.black)),
-                                                      border: OutlineInputBorder(
-                                  borderRadius:BorderRadius .circular(10.0),
-                                  borderSide: BorderSide(
-                                      color: notifier.isDark
-                                          ? notifier.geticoncolor
-                                          : Colors.black)),
-                                                                          ),
+                                                                    ),
+                                                                  
+                                                                  const SizedBox(height: 25),
                                                       
-                                                          isExpanded: true,
-                                                          items: pay_status.keys.map<
-                                                              DropdownMenuItem<
-                                                                  int>>(
-                                                            (String key) {
-                                                              final value =
-                                                                  pay_status[key];
-                                                              return DropdownMenuItem<
-                                                                  int>(
-                                                                value: value,
-                                                                child: Padding(
-                                                                  padding:
-                                                                      const EdgeInsets
-                                                                          .only(
-                                                                          left:
-                                                                              10),
-                                                                  child:
-                                                                      Text(key),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).toList(),
-                                                        
-                                                        ),
-  ),
-                                                      const SizedBox(height: 10),
-                                                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                        child:ReactiveTextField<int>(
-                          formControlName: 'userpayedamt',
-                          
-                                   style: TextStyle(color: notifier.getMainText),
-                                                                        
-                                                                       
-                                                                         decoration: InputDecoration(
-                                                                           contentPadding:const EdgeInsets.only(left: 15),
-                                                              
-                                                                            hintStyle: mediumGreyTextStyle.copyWith(
-                                          fontSize: 13),
-                                                                            hintText: 'Amount',
-                                                                           enabledBorder: OutlineInputBorder(
-                                  borderRadius:BorderRadius .circular(10.0),
-                                  borderSide: BorderSide(
-                                      color: notifier.isDark
-                                          ? notifier.geticoncolor
-                                          : Colors.black)),
-                                                      border: OutlineInputBorder(
-                                  borderRadius:BorderRadius .circular(10.0),
-                                  borderSide: BorderSide(
-                                      color: notifier.isDark
-                                          ? notifier.geticoncolor
-                                          : Colors.black)),
-                                                                          ),
-                        ),
-                      ),
-                      const SizedBox(height:10),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                        child:ReactiveTextField<String>(
-                          formControlName: 'paydate',
-                          readOnly: true,
-                          
-                                   style: TextStyle(color: notifier.getMainText),
-                                                                        
-                                                                       
-                                                                         decoration: InputDecoration(
+                                                        Padding(
+                                                         padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                                                          child: ReactiveDropdownField<
+                                                                    int>(
+                                                              formControlName:
+                                                                  'pay_status',
+                                                           
+                                                                                        
+                                                                                         style: TextStyle(color: notifier.getMainText),
+                                                                              dropdownColor: notifier.getcontiner,
                                                                            
-                                                              
-                                                                            hintStyle: mediumGreyTextStyle.copyWith(
-                                          fontSize: 13),
-                                                                            hintText: 'Payment Date',
-                                                                          enabledBorder: OutlineInputBorder(
-                                  borderRadius:BorderRadius .circular(10.0),
-                                  borderSide: BorderSide(
-                                      color: notifier.isDark
-                                          ? notifier.geticoncolor
-                                          : Colors.black)),
-                                                      border: OutlineInputBorder(
-                                  borderRadius:BorderRadius .circular(10.0),
-                                  borderSide: BorderSide(
-                                      color: notifier.isDark
-                                          ? notifier.geticoncolor
-                                          : Colors.black)),
-                                                                contentPadding: const EdgeInsets.only(left: 15),
-                              suffixIcon: GestureDetector(
-                              onTap: () =>_selectDate(context),
-                              child: const Icon(
-                                Icons.calendar_today,  // You can use any icon you prefer
-                                color: Colors.black,
-                              ),
-                            ),
-                                                                          ),
-                           
-                        ),
-                      ),
-                     
-                      const SizedBox(height: 10),
-                      Padding(
-   padding: const EdgeInsets.symmetric(horizontal: 18.0),
-    child: ReactiveDropdownField<
-                                                                int>(
-                                                          formControlName:
-                                                              'pay_type',
-                                                       
-                                  
-                                   
-                                                      
-                                                          isExpanded: true,
-                                                          items: paymentMode.keys.map<
-                                                              DropdownMenuItem<
-                                                                  int>>(
-                                                            (String key) {
-                                                              final value =
-                                                                  paymentMode[key];
-                                                              return DropdownMenuItem<
-                                                                  int>(
-                                                                value: value,
-                                                                child: Padding(
-                                                                  padding:
-                                                                      const EdgeInsets
-                                                                          .only(
-                                                                          left:
-                                                                              10),
-                                                                  child:
-                                                                      Text(key),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).toList(),
-                                                            dropdownColor: notifier.getcontiner,
-                                                       style: TextStyle(color: notifier.getMainText),
-                                                                        
-                                                                       
-                                                                         decoration: InputDecoration(
-                                                                           contentPadding:const EdgeInsets.only(left: 15),
-                                                              
-                                                                            hintStyle: mediumGreyTextStyle.copyWith(
-                                          fontSize: 13),
-                                                                            hintText: 'Payment Mode',
-                                                                           enabledBorder: OutlineInputBorder(
-                                  borderRadius:BorderRadius .circular(10.0),
-                                  borderSide: BorderSide(
-                                      color: notifier.isDark
-                                          ? notifier.geticoncolor
-                                          : Colors.black)),
-                                                      border: OutlineInputBorder(
-                                  borderRadius:BorderRadius .circular(10.0),
-                                  borderSide: BorderSide(
-                                      color: notifier.isDark
-                                          ? notifier.geticoncolor
-                                          : Colors.black)),
-                                                                          ),
+                                                                             decoration: InputDecoration(
+                                                                               contentPadding: EdgeInsets.only(left: 15),
+                                                                  
+                                                                                hintStyle: mediumGreyTextStyle.copyWith(
+                                                                                                fontSize: 13),
+                                                                                hintText: 'Payment Status',
+                                                                              enabledBorder: OutlineInputBorder(
+                                                                                        borderRadius:BorderRadius .circular(10.0),
+                                                                                        borderSide: BorderSide(
+                                                                                            color: notifier.isDark
+                                                                                                ? notifier.geticoncolor
+                                                                                                : Colors.black)),
+                                                          border: OutlineInputBorder(
+                                                                                        borderRadius:BorderRadius .circular(10.0),
+                                                                                        borderSide: BorderSide(
+                                                                                            color: notifier.isDark
+                                                                                                ? notifier.geticoncolor
+                                                                                                : Colors.black)),
+                                                                              ),
+                                                          
+                                                              isExpanded: true,
+                                                              items: pay_status.keys.map<
+                                                                  DropdownMenuItem<
+                                                                      int>>(
+                                                                (String key) {
+                                                                  final value =
+                                                                      pay_status[key];
+                                                                  return DropdownMenuItem<
+                                                                      int>(
+                                                                    value: value,
+                                                                    child: Padding(
+                                                                      padding:
+                                                                          const EdgeInsets
+                                                                              .only(
+                                                                              left:
+                                                                                  10),
+                                                                      child:
+                                                                          Text(key),
+                                                                    ),
+                                                                  );
+                                                                },
+                                                              ).toList(),
+                                                            
+                                                            ),
                                                         ),
-  ),
-  const SizedBox(height: 10),
-   Padding(
-   padding: const EdgeInsets.symmetric(horizontal: 18.0),
-    child: ReactiveDropdownField<
-                                                                int>(
-                                                          formControlName:
-                                                              'collectedid',
-                                                       
-                                  
-                                  
-                                                      
-                                                          isExpanded: true,
-                                                           items: getEmployeeList.map((item) {
-                          return DropdownMenuItem<int>(
-                            value: item!.id,
-                            child: Text(item.profileId),
-                          );
-                        }).toList(),
-                           dropdownColor: notifier.getcontiner,
-                                                       style: TextStyle(color: notifier.getMainText),
-                                                                        
-                                                                       
-                                                                         decoration: InputDecoration(
-                                                                           contentPadding:const EdgeInsets.only(left: 15),
-                                                              
-                                                                            hintStyle: mediumGreyTextStyle.copyWith(
-                                          fontSize: 13),
-                                                                            hintText: 'Amount Collected By',
-                                                                           enabledBorder: OutlineInputBorder(
-                                  borderRadius:BorderRadius .circular(10.0),
-                                  borderSide: BorderSide(
-                                      color: notifier.isDark
-                                          ? notifier.geticoncolor
-                                          : Colors.black)),
-                                                      border: OutlineInputBorder(
-                                  borderRadius:BorderRadius .circular(10.0),
-                                  borderSide: BorderSide(
-                                      color: notifier.isDark
-                                          ? notifier.geticoncolor
-                                          : Colors.black)),
-                                                                          ),
+                                                          const SizedBox(height: 10),
+                                                          Padding(
+                                                                              padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                                                                              child:ReactiveTextField<int>(
+                                                                                formControlName: 'userpayedamt',
+                                                                                
+                                                                                         style: TextStyle(color: notifier.getMainText),
+                                                                            
+                                                                           
+                                                                             decoration: InputDecoration(
+                                                                               contentPadding:const EdgeInsets.only(left: 15),
+                                                                  
+                                                                                hintStyle: mediumGreyTextStyle.copyWith(
+                                                                                                fontSize: 13),
+                                                                                hintText: 'Amount',
+                                                                               enabledBorder: OutlineInputBorder(
+                                                                                        borderRadius:BorderRadius .circular(10.0),
+                                                                                        borderSide: BorderSide(
+                                                                                            color: notifier.isDark
+                                                                                                ? notifier.geticoncolor
+                                                                                                : Colors.black)),
+                                                          border: OutlineInputBorder(
+                                                                                        borderRadius:BorderRadius .circular(10.0),
+                                                                                        borderSide: BorderSide(
+                                                                                            color: notifier.isDark
+                                                                                                ? notifier.geticoncolor
+                                                                                                : Colors.black)),
+                                                                              ),
+                                                                              ),
+                                                                            ),
+                                                                            const SizedBox(height:10),
+                                                                            Padding(
+                                                                              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                                                                              child:ReactiveTextField<String>(
+                                                                                formControlName: 'paydate',
+                                                                                readOnly: true,
+                                                                                
+                                                                                         style: TextStyle(color: notifier.getMainText),
+                                                                            
+                                                                           
+                                                                             decoration: InputDecoration(
+                                                                               
+                                                                  
+                                                                                hintStyle: mediumGreyTextStyle.copyWith(
+                                                                                                fontSize: 13),
+                                                                                hintText: 'Payment Date',
+                                                                              enabledBorder: OutlineInputBorder(
+                                                                                        borderRadius:BorderRadius .circular(10.0),
+                                                                                        borderSide: BorderSide(
+                                                                                            color: notifier.isDark
+                                                                                                ? notifier.geticoncolor
+                                                                                                : Colors.black)),
+                                                          border: OutlineInputBorder(
+                                                                                        borderRadius:BorderRadius .circular(10.0),
+                                                                                        borderSide: BorderSide(
+                                                                                            color: notifier.isDark
+                                                                                                ? notifier.geticoncolor
+                                                                                                : Colors.black)),
+                                                                    contentPadding: const EdgeInsets.only(left: 15),
+                                                                                    suffixIcon: GestureDetector(
+                                                                                    onTap: () =>_selectDate(context),
+                                                                                    child:Icon(
+                                                                                      Icons.calendar_today,  // You can use any icon you prefer
+                                                                                      color:notifier.geticoncolor,
+                                                                                    ),
+                                                                                  ),
+                                                                              ),
+                                                                                 
+                                                                              ),
+                                                                            ),
+                                                                           
+                                                                            const SizedBox(height: 10),
+                                                                            Padding(
+                                                         padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                                                          child: ReactiveDropdownField<
+                                                                    int>(
+                                                              formControlName:
+                                                                  'pay_type',
+                                                           
+                                                                                        
+                                                                                         
+                                                          
+                                                              isExpanded: true,
+                                                              items: paymentMode.keys.map<
+                                                                  DropdownMenuItem<
+                                                                      int>>(
+                                                                (String key) {
+                                                                  final value =
+                                                                      paymentMode[key];
+                                                                  return DropdownMenuItem<
+                                                                      int>(
+                                                                    value: value,
+                                                                    child: Padding(
+                                                                      padding:
+                                                                          const EdgeInsets
+                                                                              .only(
+                                                                              left:
+                                                                                  10),
+                                                                      child:
+                                                                          Text(key),
+                                                                    ),
+                                                                  );
+                                                                },
+                                                              ).toList(),
+                                                                dropdownColor: notifier.getcontiner,
+                                                           style: TextStyle(color: notifier.getMainText),
+                                                                            
+                                                                           
+                                                                             decoration: InputDecoration(
+                                                                               contentPadding:const EdgeInsets.only(left: 15),
+                                                                  
+                                                                                hintStyle: mediumGreyTextStyle.copyWith(
+                                                                                                fontSize: 13),
+                                                                                hintText: 'Payment Mode',
+                                                                               enabledBorder: OutlineInputBorder(
+                                                                                        borderRadius:BorderRadius .circular(10.0),
+                                                                                        borderSide: BorderSide(
+                                                                                            color: notifier.isDark
+                                                                                                ? notifier.geticoncolor
+                                                                                                : Colors.black)),
+                                                          border: OutlineInputBorder(
+                                                                                        borderRadius:BorderRadius .circular(10.0),
+                                                                                        borderSide: BorderSide(
+                                                                                            color: notifier.isDark
+                                                                                                ? notifier.geticoncolor
+                                                                                                : Colors.black)),
+                                                                              ),
+                                                            ),
                                                         ),
-  ),
-  const SizedBox(height: 10),
-  Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 20.0),
-                                          child: ReactiveTextField<String>(
-                                             keyboardType: TextInputType.multiline,
-                textInputAction: TextInputAction.newline,
-                maxLines: 3,
-                                            formControlName: 'note',
-                                             
-                                                       style: TextStyle(color: notifier.getMainText),
-                                                                        
-                                                                       
-                                                                         decoration: InputDecoration(
-                                                                           hintText: "Notes",
-                            hintStyle: mediumGreyTextStyle,
-                             contentPadding:const EdgeInsets.only(left: 10,top:10,right: 10,bottom: 10),
-                                                              
-                                                                        
-                                                                            enabledBorder: OutlineInputBorder(
-                                  borderRadius:BorderRadius .circular(10.0),
-                                  borderSide: BorderSide(
-                                      color: notifier.isDark
-                                          ? notifier.geticoncolor
-                                          : Colors.black)),
-                                                      border: OutlineInputBorder(
-                                  borderRadius:BorderRadius .circular(10.0),
-                                  borderSide: BorderSide(
-                                      color: notifier.isDark
-                                          ? notifier.geticoncolor
-                                          : Colors.black)),
-                                                                          ),
-                                            
-                                           
-                                          ),
-                                        ),
-                                            const SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Align(
-                        alignment: Alignment.bottomRight,
-                        child: ElevatedButton(
-                        
-                          child: const Text(
-                            'Submit',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          onPressed: () async {
-                            if (form!.valid) {
-
-
-UpdatePaySt(widget .invoiceId,form!.value);
-
-                            } else {
-                              form!.markAllAsTouched();
-                               
-                            }
-                           
-                            
-                          
-                          },
-                        ),
-                      ),
-                    ),         
-
-
-
-
-                                                  ],))
-                                              );
+                                                        const SizedBox(height: 10),
+                                                         Padding(
+                                                         padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                                                          child: ReactiveDropdownField<
+                                                                    int>(
+                                                              formControlName:
+                                                                  'collectedid',
+                                                           
+                                                                                        
+                                                                                        
+                                                          
+                                                              isExpanded: true,
+                                                               items: getEmployeeList.map((item) {
+                                                                                return DropdownMenuItem<int>(
+                                                                                  value: item!.id,
+                                                                                  child: Text(item.profileId),
+                                                                                );
+                                                                              }).toList(),
+                                                                                 dropdownColor: notifier.getcontiner,
+                                                           style: TextStyle(color: notifier.getMainText),
+                                                                            
+                                                                           
+                                                                             decoration: InputDecoration(
+                                                                               contentPadding:const EdgeInsets.only(left: 15),
+                                                                  
+                                                                                hintStyle: mediumGreyTextStyle.copyWith(
+                                                                                                fontSize: 13),
+                                                                                hintText: 'Amount Collected By',
+                                                                               enabledBorder: OutlineInputBorder(
+                                                                                        borderRadius:BorderRadius .circular(10.0),
+                                                                                        borderSide: BorderSide(
+                                                                                            color: notifier.isDark
+                                                                                                ? notifier.geticoncolor
+                                                                                                : Colors.black)),
+                                                          border: OutlineInputBorder(
+                                                                                        borderRadius:BorderRadius .circular(10.0),
+                                                                                        borderSide: BorderSide(
+                                                                                            color: notifier.isDark
+                                                                                                ? notifier.geticoncolor
+                                                                                                : Colors.black)),
+                                                                              ),
+                                                            ),
+                                                        ),
+                                                        const SizedBox(height: 10),
+                                                        Padding(
+                                                                                                padding: const EdgeInsets.symmetric(
+                                                                                                    horizontal: 20.0),
+                                                                                                child: ReactiveTextField<String>(
+                                                                                                   keyboardType: TextInputType.multiline,
+                                                                      textInputAction: TextInputAction.newline,
+                                                                      maxLines: 3,
+                                                                                                  formControlName: 'note',
+                                                                                                   
+                                                           style: TextStyle(color: notifier.getMainText),
+                                                                            
+                                                                           
+                                                                             decoration: InputDecoration(
+                                                                               hintText: "Notes",
+                                                                                  hintStyle: mediumGreyTextStyle,
+                                                                                   contentPadding:const EdgeInsets.only(left: 10,top:10,right: 10,bottom: 10),
+                                                                  
+                                                                            
+                                                                                enabledBorder: OutlineInputBorder(
+                                                                                        borderRadius:BorderRadius .circular(10.0),
+                                                                                        borderSide: BorderSide(
+                                                                                            color: notifier.isDark
+                                                                                                ? notifier.geticoncolor
+                                                                                                : Colors.black)),
+                                                          border: OutlineInputBorder(
+                                                                                        borderRadius:BorderRadius .circular(10.0),
+                                                                                        borderSide: BorderSide(
+                                                                                            color: notifier.isDark
+                                                                                                ? notifier.geticoncolor
+                                                                                                : Colors.black)),
+                                                                              ),
+                                                                                                  
+                                                                                                 
+                                                                                                ),
+                                                                                              ),
+                                                                                                  const SizedBox(height: 10),
+                                                                          Padding(
+                                                                            padding: const EdgeInsets.all(8.0),
+                                                                            child: Align(
+                                                                              alignment: Alignment.bottomRight,
+                                                                              child: ElevatedButton(
+                                                                              style: ElevatedButton.styleFrom(backgroundColor: appMainColor),
+                                                                                child: const Text(
+                                                                                  'Submit',
+                                                                                  style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
+                                                                                ),
+                                                                                onPressed: () async {
+                                                                                  if (form!.valid) {
+                                                      
+                                                      
+                                                      UpdatePaySt(widget .invoiceId,form!.value);
+                                                      
+                                                                                  } else {
+                                                                                    form!.markAllAsTouched();
+                                                                                     
+                                                                                  }
+                                                                                 
+                                                                                  
+                                                                                
+                                                                                },
+                                                                              ),
+                                                                            ),
+                                                                          ),         
+                                                      
+                                                      
+                                                      
+                                                      
+                                                      ],),
+                                                    ))
+                                                ),
+    );
   }
   String formattedDate =
       DateFormat('yyyy-MM-dd').format(DateTime.now());

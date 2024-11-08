@@ -6,6 +6,7 @@ import 'package:crm/AppBar.dart';
 import 'package:crm/AppStaticData/AppStaticData.dart';
 import 'package:crm/AppStaticData/toaster.dart';
 import 'package:crm/Components/Subscriber/SubsDataUsageDetails.dart';
+import 'package:crm/Components/Subscriber/SubscriberRenewal.dart';
 import 'package:crm/Controller/Drawer.dart';
 
 import 'package:crm/Providers/providercolors.dart';
@@ -217,7 +218,7 @@ Widget build(BuildContext context) {
             children: [
               if (widget.subscriberDet != null)
               Text(
-                ' ${widget.subscriberDet?.info.fullname ??'---'}',
+                ' ${widget.subscriberDet!.info!.fullname ??'---'}',
                 style:  mediumGreyTextStyle.copyWith(fontSize: 18),
               ),
             const  SizedBox(height: 20),
@@ -282,16 +283,16 @@ Widget build(BuildContext context) {
                         children: [
                            
                          CircularPercentIndicator(
-            radius: 70.0, // Adjust the size of the circle
+            radius: 60.0, // Adjust the size of the circle
             lineWidth: 10.0, // Thickness of the progress arc
             animation: true,
             percent: 3 / 30, // 27 days out of 30
             center: const Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                 Text('27', style: TextStyle(fontSize: 24, color:appMainColor,fontFamily: "Gilroy",fontWeight: FontWeight.bold)),
-                    SizedBox(height: 10),
-                         Text('Days Left', style: TextStyle(fontSize: 16,color: appMainColor,fontFamily: "Gilroy",fontWeight: FontWeight.bold)),
+                 Text('27', style: TextStyle(fontSize: 22, color:appMainColor,fontFamily: "Gilroy",fontWeight: FontWeight.bold)),
+                    // SizedBox(height: 10),
+                         Text('Days Left', style: TextStyle(fontSize: 14,color: appMainColor,fontFamily: "Gilroy",fontWeight: FontWeight.bold)),
               ],
             ),
             circularStrokeCap: CircularStrokeCap.round,
@@ -303,19 +304,41 @@ Widget build(BuildContext context) {
                       ),
                       Column(
                         children: [
-                           Text('Amount Payable',style:  mediumGreyTextStyle.copyWith(fontSize: 16),),
-                            const   SizedBox(height: 10),
-                      Text('₹ 0.00', style:  mediumBlackTextStyle.copyWith(color: notifier.getMainText,fontSize: 24),),
+                      //      Text('Amount Payable',style:  mediumGreyTextStyle.copyWith(fontSize: 16),),
+                      //       const   SizedBox(height: 10),
+                      // Text('₹ 0.00', style:  mediumBlackTextStyle.copyWith(color: notifier.getMainText,fontSize: 24),),
 
                           ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () {
+                                showDialog(
+                                        context: context,
+                                        builder: (ctx) =>
+                                             Dialog.fullscreen(
+                                              backgroundColor:notifier.getbgcolor,
+                                             
+                                              child:
+                                              Padding(
+                                                padding:const  EdgeInsets.all(8.0),
+                                                child: SubscriberRenewal(resellerid: widget.subscriberDet!.resellerid,
+                                                  uid: widget.subscriberDet!.id,
+                                                  srvusermode:widget.subscriberDet!.srvusermode,
+                                                  packid: widget.subscriberDet!.packid,subscriberId:
+                                                    widget.subscriberDet!.id, expiration:widget.subscriberDet!.expiration,voiceid:widget.subscriberDet!.voiceid)
+                                              ),
+
+                                            ),
+                                      ).then((val) => {
+                                          // print('dialog--$val'),
+                                          if (val) fetchData()
+                                        });
+                            },
                             style: ElevatedButton.styleFrom(backgroundColor:appMainColor,
                                shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                   padding:const EdgeInsets.all(8),
                             ),
-                            child:const Text('Pay Advance',style: TextStyle(color: Colors.white),),
+                            child:const Text('Renewal',style: TextStyle(color: Colors.white),),
                           ),
                         ],
                       ),

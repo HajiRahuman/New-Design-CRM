@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+// import 'package:timezone/timezone.dart' as tz;
 
 class DashBoard extends StatefulWidget {
    SubscriberFullDet? subscriberDet;
@@ -176,6 +177,7 @@ _buildcompo1(
                         
                      _buildcompo2(width: constraints.maxWidth),
                         const SizedBoxx(),
+          
                                               ],
                     ),
                   );
@@ -354,7 +356,6 @@ _buildcompo1(
                         ),
                         const SizedBoxx(),
                       
-                      
                       ],
                     ),
                   );
@@ -527,12 +528,24 @@ Widget _buildcompo2({required double width}) {
                     
                     _buildCommonListTile(title: "MOBILE", subtitle: ': ${expirySubs.mobile}'),
                   
-                    _buildCommonListTile(
-                      title: "EXPIRY TIME",
-                      subtitle: ': ${expirySubs.expiration.isNotEmpty
-                          ? DateFormat.jm().format(DateTime.parse(expirySubs.expiration))
-                          : "---"}',
-                    ),
+//                    _buildCommonListTile(
+//   title: "EXPIRY TIME",
+//   subtitle: ': ${expirySubs.expiration.isNotEmpty
+//       ? DateFormat.jm().format(
+//           tz.TZDateTime.from(
+//             DateTime.parse(expirySubs.expiration), 
+//             tz.getLocation('Asia/Kolkata') // IST timezone location
+//           )
+//         )
+//       : "---"}',
+// ),
+_buildCommonListTile(
+  title: "EXPIRY TIME",
+  subtitle: ': ${expirySubs.expiration.isNotEmpty
+      ? DateFormat.jm().format(DateTime.parse(expirySubs.expiration).toLocal())
+      : "---"}',
+),
+
                   ],
                 ),
               ),

@@ -99,9 +99,9 @@ class SubscriberDet {
   final String ipv4;
   final String ipv6;
   final String alicename;
-  final String acctinputoctets;
-  final String acctoutputoctets;
-  final String accttotaloctets;
+  final int acctinputoctets;
+  final int acctoutputoctets;
+  final int accttotaloctets;
   final String acctstatus;
   final String ipmode;
 
@@ -1278,49 +1278,56 @@ class InvoiceDetResp {
 }
 
 class InvoiceDet {
-  int invid;
-  int uid;
-  String invno;
-  String packname;
-  String pricename;
-  String packtype;
-  int distid;
-  int subdistid;
-  int resellerid;
-  int igst;
-  int cgst;
-  int sgst;
-  int unittype;
-  int timeunit;
-  int extradays;
-  String expiration;
-  int invtype;
-  int invmode;
-  int invstatus;
-  String supplierGst;
-  String recipientGst;
-  int userpayedamt;
-  int payStatus;
-  String paydate;
-  String comment1;
-  // int allispamt;
-  // int alldistamt;
-  int allsubdistamt;
-  // double allreselleramt;
-  dynamic allamount;
-  dynamic alltaxamt;
-  int packmode;
-  String createdon;
-  String invdate;
-  int totalamount;
-  String resellercompany;
-  String reselleraddress;
-  String subname;
-  String subprofileid;
-  String subaddress;
-  String subbilladdress;
-  int ocid;
-  String couponPrice;
+  final int invid;
+  final int uid;
+  final String invno;
+  final String packname;
+  final String pricename;
+  final String packtype;
+  final int distid;
+  final int subdistid;
+  final int resellerid;
+  final int igst;
+  final int cgst;
+  final int sgst;
+  final int unittype;
+  final int timeunit;
+  final int extradays;
+  final String expiration;
+  final int invtype;
+  final int invmode;
+  final int invstatus;
+  final String supplierGst;
+  final String recipientGst;
+  final  int userpayedamt;
+  final int payStatus;
+  final String paydate;
+  final String comment1;
+  // final double allispamt;
+  // final double alldistamt;
+  final  int allsubdistamt;
+  // final double allreselleramt;
+  final dynamic allamount;
+  final dynamic alltaxamt;
+  final int packmode;
+  final String createdon;
+  final String invdate;
+  final int totalamount; 
+  final String resellercompany;
+  final String reselleraddress;
+  final String subname;
+  final String subprofileid;
+  final String subaddress;
+  final String subbilladdress;
+  final String buspan;
+  final String bushsn;
+  final int ocid;
+  final String couponPrice;
+  final int renewalThrough;
+  final String additionalinfo;
+  final int locality;
+  final String mobile;
+  final int balancedue;
 
   InvoiceDet({
     required this.invid,
@@ -1364,8 +1371,15 @@ class InvoiceDet {
     required this.subprofileid,
     required this.subaddress,
     required this.subbilladdress,
+    required this.buspan,
+    required this.bushsn,
     required this.ocid,
     required this.couponPrice,
+    required this.renewalThrough,
+    required this.additionalinfo,
+    required this.locality,
+    required this.mobile,
+    required this.balancedue,
   });
 
   factory InvoiceDet.toJson(Map<String, dynamic> json) {
@@ -1385,7 +1399,7 @@ class InvoiceDet {
       unittype: json['unittype'],
       timeunit: json['timeunit'],
       extradays: json['extradays'],
-      expiration: json['expiration'],
+      expiration:json['expiration'],
       invtype: json['invtype'],
       invmode: json['invmode'],
       invstatus: json['invstatus'],
@@ -1393,7 +1407,7 @@ class InvoiceDet {
       recipientGst: json['recipient_gst'],
       userpayedamt: json['userpayedamt'],
       payStatus: json['pay_status'],
-      paydate: json['paydate'],
+      paydate:json['paydate'],
       comment1: json['comment1'],
       // allispamt: json['allispamt'],
       // alldistamt: json['alldistamt'],
@@ -1402,8 +1416,8 @@ class InvoiceDet {
       allamount: json['allamount'],
       alltaxamt: json['alltaxamt'],
       packmode: json['packmode'],
-      createdon: json['createdon'],
-      invdate: json['invdate'],
+      createdon:json['createdon'],
+      invdate:json['invdate'],
       totalamount: json['totalamount'],
       resellercompany: json['resellercompany'],
       reselleraddress: json['reselleraddress'],
@@ -1411,8 +1425,15 @@ class InvoiceDet {
       subprofileid: json['subprofileid'],
       subaddress: json['subaddress'],
       subbilladdress: json['subbilladdress'],
+      buspan: json['buspan'],
+      bushsn: json['bushsn'],
       ocid: json['ocid'],
       couponPrice: json['coupon_price'],
+      renewalThrough: json['renewal_through'],
+      additionalinfo: json['additionalinfo'],
+      locality: json['locality'],
+      mobile: json['mobile'],
+      balancedue: json["balancedue"]
     );
   }
 }

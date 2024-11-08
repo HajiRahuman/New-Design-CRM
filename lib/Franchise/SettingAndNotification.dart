@@ -9,6 +9,7 @@ import 'package:crm/model/reseller.dart';
 import 'package:flutter/material.dart';
 import 'package:crm/service/reseller.dart' as resellerSrv;
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingNotification extends StatefulWidget {
   final int? resellerId;
@@ -28,19 +29,38 @@ class _SettingNotificationState extends State<SettingNotification> {
   @override
   void initState() {
     super.initState();
-    fetchData();
+    getMenuAccess();
   }
+Future<void> fetchData() async {
+  final resp = await resellerSrv.fetchResellerDetail(id);
+  if (resp.error) {
+    alert(context, resp.msg);
+  }
+  // Ensure the widget is still mounted before calling setState
+  if (!mounted) return;
 
-  Future<void> fetchData() async {
-    final resp = await resellerSrv.fetchResellerDetail(widget.resellerId!);
-    if (resp.error) {
-      alert(context, resp.msg);
+  setState(() {
+    resellerDet = resp.data;
+  });
+}
+
+  int levelid = 0;
+  bool isIspAdmin = false;
+  int id = 0;
+  bool isSubscriber = false;
+  getMenuAccess() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    levelid = pref.getInt('level_id') as int;
+    isIspAdmin = pref.getBool('isIspAdmin') as bool;
+    id = pref.getInt('id') as int;
+    isSubscriber = pref.getBool('isSubscriber') as bool;
+    print('LevelId----${levelid}');
+    if (isSubscriber == false) {
+      fetchData();
+    
     }
-    setState(() {
-      resellerDet = resp.data;
-    });
+  
   }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<ColorNotifire>(
@@ -249,8 +269,8 @@ class _SettingNotificationState extends State<SettingNotification> {
           child: Column(
             children: [
               Text('Customer Invoice Generated Alert',style: mediumBlackTextStyle.copyWith(color:notifier.getMainText)),
-               _buildSwitchListTile("SMS",false),
-                _buildSwitchListTile("EAMIL",false),
+               _buildSwitchListTile("SMS",resellerDet!.settings.invoiceSms),
+                _buildSwitchListTile("EAMIL",resellerDet!.settings.invoiceEmail),
 
             ],
           )),
@@ -297,8 +317,8 @@ class _SettingNotificationState extends State<SettingNotification> {
           child: Column(
             children: [
               Text('Customer Temporary Suspended If Not Paid Alert',style: mediumBlackTextStyle.copyWith(color:notifier.getMainText)),
-               _buildSwitchListTile("SMS",false),
-                _buildSwitchListTile("EAMIL",false),
+               _buildSwitchListTile("SMS",resellerDet!.settings.paidSms),
+                _buildSwitchListTile("EAMIL",resellerDet!.settings.paidEmail),
 
             ],
           )),
@@ -345,8 +365,8 @@ class _SettingNotificationState extends State<SettingNotification> {
           child: Column(
             children: [
               Text('Customer Package Cancel Alert',style: mediumBlackTextStyle.copyWith(color:notifier.getMainText)),
-               _buildSwitchListTile("SMS",false),
-                _buildSwitchListTile("EAMIL",false),
+               _buildSwitchListTile("SMS",resellerDet!.settings.terminateSms),
+                _buildSwitchListTile("EAMIL",resellerDet!.settings.terminateEmail),
 
             ],
           )),
@@ -361,8 +381,8 @@ class _SettingNotificationState extends State<SettingNotification> {
           child: Column(
             children: [
               Text('Customer Hold Alert',style: mediumBlackTextStyle.copyWith(color:notifier.getMainText)),
-               _buildSwitchListTile("SMS",false),
-                _buildSwitchListTile("EAMIL",false),
+               _buildSwitchListTile("SMS",resellerDet!.settings.holdSms),
+                _buildSwitchListTile("EAMIL",resellerDet!.settings.holdEmail),
 
             ],
           )),

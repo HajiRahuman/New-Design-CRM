@@ -121,6 +121,10 @@ double calculateTax(double price) {
   return taxAmt;
 }
 
+String formatSpeed(String speedInBps) {
+    double speedMbps = double.parse(speedInBps) / 1048576; // Convert to Mbps
+    return '${speedMbps.toStringAsFixed(1)} Mbps';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -185,9 +189,8 @@ expandIconColor: notifier.getMainText,
                                                                                           
                                                                                           _buildCommonListTile(title: 'MODE', subtitle:': ${getPackModeName(reseller.packmode)}'),
                                                                                       
-                                                                                         _buildCommonListTile(title: 'UPLOAD SPEED', subtitle: ': ${reseller.ulspeed}'),
-                                                                                      
-                                                                                          _buildCommonListTile(title: 'DOWNLOAD SPEED', subtitle: ': ${reseller.dlspeed}'),
+                                                                                          _buildCommonListTile(title: 'UPLOAD SPEED',subtitle:': ${formatSpeed(reseller.ulspeed)}'),
+                                                                                        _buildCommonListTile(title: 'DOWNLOAD SPEED',subtitle:': ${formatSpeed(reseller.dlspeed)}'),
                                                                                         
                                                                                                        
                                                                                                        
@@ -388,55 +391,47 @@ TableRow newRow({
   required String status, // Change this to String
 }) {
   // Convert price and taxAmt to double
-  double priceValue = double.parse(price);
+ double priceValue = double.parse(price);
   double taxValue = double.parse(taxamt);
 
   // Get the total using getTaxBasedPrice
   double totalPrice = getTaxBasedPrice(priceValue, taxValue);
-final notifier = Provider.of<ColorNotifire>(context, listen: false);
+  final notifier = Provider.of<ColorNotifire>(context, listen: false);
   return TableRow(
     children: [
       Padding(
         padding: const EdgeInsets.symmetric(vertical: 5),
-        child: Text("$id\n₹${totalPrice.toStringAsFixed(1)}", textAlign: TextAlign.center,style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
+        child: Text(id, textAlign: TextAlign.center,style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
       ),
       Padding(
         padding: const EdgeInsets.symmetric(vertical: 5),
-        child: SizedBox(child: Text("₹${totalPrice.toStringAsFixed(1)}\n$pname", textAlign: TextAlign.center,style: mediumBlackTextStyle.copyWith(color: notifier.getMainText))),
+        child: SizedBox(child: Text(pname, textAlign: TextAlign.center,style: mediumBlackTextStyle.copyWith(color: notifier.getMainText))),
       ),
       Padding(
         padding: const EdgeInsets.symmetric(vertical: 5),
-        child: Text("$taxmode\n₹${totalPrice.toStringAsFixed(1)}", textAlign: TextAlign.center,style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
+        child: Text(taxmode, textAlign: TextAlign.center,style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
       ),
      Padding(
         padding: const EdgeInsets.symmetric(vertical: 5),
-        child: Text("${totalPrice.toStringAsFixed(1)}" , textAlign: TextAlign.center,style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
+        child: Text("₹${totalPrice.toStringAsFixed(1)}" , textAlign: TextAlign.center,style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
       ),
       Padding(
         padding: const EdgeInsets.symmetric(vertical: 5),
-        child: Text("₹${totalPrice.toStringAsFixed(1)}\n$taxamt", textAlign: TextAlign.center,style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
+        child: Text("₹${taxValue.toStringAsFixed(1)}", textAlign: TextAlign.center,style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
       ),
       Padding(
         padding: const EdgeInsets.symmetric(vertical: 5),
-        child: Text("₹${totalPrice.toStringAsFixed(1)}\n$validity", textAlign: TextAlign.center,style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
+        child: Text(validity, textAlign: TextAlign.center,style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
       ),
       Padding(
         padding: const EdgeInsets.symmetric(vertical: 5),
-        child: Text("₹${totalPrice.toStringAsFixed(1)}\n$extradays", textAlign: TextAlign.center,style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
+        child: Text(extradays, textAlign: TextAlign.center,style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
       ),
       Padding(
         padding: const EdgeInsets.symmetric(vertical: 5),
-        child: Column(
-          children: [
-            Text("₹${totalPrice.toStringAsFixed(1)}", textAlign: TextAlign.center,style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5),
-              child: status == "true" 
+        child: status == "true" 
                 ? const Icon(Icons.check,color: Colors.green,)
-                :const Icon(Icons.remove,color: Colors.red,),
-            ),
-          ],
-        ),
+                :const Icon(Icons.remove,color: Colors.red,), 
       ),
     ],
   );
