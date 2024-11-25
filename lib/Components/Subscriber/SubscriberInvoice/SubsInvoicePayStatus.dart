@@ -65,10 +65,17 @@ Map<String, int> pay_status = {
     'Unpaid': 1,
     'Paid': 2,
   };
-   Map<String, int> paymentMode = {
-    'User Paid(Cash)': 0,
-    'User Paid(Online)': 1,
-  };
+ Map<String, int> paymentMode = {
+  'User Paid(Cash)': 0,
+  'From Reseller Side User Balance': 1,
+  'User Wallet': 2,
+  'User paid by Demand Pay': 3,
+  'User Paid(Online)': 4,
+  'User Paid(Cheque)': 5,
+  'User Paid(Internet Banking)': 6,
+  'User Paid(Other)': 999,
+};
+
   @override
   void dispose() {
     _isMounted = false;

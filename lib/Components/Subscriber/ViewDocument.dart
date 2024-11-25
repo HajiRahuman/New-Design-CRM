@@ -440,32 +440,21 @@
 //     );
 //   }
 // }
-
-
-
-
 import 'package:crm/AppStaticData/AppStaticData.dart';
 import 'package:crm/AppStaticData/toaster.dart';
-
-
 import 'package:crm/Providers/providercolors.dart';
-
 import 'package:crm/model/aadhar.dart';
 import 'package:crm/service/aadhar.dart';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:crm/service/subscriber.dart' as subscriberSrv;
 import 'package:crm/service/aadhar.dart' as aadharSrv;
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:provider/provider.dart';
 import 'package:reactive_forms/reactive_forms.dart';
-
 import '../../model/subscriber.dart';
-
 import 'package:pdf/widgets.dart' as pw;
 import 'package:mime/mime.dart';
 

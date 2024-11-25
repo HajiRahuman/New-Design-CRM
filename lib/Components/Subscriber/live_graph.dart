@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:crm/AppStaticData/logger.dart';
-import 'package:crm/Components/Subscriber/SubscriberInvoice/SubscriberInvoice.dart';
 import 'package:crm/Providers/providercolors.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';

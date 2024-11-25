@@ -24,8 +24,10 @@ import 'package:intl/intl.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:crm/Utils/Utils.dart';
 
 class SubscriberDashBoard extends StatefulWidget {
+  static const String routeName = '/Subsdashboard';
   SubscriberFullDet? subscriberDet;
   UpdateUserDataDet? subscriberUpdateDet;
   int? subscriberId;
@@ -47,7 +49,7 @@ class MyAppState extends State<SubscriberDashBoard> with SingleTickerProviderSta
   PageController _pageController = PageController();
 
   Future<void> fetchData() async {
-    final resp = await subscriberSrv.fetchSubscriberDetail(widget.subscriberId!);
+    final resp = await subscriberSrv.fetchSubscriberDetail(id);
     setState(() {
       if (resp.error) alert(context, resp.msg);
       widget.subscriberDet = resp.data;
@@ -68,7 +70,7 @@ class MyAppState extends State<SubscriberDashBoard> with SingleTickerProviderSta
   @override
   void initState() {
     super.initState();
-    loadData();
+    // loadData();
     getMenuAccess();
     controller2 = TabController(length: 3, vsync: this);
   }
@@ -184,6 +186,37 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
     });
   }
 }
+int? calculateDaysLeft() {
+  if (widget.subscriberDet == null || widget.subscriberDet!.renewaldate.isEmpty || widget.subscriberDet!.expiration.isEmpty) {
+    return null; // Return null if dates are invalid
+  }
+
+  final renewalDate = DateTime.parse(widget.subscriberDet!.renewaldate).toLocal();
+  final expirationDate = DateTime.parse(widget.subscriberDet!.expiration).toLocal();
+
+  final daysLeft = expirationDate.difference(DateTime.now()).inDays;
+  return daysLeft < 0 ? 0 : daysLeft;
+}
+
+double? calculatePercentage() {
+  if (widget.subscriberDet == null || widget.subscriberDet!.renewaldate.isEmpty || widget.subscriberDet!.expiration.isEmpty) {
+    return null; // Return null if dates are invalid
+  }
+
+  final renewalDate = DateTime.parse(widget.subscriberDet!.renewaldate).toLocal();
+  final expirationDate = DateTime.parse(widget.subscriberDet!.expiration).toLocal();
+
+  final totalDays = expirationDate.difference(renewalDate).inDays;
+  final daysLeft = calculateDaysLeft();
+
+  return totalDays == 0 ? 0 : daysLeft! / totalDays;
+}
+
+String extractNumericValue(String value) {
+  // Remove any non-numeric characters and spaces, e.g. "549 MB" -> "549"
+  return value.replaceAll(RegExp(r'[^0-9]'), '');
+}
+
 
  @override
 Widget build(BuildContext context) {
@@ -192,7 +225,13 @@ Widget build(BuildContext context) {
   final selectedTextStyle = textStyle?.copyWith(fontWeight: FontWeight.bold);
 
   final notifier = Provider.of<ColorNotifire>(context);
-
+ if (widget.subscriberDet == null) {
+    return const Center(
+      child: CircularProgressIndicator(),
+    );
+  }
+ 
+final formattedTotalSize = formatBytes(widget.subscriberDet!.accttotaloctets);
   return Scaffold(
        backgroundColor: notifier.getbgcolor,
     key: _scaffoldKey,
@@ -234,36 +273,24 @@ Widget build(BuildContext context) {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                            const  Text('PLAN', style: TextStyle(color:appMainColor,fontWeight: FontWeight.bold,fontFamily: "Gilroy",fontSize: 14)),
-                              Text(' ${widget.subscriberDet?.packname ??'---'}',style:  mediumGreyTextStyle.copyWith(fontSize: 16),),
-                            ],
-                          ),
-                          
-  //                         TextButton.icon(
-  //                           style: TextButton.styleFrom(
-  
-  //   backgroundColor: notifier.getbgcolor, 
-  //   shape: RoundedRectangleBorder(
-  //     borderRadius: BorderRadius.circular(10), 
-  //   ),
-  // ),
-  //                           onPressed: () {},
-  //                           icon:const Icon(Icons.sync, color: appMainColor),
-  //                           label:const Text('Change Plan', style: TextStyle(color: appMainColor,fontSize: 14)),
-  //                         ),
-                        ],
-                      ),
-                   const   SizedBox(height: 10),
-                      Row(
+                           Row(
                         children: [
-                         const Text('PLAN TYPE', style: TextStyle(color:appMainColor,fontWeight: FontWeight.bold,fontFamily: "Gilroy",fontSize: 14)),
+                         const Text('PACK', style: TextStyle(color:appMainColor,fontWeight: FontWeight.bold,fontFamily: "Gilroy",fontSize: 14)),
                          const SizedBox(width: 20),
-                          Text('PREPAID-30 DAYS',style:  mediumGreyTextStyle.copyWith(fontSize: 16),),
+                          Text(widget.subscriberDet?.packname ??'---',style:  mediumGreyTextStyle.copyWith(fontSize: 16),),
                         ],
                       ),
+                        
+                        ],
+                      ),
+                  //  const   SizedBox(height: 10),
+                  //     const Row(
+                  //       children: [
+                  //        Text('PACK TYPE', style: TextStyle(color:appMainColor,fontWeight: FontWeight.bold,fontFamily: "Gilroy",fontSize: 14)),
+                  //       //  const SizedBox(width: 20),
+                  //       //   Text('PREPAID-30 DAYS',style:  mediumGreyTextStyle.copyWith(fontSize: 16),),
+                  //       ],
+                  //     ),
                     ],
                   ),
                 ),
@@ -282,24 +309,40 @@ Widget build(BuildContext context) {
                     Column(
                         children: [
                            
-                         CircularPercentIndicator(
-            radius: 60.0, // Adjust the size of the circle
-            lineWidth: 10.0, // Thickness of the progress arc
-            animation: true,
-            percent: 3 / 30, // 27 days out of 30
-            center: const Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                 Text('27', style: TextStyle(fontSize: 22, color:appMainColor,fontFamily: "Gilroy",fontWeight: FontWeight.bold)),
-                    // SizedBox(height: 10),
-                         Text('Days Left', style: TextStyle(fontSize: 14,color: appMainColor,fontFamily: "Gilroy",fontWeight: FontWeight.bold)),
-              ],
-            ),
-            circularStrokeCap: CircularStrokeCap.round,
-            backgroundColor: Colors.grey[400]!,
-            progressColor: appMainColor, // Pink progress color
-          ),
-        
+                     CircularPercentIndicator(
+  radius: 70.0,
+  lineWidth: 15.0,
+  animation: true,
+  percent: calculatePercentage() ?? 0.0,
+  center: Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Text(
+        calculateDaysLeft()?.toString() ?? '---',
+        style: const TextStyle(
+          fontSize: 24,
+          color: appMainColor,
+          fontFamily: "Gilroy",
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      const Text(
+        'Days Left',
+        style: TextStyle(
+          fontSize: 16,
+          color: appMainColor,
+          fontFamily: "Gilroy",
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ],
+  ),
+  circularStrokeCap: CircularStrokeCap.round,
+  backgroundColor: Colors.grey[400]!,
+  progressColor: appMainColor,
+),
+
+
                         ],
                       ),
                       Column(
@@ -418,7 +461,7 @@ Widget build(BuildContext context) {
                             const  Text('DATA USED', style: TextStyle(color:appMainColor,fontWeight: FontWeight.bold,fontFamily: "Gilroy",fontSize: 14)),
                              const   SizedBox(height: 5),
                             if (widget.subscriberDet != null)
-                               Text('14.67 GB / ${widget.subscriberDet?.packmode??'---'}',style:  mediumGreyTextStyle.copyWith(fontSize: 16),),
+                               Text('$formattedTotalSize / ${widget.subscriberDet?.packmode??'---'}',style:  mediumGreyTextStyle.copyWith(fontSize: 16),),
                                 const   SizedBox(height: 10),
                              LinearProgressIndicator(
                               minHeight: 5,

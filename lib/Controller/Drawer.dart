@@ -101,10 +101,10 @@ Future<void> getMenuAccess() async {
          id = pref.getInt('id') ?? 0;
       // // Debugging logs to check the values
       // print("isIspAdmin: $isIspAdmin");
-      // print("levelid: $levelid");
+      print("levelid: $levelid");
       // print("isSubscriber: $isSubscriber");
     });
-    if (!isIspAdmin && levelid > 4 && levelid==12&& !isSubscriber) {
+    if (!isIspAdmin && levelid > 4 && isSubscriber == false) {
       fetchData();
     }
   }

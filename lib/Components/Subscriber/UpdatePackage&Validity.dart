@@ -1,11 +1,8 @@
 import 'package:crm/AppStaticData/AppStaticData.dart';
 import 'package:crm/AppStaticData/toaster.dart';
-import 'package:crm/Components/Subscriber/SubscriberInvoice/SubscriberInvoice.dart';
 import 'package:crm/Providers/providercolors.dart';
-import 'package:crm/components/Subscriber/SubscriberInvoice/SubscriberInvoice.dart';
 import 'package:crm/model/subscriber.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter/widgets.dart';
 
 import 'package:crm/service/subscriber.dart' as subscriberSrv;

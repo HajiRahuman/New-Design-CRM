@@ -331,6 +331,10 @@ String mac;
   String onutx;
   String onurx;
   String oltname;
+  String renewaldate;
+  final int acctinputoctets;
+  final int acctoutputoctets;
+  final int accttotaloctets;
   
   // int ip6mode;
   // int ipv4id;
@@ -379,11 +383,16 @@ String mac;
       required this.onutx,
       required this.onurx,
       required this.pon,
+      required this.renewaldate,
+       required this.acctinputoctets,
+    required this.acctoutputoctets,
+    required this.accttotaloctets,
 
     // required this.ip6mode,
     // required this.ipv4id,
     // required this.ipv6id
   });
+
 
   factory SubscriberFullDet.toJson(Map<dynamic, dynamic> resp) {
   return SubscriberFullDet(
@@ -425,6 +434,10 @@ String mac;
     onutx: resp['onutx'] ?? '',  
     onurx: resp['onurx'] ?? '',  
     pon: resp['pon'] ?? '',  
+    renewaldate: resp['renewaldate'] ?? '',  
+      acctinputoctets: resp['acctinputoctets']?? 0,
+      acctoutputoctets: resp['acctoutputoctets']?? 0,
+      accttotaloctets: resp['accttotaloctets']?? 0,
   );
 }
 }

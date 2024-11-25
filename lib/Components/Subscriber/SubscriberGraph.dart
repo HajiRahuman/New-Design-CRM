@@ -3,14 +3,10 @@ import 'dart:convert';
 import 'package:cherry_toast/cherry_toast.dart';
 import 'package:cherry_toast/resources/arrays.dart';
 import 'package:crm/AppStaticData/toaster.dart';
-import 'package:crm/Components/Subscriber/SubscriberInvoice/SubscriberInvoice.dart';
 import 'package:crm/Providers/providercolors.dart';
 import 'package:crm/model/subscriber.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter/services.dart';
-
-import 'package:path_provider/path_provider.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
@@ -51,11 +47,16 @@ class MyAppState extends State<SubscriberGraph> {
   List<RD_Graph> rdGraph = [];
 
   Future<void> getRD_Graph() async {
+     setState(() {
+      isLoading = true; // Set loading to true when fetching data
+    });
     RD_GraphResp resp = await subscriberSrv.getRD_Graph(widget.Username!);
     setState(() {
       if (resp.error) alert(context, resp.msg);
       rdGraph = [resp.rd_grap];
+      isLoading = false;
     });
+
   }
 Future<String> _createFolder() async {
   const folderName = "CRM";
@@ -137,154 +138,175 @@ Future<void> _downloadImage(String base64Image, String folderPath) async {
        backgroundColor: notifier.getbgcolor,
       key: _key,
       resizeToAvoidBottomInset: false,
-      body: isLoading
-          ? const Padding(
-        padding: EdgeInsets.only(top: 150),
-        child: Center(
-          child: CircularProgressIndicator(),
-        ),
-      )
-          : Column(
+      body:Stack(
         children: [
-          
-          Expanded(
-            child:
-            
-             ListView.builder(
-              shrinkWrap: true,
-              physics: const BouncingScrollPhysics(),
-              scrollDirection: Axis.vertical,
-              itemCount: rdGraph.length,
-              itemBuilder: (context, index) {
-                final graph = rdGraph[index];
-                return Column(
-                    children: [
-                      if (graph.d.isNotEmpty)
-                      Stack(children: [
-                        Padding(
-                           padding: const EdgeInsets.all(10),
-                          child:  
-                              WidgetZoom(
-                               zoomWidget:  
-                              Image.memory(
-                                base64Decode(graph.d),
-                                width: screenWidth,
-                                fit: BoxFit.cover,
-                              ), heroAnimationTag: 'tag',
-                              )
-                            
-                          
-                        ),
-                            if (graph.d.isNotEmpty)
-                         Positioned(
-                          right: 5,
-                          bottom: 5,
-                          child: 
-                        IconButton(
-  onPressed: () async {
-    // final folderPath = await _createFolder();
-    // _downloadImage(graph.d, folderPath);
-   _saveImageToFolder(graph.d);
-  },
-  icon:  Icon(Icons.download,color: notifier.getMainText,),
-),
-                         )
-                      ]
+          Column(
+            children: [
+               Padding(
+                 padding: const EdgeInsets.all(8.0),
+                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                   children: [
+                     IconButton(
+                        onPressed: () async {
+                          getRD_Graph();
+                        },
+                        icon: Icon(Icons.refresh, color: notifier.getMainText),
                       ),
-                      if (graph.w.isNotEmpty)
-                      Stack(children: [
-                        Padding(
-                        padding: const EdgeInsets.all(10),
-                          child:  WidgetZoom(
-                               zoomWidget:  
-                              Image.memory(
-                                base64Decode(graph.w),
-                                width: screenWidth,
-                                fit: BoxFit.cover,
-                              ), heroAnimationTag: 'tag',
-                              )
-                            
-      
-                        ),
-                         if (graph.w.isNotEmpty)
-                         Positioned(
-                         right: 5,
-                          bottom: 5,
-                          child: 
-                        IconButton(onPressed: () async {
-                          //  final folderPath = await _createFolder();
-                          //   _downloadImage(graph.w,folderPath);
-                           _saveImageToFolder(graph.w);
-                        }, icon: Icon(Icons.download,color: notifier.getMainText,)),),
- ],
-                  ),
-
-                      if (graph.m.isNotEmpty)
-                      Stack(children: [
-                        Padding(
-                          padding: const EdgeInsets.all(10),
-                          child:   WidgetZoom(
-                               zoomWidget:  
-                              Image.memory(
-                                base64Decode(graph.m),
-                                width: screenWidth,
-                                fit: BoxFit.cover,
-                              ), heroAnimationTag: 'tag',
-                              )
-                             
-                        ),
-                         if (graph.m.isNotEmpty)
-                         Positioned(
-                         right: 5,
-                          bottom: 5,
-                          child: 
-                        IconButton(onPressed: () async {
-                          //  final folderPath = await _createFolder();
-                          //   _downloadImage(graph.m,folderPath);
-                           _saveImageToFolder(graph.m);
-                        }, icon:Icon(Icons.download,color: notifier.getMainText,)),)
-                      ]),
-                      if (graph.y.isNotEmpty)
-                      Stack(children: [
-                      
-                        Padding(
-                          padding: const EdgeInsets.all(10),
-                          child:   WidgetZoom(
-                               zoomWidget:  
-                              Image.memory(
-                                base64Decode(graph.y),
-                                width: screenWidth,
-                                fit: BoxFit.cover,
-                              ), heroAnimationTag: 'tag',
-                              )
-                            
-                        ),
-                         if (graph.y.isNotEmpty)
-                        Positioned(
-                         right: 5,
-                          bottom: 5,
-                          child: 
-                        IconButton(onPressed: () async {
-                          //  final folderPath = await _createFolder();
-                          //   _downloadImage(graph.y,folderPath);
-                           _saveImageToFolder(graph.y);
-                        }, icon:Icon(Icons.download,color: notifier.getMainText,)),
-                        ),
-                      ]),
-                      const SizedBox(height: 10),
-          //           ElevatedButton(
-          //   onPressed: () {
-          //     _createFolder();
-          //   },
-          //   child: Text('Create Folder'),
-          // ),
-                    ]
-                );
-              
-              }
-            )
+                   ],
+                 ),
+               ),
+              Expanded(
+                child:
+                
+                 ListView.builder(
+                  shrinkWrap: true,
+                  physics: const BouncingScrollPhysics(),
+                  scrollDirection: Axis.vertical,
+                  itemCount: rdGraph.length,
+                  itemBuilder: (context, index) {
+                    final graph = rdGraph[index];
+                    return Column(
+                        children: [
+                          if (graph.d.isNotEmpty)
+                          Stack(children: [
+                            Padding(
+                               padding: const EdgeInsets.all(10),
+                              child:  
+                                  WidgetZoom(
+                                   zoomWidget:  
+                                  Image.memory(
+                                    base64Decode(graph.d),
+                                    width: screenWidth,
+                                    fit: BoxFit.cover,
+                                  ), heroAnimationTag: 'tag',
+                                  )
+                                
+                              
+                            ),
+                                if (graph.d.isNotEmpty)
+                             Positioned(
+                              right: 5,
+                              bottom: 5,
+                              child: 
+                            IconButton(
+            onPressed: () async {
+              // final folderPath = await _createFolder();
+              // _downloadImage(graph.d, folderPath);
+             _saveImageToFolder(graph.d);
+            },
+            icon:  Icon(Icons.download,color: notifier.getMainText,),
           ),
-          const SizedBox(height: 15),
+                             )
+                          ]
+                          ),
+                          if (graph.w.isNotEmpty)
+                          Stack(children: [
+                            Padding(
+                            padding: const EdgeInsets.all(10),
+                              child:  WidgetZoom(
+                                   zoomWidget:  
+                                  Image.memory(
+                                    base64Decode(graph.w),
+                                    width: screenWidth,
+                                    fit: BoxFit.cover,
+                                  ), heroAnimationTag: 'tag',
+                                  )
+                                
+          
+                            ),
+                             if (graph.w.isNotEmpty)
+                             Positioned(
+                             right: 5,
+                              bottom: 5,
+                              child: 
+                            IconButton(onPressed: () async {
+                              //  final folderPath = await _createFolder();
+                              //   _downloadImage(graph.w,folderPath);
+                               _saveImageToFolder(graph.w);
+                            }, icon: Icon(Icons.download,color: notifier.getMainText,)),),
+           ],
+                      ),
+          
+                          if (graph.m.isNotEmpty)
+                          Stack(children: [
+                            Padding(
+                              padding: const EdgeInsets.all(10),
+                              child:   WidgetZoom(
+                                   zoomWidget:  
+                                  Image.memory(
+                                    base64Decode(graph.m),
+                                    width: screenWidth,
+                                    fit: BoxFit.cover,
+                                  ), heroAnimationTag: 'tag',
+                                  )
+                                 
+                            ),
+                             if (graph.m.isNotEmpty)
+                             Positioned(
+                             right: 5,
+                              bottom: 5,
+                              child: 
+                            IconButton(onPressed: () async {
+                              //  final folderPath = await _createFolder();
+                              //   _downloadImage(graph.m,folderPath);
+                               _saveImageToFolder(graph.m);
+                            }, icon:Icon(Icons.download,color: notifier.getMainText,)),)
+                          ]),
+                          if (graph.y.isNotEmpty)
+                          Stack(children: [
+                          
+                            Padding(
+                              padding: const EdgeInsets.all(10),
+                              child:   WidgetZoom(
+                                   zoomWidget:  
+                                  Image.memory(
+                                    base64Decode(graph.y),
+                                    width: screenWidth,
+                                    fit: BoxFit.cover,
+                                  ), heroAnimationTag: 'tag',
+                                  )
+                                
+                            ),
+                             if (graph.y.isNotEmpty)
+                            Positioned(
+                             right: 5,
+                              bottom: 5,
+                              child: 
+                            IconButton(onPressed: () async {
+                              //  final folderPath = await _createFolder();
+                              //   _downloadImage(graph.y,folderPath);
+                               _saveImageToFolder(graph.y);
+                            }, icon:Icon(Icons.download,color: notifier.getMainText,)),
+                            ),
+                          ]),
+                          const SizedBox(height: 10),
+              //           ElevatedButton(
+              //   onPressed: () {
+              //     _createFolder();
+              //   },
+              //   child: Text('Create Folder'),
+              // ),
+                        ]
+                    );
+                  
+                  }
+                )
+              ),
+              const SizedBox(height: 15),
+            ],
+          ),
+            if (isLoading) 
+                           Positioned.fill(
+                      child: Container(
+                        color: Colors.black.withOpacity(0.5),
+                        child: const Center(
+                          child: CircularProgressIndicator(
+                          
+                          ),
+                        ),
+                      ),
+                    ), 
         ],
       ),
     );

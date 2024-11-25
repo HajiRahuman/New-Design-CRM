@@ -97,12 +97,16 @@ class MyAppState extends State<SubscriberInvoice> {
   }
 
   Future<void> GetSubsInvoice() async {
+      setState(() {
+      isLoading = true; // Set loading to true when fetching data
+    });
     InvoiceDetResp resp =
     await subscriberSrv.getInvoice(widget.subscriberId!);
     if (!_isMounted) return; // Check if the widget is still mounted
     setState(() {
       if (resp.error) alert(context, resp.msg);
       listSubsInvoive = resp.error ? [] : resp.data ?? [];
+       isLoading = false;
     });
   }
 
@@ -133,6 +137,26 @@ Future<void> GetEmployeeList() async {
     }
   });
 }
+
+String getServiceType(String? packtype, {String defaultValue = '---'}) {
+  if (packtype == null || packtype.isEmpty) {
+    return defaultValue;
+  }
+
+  switch (packtype) {
+    case '1':
+      return 'Internet';
+    case '1,2':
+      return 'Internet & Voice';
+    case '1,3':
+      return 'Internet & OTT';
+    case '1,2,3':
+      return 'All';
+    default:
+      return 'Unknown';
+  }
+}
+
 
 
   bool isExpanded1 = false;
@@ -315,8 +339,6 @@ pw.TextStyle commonTextStyle = pw.TextStyle(
     );
   }
 
-
-
     pdf.addPage(
       pw.Page(
          
@@ -356,35 +378,51 @@ pw.TextStyle commonTextStyle = pw.TextStyle(
     ),
     pw.SizedBox(width: 20),
     pw.RichText(
-      text: pw.TextSpan(
-        children: [
-          pw.TextSpan(
-            text: "Grey Sky Internet Services Pvt Ltd\n",
-            style: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: pw.Font.timesBold()),
-          ),
-          pw.TextSpan(
-            text: "No.17/34e, Santhaiyadi Street, Udangudi,\nThoothukudi, Tamil Nadu, 628203,\nPAN: AAAAA1234A\n",
-            style: pw.TextStyle(font: pw.Font.times()),
-          ),
-          pw.TextSpan(
-            text: "bmssupport@gsisp.in\n",
-            style: pw.TextStyle(font: pw.Font.times()),
-          ),
-          pw.TextSpan(
-            text: "9442887912\n",
-            style: pw.TextStyle(font: pw.Font.times()),
-          ),
-          pw.TextSpan(
-            text: "GSTIN : ${invoice.supplierGst}\n",
-            style: pw.TextStyle(font: pw.Font.times()),
-          ),
-           pw.TextSpan(
-            text: "HSN : ${invoice.bushsn}\n",
-            style: pw.TextStyle(font: pw.Font.times()),
-          ),
-        ],
+  text: pw.TextSpan(
+    children: [
+      pw.TextSpan(
+        text: "Grey Sky Internet Services Pvt Ltd\n",
+        style: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: pw.Font.timesBold()),
       ),
-    ),
+      pw.TextSpan(
+        text: "No.17/34e, Santhaiyadi Street, Udangudi,\nThoothukudi, Tamil Nadu, 628203,\n",
+        style: pw.TextStyle(font: pw.Font.times()),
+      ),
+      pw.TextSpan(
+        text: "bmssupport@gsisp.in\n",
+        style: pw.TextStyle(font: pw.Font.times()),
+      ),
+      pw.TextSpan(
+        text: "9442887912\n",
+        style: pw.TextStyle(font: pw.Font.times()),
+      ),
+      pw.TextSpan(
+        text: "GSTIN : ",
+        style: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: pw.Font.times()),
+      ),
+      pw.TextSpan(
+        text: "${invoice.supplierGst.isNotEmpty ? invoice.supplierGst : "33AAJCG9282G1ZC"}\n",
+        style: pw.TextStyle(font: pw.Font.timesBold()),
+      ),
+       pw.TextSpan(
+        text: "PAN : ",
+        style: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: pw.Font.times()),
+      ),
+      pw.TextSpan(
+        text: "${invoice.buspan.isNotEmpty ? invoice.buspan : "AAJCG9282G"}\n",
+        style: pw.TextStyle(font: pw.Font.timesBold()),
+      ),
+       pw.TextSpan(
+        text: "HSN : ",
+        style: pw.TextStyle(fontWeight: pw.FontWeight.bold, font: pw.Font.times()),
+      ),
+      pw.TextSpan(
+        text: "${invoice.bushsn.isNotEmpty ? invoice.bushsn : "9984"}\n",
+        style: pw.TextStyle(font: pw.Font.timesBold()),
+      ),
+    ],
+  ),
+),
 
    
          ]
@@ -430,7 +468,7 @@ pw.TextStyle commonTextStyle = pw.TextStyle(
                       pw.Padding(
                          padding: const pw.EdgeInsets.all(8.0),
                         child: pw.Column(children: [
-                         _buildCommonListTile3(title: 'Invoice Date ',subtitle:': ${invoice.invdate.isNotEmpty  ? DateFormat.yMd().add_jm().format(DateTime.parse(invoice.invdate)) : "---"}'),
+                         _buildCommonListTile3(title: 'Invoice Date ',subtitle:': ${invoice.invdate.isNotEmpty  ? DateFormat.yMd().format(DateTime.parse(invoice.invdate).toLocal()) : "---"}'),
                          pw.SizedBox(height: 8),
                            _buildCommonListTile3(title: 'Billing Period ',subtitle:': ${invoice.invdate.isNotEmpty  ? DateFormat('MM-dd-yyyy').format(DateTime.parse(invoice.invdate).toLocal()): "---" } To ${invoice.expiration.isNotEmpty  ? DateFormat('MM-dd-yyyy').format(DateTime.parse(invoice.expiration).toLocal()):"---"}'),
                             pw.SizedBox(height: 8),
@@ -451,7 +489,7 @@ pw.Padding(
   pw.Column(children: [
                          _buildCommonListTile3(title: 'Place Of Supply ',subtitle:': Tamil Nadu'),
                          pw.SizedBox(height: 8),
-                           _buildCommonListTile3(title: 'Service Type ',subtitle:': ${invoice.packtype == "1,2" ? 'Internet & Voice' : (invoice.packtype == "1,3" ? 'Internet & OTT' : 'Internet')}'),
+                          _buildCommonListTile3(title: 'Service Type',subtitle: ': ${getServiceType(invoice.packtype, defaultValue: "IP")}'),
                             pw.SizedBox(height: 8),
                             _buildCommonListTile3(title: 'Validity ',subtitle:': ${invoice.expiration.isNotEmpty  ? DateFormat.yMMMMd('en_US').add_jm() .format(DateTime.parse(invoice.expiration).toLocal()): "---" }'),
                             if(invoice.recipientGst.isNotEmpty)
@@ -488,16 +526,31 @@ pw.Padding(
                   ),
                   pw.TableRow(
                     children: [
+                     
+                        pw.Column(children: [
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.all(8.0),
+                            child: 
+                      pw.Text('${invoice.subname}\nProfileID : ${invoice.subprofileid}',  style: pw.TextStyle(font: pw.Font.timesBold(),lineSpacing: 4, )),),
                       pw.Padding(
-                        
-                           padding: const pw.EdgeInsets.all(8.0),
+                          padding: const pw.EdgeInsets.all(8.0),
                         child: 
-                      pw.Text('${invoice.subname}\n ${invoice.subbilladdress}',  style: pw.TextStyle(font: pw.Font.times(),lineSpacing: 4, )),),
-                     pw.Padding(
-                        
-                           padding: const pw.EdgeInsets.all(8.0),
+                       pw.Text(invoice.subbilladdress,  style: pw.TextStyle(font: pw.Font.times(),lineSpacing: 4, ))),
+                    ]
+                  ),
+                      
+
+                     pw.Column(children: [
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.all(8.0),
+                            child: 
+                      pw.Text('${invoice.subname}\nProfileID : ${invoice.subprofileid}',  style: pw.TextStyle(font: pw.Font.timesBold(),lineSpacing: 4, )),),
+                      pw.Padding(
+                          padding: const pw.EdgeInsets.all(8.0),
                         child: 
-                      pw.Text('${invoice.subname}\n ${invoice.subaddress}',  style: pw.TextStyle(font: pw.Font.times(),lineSpacing: 4, )),),
+                       pw.Text(invoice.subaddress,  style: pw.TextStyle(font: pw.Font.times(),lineSpacing: 4, ))),
+                    ]
+                  ),
                     ],
                   ),
 
@@ -541,13 +594,13 @@ pw.Padding(
                 pw.TableRow(
                   children: [
                       tableCell("1"),
-                    tableCell(invoice.packname),
+                    tableCell(invoice.packname.isNotEmpty?invoice.packname:invoice.additionalinfo),
                     tableCell(invoice.allamount.toString()),
-                    tableCell('9'),
+                    tableCell(invoice.cgst.toString().isNotEmpty == true ? invoice.cgst.toString() : "---"),
                     tableCell(invoice.alltaxamt.toString()),
-                    tableCell('9'),
+                    tableCell(invoice.sgst.toString().isNotEmpty == true ? invoice.sgst.toString() : "---"),
                     tableCell(invoice.alltaxamt.toString()),
-                    tableCell('0'),
+                    tableCell(invoice.igst.toString().isNotEmpty == true ? invoice.igst.toString() : "---"),
                     tableCell('--'),
                     tableCell(invoice.totalamount.toString()),
                   ],
@@ -703,6 +756,55 @@ Future<String> savePDF(int invid) async {
 
   return file.path;  // Return the file path so it can be opened
 }
+
+
+
+// Utility function to get the label for invmode
+String getInvoiceModeLabel(int invmode) {
+  const invoiceModes = [
+    {'id': 1, 'label': 'Pack'},
+    {'id': 2, 'label': 'Data'},
+    {'id': 3, 'label': 'IP'},
+  ];
+
+  final mode = invoiceModes.firstWhere(
+    (mode) => mode['id'] == invmode,
+    orElse: () => {'id': 0, 'label': 'Unknown'}, // Default value for unknown modes
+  );
+
+  return mode['label'] as String;
+}
+String getRenewalTypeLabel(int renewType) {
+  const renewalType = [
+    {'id': 1, 'label': 'Reseller Renewal'},
+    {'id': 2, 'label': 'Reseller Schedule'},
+    {'id': 3, 'label': 'Subscriber Online Renewal'},
+    {'id': 4, 'label': 'Subscriber Online Schedule'},
+  ];
+
+  final type = renewalType.firstWhere(
+    (type) => type['id'] == renewType,
+    orElse: () => {'id': 0, 'label': 'Unknown'}, // Default value for unknown modes
+  );
+
+  return type['label'] as String;
+}
+
+String getLocalityLabel(int local) {
+  const renewalType = [
+    {'id': 0, 'label': 'Urban(City)'},
+    {'id': 1, 'label': 'Rural(Village)'},
+  
+  ];
+
+  final locali = renewalType.firstWhere(
+    (locali) => locali['id'] == local,
+    orElse: () => {'id': 0, 'label': 'Unknown'}, // Default value for unknown modes
+  );
+
+  return locali['label'] as String;
+}
+
   @override
   Widget build(BuildContext context) {
       final startIndex = (currentPage - 1) * itemsPerPage;
@@ -718,236 +820,310 @@ Future<String> savePDF(int invid) async {
             backgroundColor:notifier.getbgcolor,
             key: _key,
             resizeToAvoidBottomInset: false,
-            body:isLoading
-                  ? const Padding(
-                padding: EdgeInsets.only(top:150 ),
-                child: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              )
-                  : Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                                    children: [
-                                     
-                    Expanded(
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          physics: const BouncingScrollPhysics(),
-                          scrollDirection: Axis.vertical,
-                         itemCount: paginatedList.length,
-                          itemBuilder: (context, index) {
-                      
-                           final invoice = paginatedList[index];                 
-                            return Column(
-                              children: [
-                                Container(
-                                   padding:const EdgeInsets.all(10),
-                                                        decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: Colors.grey.withOpacity(0.3)),
-                                                        ),
-                                  child: Column(
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(0),
-                                        
-                                          child: ExpansionTile(
-                                            collapsedIconColor:  notifier.getMainText ,
-                                            iconColor: notifier.getMainText ,
-                                            expandedAlignment:
-                                            Alignment.topLeft,
-                                            leading:  Text(
-                                              'INVOICE ID',
-                                              textScaleFactor: 1,
-                                           style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
-                                            ),
-                                            title:
-                                            Row(
-                                              mainAxisAlignment:MainAxisAlignment.spaceEvenly,
-                                              children: [
-                                                Text(invoice.invid.toString(),
-                                                    textScaleFactor: 1,
-                                                      style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
-                                                ),
-                                                IconButton(
-                                                  icon:  Icon(Icons.download,color: notifier.getMainText ,),
-                                                  onPressed: () {
-                                            // Check and save the PDF
-                                             generateInvoice(invoice.invid);
-                                             _checkAndSavePDF(invoice.invid);
-                                          },
-                                                  // onPressed: () {
-                                                  //   generateInvoice(invoice.invid);
-                                                  //   savePDF(invoice.invid);
-                                                  // },
-                                                ),
-                                  
-                                                Visibility(
-                                                  visible:invoice.payStatus ==1 && isSubscriber==false,
-                                                  child: IconButton(
-                                                    icon:  Icon(Icons.currency_rupee,color: notifier.getMainText ),
-                                                    onPressed: () {
-                                      //                                         
-                                                      showDialog(
-                                                context: context,
-                                                builder: (ctx) =>
-                                                     Dialog.fullscreen(
-                                                     
-                                                   
-                                                     child: InvoicePaymentStatus(invoiceId: invoice.invid, totAmt: invoice.totalamount) as Widget,
-                                  
-                                                     
-                                  
-                                                    ),
-                                              ).then((val) => {
-                                                  // print('dialog--$val'),
-                                                  if (val)   GetSubsInvoice()
-                                                });
-                                                    },
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            children: [
-                                              Column(
-                                                children: [
-                                                   SizedBox(
-                                              height: 150,
-                                              width: screenWidth,
-                                               child: ListView(
-                                                 scrollDirection: Axis.horizontal,
-                                                
-                                                children: [
-                                                  Align(
-                                                    alignment: Alignment.topLeft,
-                                                    child: SingleChildScrollView(
-                                                      child: Padding(
-                                                        padding: const EdgeInsets.all(8.0),
-                                                        child: Table(
-                                                          border: TableBorder.all(borderRadius: BorderRadius.circular(10),color: notifier.getMainText ),
-                                                          columnWidths: const {
-                                                            0: FixedColumnWidth(150),
-                                                            1: FixedColumnWidth(150),
-                                                            2: FixedColumnWidth(150),
-                                                            3: FixedColumnWidth(150),
-                                                            4: FixedColumnWidth(150),
-                                                            5: FixedColumnWidth(150),
-                                                            6: FixedColumnWidth(150),
-                                                            7: FixedColumnWidth(150),
-                                                             8: FixedColumnWidth(150),
-                                                          },
-                                                          children: [
-                                                             TableRow(
-                                                            
-                                                              children: [
-                                                                Text(
-                                                                  "AMOUNT",
-                                                                  textAlign: TextAlign.center,
-                                                                 style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
-                                                                ),
-                                                                Text(
-                                                                  "TAX",
-                                                                     textAlign: TextAlign.center,
-                                                                  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
-                                                                ),
-                                                                // Text(
-                                                                //   "COUPON",
-                                                                //      textAlign: TextAlign.center,
-                                                                //    style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
-                                                                // ),
-                                                                Text(
-                                                                  "TOTAL",
-                                                                     textAlign: TextAlign.center,
-                                                                  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
-                                                                ),
-                                                                Text(
-                                                                  "STATUS",
-                                                                     textAlign: TextAlign.center,
-                                                                style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
-                                                                ),
-                                                                Text(
-                                                                  "TYPE",
-                                                                     textAlign: TextAlign.center,
-                                                                 style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
-                                                                ),
-                                                                Text(
-                                                                  "INVOICE DATE",
-                                                                     textAlign: TextAlign.center,
-                                                                style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
-                                                                ),
-                                                                Text(
-                                                                  "PAYMENT TYPE",
-                                                                     textAlign: TextAlign.center,
-                                                                style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
-                                                                ),
-                                                                 Text(
-                                                                  "DUE DATE",
-                                                                     textAlign: TextAlign.center,
-                                                                style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
-                                                                ),
-                                                              ],
+            body: Stack(
+              children: [
+                Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                                        children: [
+                                           Padding(
+                                             padding: const EdgeInsets.all(8.0),
+                                             child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.end,
+                                               children: [
+                                                 IconButton(
+                                                               onPressed: () async {
+                                                                 GetSubsInvoice();
+                                                               },
+                                                               icon: Icon(Icons.refresh, color: notifier.getMainText),
+                                                             ),
+                                               ],
+                                             ),
+                                           ),
+                                         
+                        Expanded(
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              physics: const BouncingScrollPhysics(),
+                              scrollDirection: Axis.vertical,
+                             itemCount: paginatedList.length,
+                              itemBuilder: (context, index) {
+                          
+                               final invoice = paginatedList[index];                 
+                                return Column(
+                                  children: [
+                                    Container(
+                                       padding:const EdgeInsets.all(10),
+                                                            decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: Colors.grey.withOpacity(0.3)),
                                                             ),
-                                                            // dividerRow(const Color(0xff7366ff)),
-                                                            // ignore: unused_local_variable
-                                                            // for (var invoices in  listSubsInvoive) ...[
-                                                              
-                                                              newRow(
-                                                                 amount:'${invoice.allamount}',
-                                                                  tax:'${invoice.alltaxamt}',
-                                                                  // coupon:'${'coupon'}',
-                                                                  total:'${invoice.totalamount}',
-                                                                  status:invoice.invstatus == 1 ? 'Active':'Cancelled',
-                                                                  type:invoice.invtype == 1 ? 'NON-GST':'GST',
-                                                                  inviDate: invoice.invdate.isNotEmpty  ? DateFormat.yMMMMd('en_US').format(DateTime.parse(invoice.invdate).toLocal()): "---",
-                                                                  payType:invoice.payStatus == 1 ? 'Unpaid':'Paid',
-                                                                  payVali:invoice.expiration.isNotEmpty  ? DateFormat.yMMMMd('en_US').add_jm() .format(DateTime.parse(invoice.expiration).toLocal()): "---",//
-                                                                    // payVali:invoice.invdate.isNotEmpty  ? "${DateFormat.yMd().add_jm().format(DateTime.parse(invoice.paydate))}" : "---",//
-                                                            
-                                                            
-                                                              ),
-                                                              // dividerRow(Colors.red),
-                                                            // ],
-                                                          ],
+                                      child: Column(
+                                        children: [
+                                           
+                                          Padding(
+                                            padding: const EdgeInsets.all(0),
+                                            
+                                              child: ExpansionTile(
+                                                collapsedIconColor:  notifier.getMainText ,
+                                                iconColor: notifier.getMainText ,
+                                                expandedAlignment:
+                                                Alignment.topLeft,
+                                                leading:  Text(
+                                                  'INVOICE ID',
+                                                  textScaleFactor: 1,
+                                               style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                ),
+                                                title:
+                                                Row(
+                                                  mainAxisAlignment:MainAxisAlignment.spaceEvenly,
+                                                  children: [
+                                                    Text(invoice.invid.toString(),
+                                                        textScaleFactor: 1,
+                                                          style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                    ),
+                                                    IconButton(
+                                                      icon:  Icon(Icons.download,color: notifier.getMainText ,),
+                                                      onPressed: () {
+                                                // Check and save the PDF
+                                                 generateInvoice(invoice.invid);
+                                                 _checkAndSavePDF(invoice.invid);
+                                              },
+                                                      // onPressed: () {
+                                                      //   generateInvoice(invoice.invid);
+                                                      //   savePDF(invoice.invid);
+                                                      // },
+                                                    ),
+                                      
+                                                    Visibility(
+                                                      visible:invoice.payStatus ==1 && isSubscriber==false,
+                                                      child: IconButton(
+                                                        icon:  Icon(Icons.currency_rupee,color: notifier.getMainText ),
+                                                        onPressed: () {
+                                          //                                         
+                                                          showDialog(
+                                                    context: context,
+                                                    builder: (ctx) =>
+                                                         Dialog.fullscreen(
+                                                         
+                                                       
+                                                         child: InvoicePaymentStatus(invoiceId: invoice.invid, totAmt: invoice.totalamount) as Widget,
+                                      
+                                                         
+                                      
                                                         ),
+                                                  ).then((val) => {
+                                                      // print('dialog--$val'),
+                                                      if (val)   GetSubsInvoice()
+                                                    });
+                                                        },
                                                       ),
                                                     ),
+                                                  ],
+                                                ),
+                                                children: [
+                                                  Column(
+                                                    children: [
+                                                       SizedBox(
+                                                  height: 150,
+                                                  width: screenWidth,
+                                                   child: ListView(
+                                                     scrollDirection: Axis.horizontal,
+                                                    
+                                                    children: [
+                                                      Align(
+                                                        alignment: Alignment.topLeft,
+                                                        child: SingleChildScrollView(
+                                                          child: Padding(
+                                                            padding: const EdgeInsets.all(8.0),
+                                                            child: Table(
+                                                              border: TableBorder.all(borderRadius: BorderRadius.circular(10),color: notifier.getMainText ),
+                                                              columnWidths: const {
+                                                                0: FixedColumnWidth(150),
+                                                                1: FixedColumnWidth(150),
+                                                                2: FixedColumnWidth(150),
+                                                                3: FixedColumnWidth(150),
+                                                                4: FixedColumnWidth(150),
+                                                                5: FixedColumnWidth(150),
+                                                                6: FixedColumnWidth(150),
+                                                                7: FixedColumnWidth(150),
+                                                                 8: FixedColumnWidth(150),
+                                                                 9: FixedColumnWidth(150),
+                                                                 10: FixedColumnWidth(150),
+                                                                 11: FixedColumnWidth(150),
+                                                                 12: FixedColumnWidth(150),
+                                                                 13: FixedColumnWidth(150),
+                                                                 14: FixedColumnWidth(150),
+                                                              },
+                                                              children: [
+                                                                 TableRow(
+                                                                
+                                                                  children: [
+                                                                    Text(
+                                                                      "IGST",
+                                                                      textAlign: TextAlign.center,
+                                                                     style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                                    ),
+                                                                     Text(
+                                                                      "CGST",
+                                                                      textAlign: TextAlign.center,
+                                                                     style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                                    ),
+                                                                     Text(
+                                                                      "SGST",
+                                                                      textAlign: TextAlign.center,
+                                                                     style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                                    ),
+                                                                    Text(
+                                                                      "AMOUNT",
+                                                                      textAlign: TextAlign.center,
+                                                                     style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                                    ),
+                                                                    Text(
+                                                                      "TAX",
+                                                                         textAlign: TextAlign.center,
+                                                                      style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                                    ),
+                                                                    // Text(
+                                                                    //   "COUPON",
+                                                                    //      textAlign: TextAlign.center,
+                                                                    //    style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                                    // ),
+                                                                    Text(
+                                                                      "TOTAL",
+                                                                         textAlign: TextAlign.center,
+                                                                      style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                                    ),
+                                                                    Text(
+                                                                      "STATUS",
+                                                                         textAlign: TextAlign.center,
+                                                                    style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                                    ),
+                                                                    Text(
+                                                                      "TYPE",
+                                                                         textAlign: TextAlign.center,
+                                                                     style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                                    ),
+                                                                    Text(
+                                                                      "MODE",
+                                                                         textAlign: TextAlign.center,
+                                                                     style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                                    ),
+                                                                    Text(
+                                                                      "INVOICE DATE",
+                                                                         textAlign: TextAlign.center,
+                                                                    style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                                    ),
+                                                                    Text(
+                                                                      "DUE DATE",
+                                                                         textAlign: TextAlign.center,
+                                                                    style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                                    ),
+                                                                    Text(
+                                                                      "PAYMENT TYPE",
+                                                                         textAlign: TextAlign.center,
+                                                                    style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                                    ),
+                                                                      Text(
+                                                                      "PAYMENT DATE",
+                                                                         textAlign: TextAlign.center,
+                                                                    style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                                    ),
+                                                                     
+                                                                     Text(
+                                                                      "RENEWAL TYPE",
+                                                                         textAlign: TextAlign.center,
+                                                                    style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                                    ),
+                                                                     Text(
+                                                                      "LOCALITY",
+                                                                         textAlign: TextAlign.center,
+                                                                    style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                                // dividerRow(const Color(0xff7366ff)),
+                                                                // ignore: unused_local_variable
+                                                                // for (var invoices in  listSubsInvoive) ...[
+                                                                  
+                                                                  newRow(
+                                                                    igst:invoice.igst,
+                                                                      cgst:invoice.cgst,
+                                                                        sgst:invoice.sgst,
+                                                                     amount:'₹${invoice.allamount}',
+                                                                      tax:'₹${invoice.alltaxamt}',
+                                                                      // coupon:'${'coupon'}',
+                                                                      total:'₹${invoice.totalamount}',
+                                                                      status:invoice.invstatus == 1 ? 'Active':'Cancelled',
+                                                                      type:invoice.invtype == 1 ? 'NON-GST':'GST',
+                                                                       invmode: invoice.invmode,
+                                                                      inviDate: invoice.invdate.isNotEmpty  ? DateFormat.yMMMMd('en_US').format(DateTime.parse(invoice.invdate).toLocal()): "---",
+                                                                        payVali:invoice.expiration.isNotEmpty  ? DateFormat.yMMMMd('en_US').add_jm() .format(DateTime.parse(invoice.expiration).toLocal()): "---",//
+                                                                      payType:invoice.payStatus == 1 ? 'Unpaid':'Paid',
+                                                                      payDate:invoice.payStatus == 2 ? DateFormat.yMMMMd('en_US').add_jm() .format(DateTime.parse(invoice.paydate).toLocal()): "---",
+                                                                    
+                                                                        // payVali:invoice.invdate.isNotEmpty  ? "${DateFormat.yMd().add_jm().format(DateTime.parse(invoice.paydate))}" : "---",//
+                                                                        renewType: invoice.renewalThrough,
+                                                                        locality:invoice.locality,
+                                                                
+                                                                
+                                                                  ),
+                                                                  // dividerRow(Colors.red),
+                                                                // ],
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                                                       ),
+                                                 ),
+                                                    
+                                                     
+                                                    ],
                                                   ),
                                                 ],
-                                                                                   ),
-                                             ),
-                                                
-                                                 
-                                                ],
-                                              ),
-                                            ],
+                                              
+                                            ),
+                                          ),
+                                         Divider(color: Colors.grey.withOpacity(0.3)),
+                                            _buildCommonListTile(title: 'INVOICE NO', subtitle: ': ${invoice.invno}'),
+                                            
+                                            _buildCommonListTile(title: 'PACK TYPE',subtitle: ': ${getServiceType(invoice.packtype, defaultValue: "---")}',),
+                
+                                            _buildCommonListTile(title: 'PACK NAME', subtitle:': ${invoice.packname.isNotEmpty? invoice.packname: "---"}'),
+                                            
+                                         _buildCommonListTile(title: 'PRICE NAME', subtitle: ': ${invoice.pricename.isNotEmpty? invoice.pricename: "---"}'),
+                                           
+                                        _buildCommonListTile(title: 'VALIDITY DATE', subtitle:': ${invoice.expiration.isNotEmpty  ? DateFormat.yMMMMd('en_US').add_jm() .format(DateTime.parse(invoice.expiration).toLocal()): "---" }'),
                                           
-                                        ),
+                                        ],
                                       ),
-                                     Divider(color: Colors.grey.withOpacity(0.3)),
-                                        _buildCommonListTile(title: 'INVOICE NO', subtitle: ': ${invoice.invno}'),
-                                        
-                                        _buildCommonListTile(title: 'PACK TYPE', subtitle: ': ${invoice.packtype == "1,2" ? 'Internet & Voice' : (invoice.packtype == "1,3" ? 'Internet & OTT' : 'Internet')}'),
-                                       
-                                        _buildCommonListTile(title: 'PACK NAME', subtitle:': ${invoice.packname}'),
-                                        
-                                     _buildCommonListTile(title: 'PRICE NAME', subtitle: ': ${invoice.pricename}'),
-                                       
-                                    _buildCommonListTile(title: 'VALIDITY DATE', subtitle:': ${invoice.expiration.isNotEmpty  ? DateFormat.yMMMMd('en_US').add_jm() .format(DateTime.parse(invoice.expiration).toLocal()): "---" }'),
-                                      
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                              ],
-                            );
-                          },
-                        )),
-                    const SizedBox(height: 15),
-                    _buildPaginationControls() 
-                                    ],
-                                  ),
-                  ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                     
+                                  ],
+                                );
+                              },
+                            )),
+                        const SizedBox(height: 15),
+                        _buildPaginationControls() 
+                                        ],
+                                      ),
+                      ),
+                       if (isLoading) // Show circular progress indicator if isLoading is true
+                    Positioned.fill(
+                      child: Container(
+                        color: Colors.black.withOpacity(0.5),
+                        child: const Center(
+                          child: CircularProgressIndicator(
+                          
+                          ),
+                        ),
+                      ),
+                    ),
+              ],
+            ),
 
            );
 
@@ -998,7 +1174,9 @@ Widget _buildCommonListTile({
         Expanded(
           child: Text(
             title,
-            style: mediumGreyTextStyle,
+           style: mediumBlackTextStyle.copyWith(
+              color: notifier.getMainText,
+            ),
           ),
         ),
         const SizedBox(width: 10), // Add some spacing between title and subtitle
@@ -1016,6 +1194,10 @@ Widget _buildCommonListTile({
   );
 }
 TableRow newRow({
+  required int igst,
+  required int cgst,
+  required int sgst,
+  required int invmode,
   required String amount,
   required String tax,
   // required String coupon,
@@ -1024,13 +1206,29 @@ TableRow newRow({
   required String type,
   required String inviDate,
   required String payType,
-  required String payVali, // Change this to String
+  required String payVali,
+  required int renewType,
+  required int locality,
+  required String payDate,
+  // Change this to String
 }) {
   // Convert price and taxAmt to double
   
 final notifier = Provider.of<ColorNotifire>(context, listen: false);
   return TableRow(
     children: [
+       Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Text( "$igst%", textAlign: TextAlign.center,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
+      ),
+        Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Text( "$cgst%", textAlign: TextAlign.center,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
+      ),
+        Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Text( "$sgst%", textAlign: TextAlign.center,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
+      ),
       Padding(
         padding: const EdgeInsets.symmetric(vertical: 5),
         child: Text(amount, textAlign: TextAlign.center,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
@@ -1045,7 +1243,7 @@ final notifier = Provider.of<ColorNotifire>(context, listen: false);
       // ),
      Padding(
         padding: const EdgeInsets.symmetric(vertical: 5),
-        child: Text("$total" , textAlign: TextAlign.center,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
+        child: Text(total , textAlign: TextAlign.center,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
       ),
       Padding(
         padding: const EdgeInsets.symmetric(vertical: 5),
@@ -1055,9 +1253,17 @@ final notifier = Provider.of<ColorNotifire>(context, listen: false);
         padding: const EdgeInsets.symmetric(vertical: 5),
         child: Text(type, textAlign: TextAlign.center,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
       ),
+       Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Text(getInvoiceModeLabel(invmode), textAlign: TextAlign.center,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
+      ),
       Padding(
         padding: const EdgeInsets.symmetric(vertical: 5),
         child: Text(inviDate, textAlign: TextAlign.center,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
+      ),
+        Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Text(payVali, textAlign: TextAlign.center,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
       ),
        Padding(
         padding: const EdgeInsets.symmetric(vertical: 5),
@@ -1065,7 +1271,16 @@ final notifier = Provider.of<ColorNotifire>(context, listen: false);
       ),
        Padding(
         padding: const EdgeInsets.symmetric(vertical: 5),
-        child: Text(payVali, textAlign: TextAlign.center,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
+        child: Text(payDate, textAlign: TextAlign.center,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
+      ),
+     
+       Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Text(getRenewalTypeLabel(renewType), textAlign: TextAlign.center,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
+      ),
+       Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Text(getLocalityLabel(locality), textAlign: TextAlign.center,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
       ),
     ],
   );

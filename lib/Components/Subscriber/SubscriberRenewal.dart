@@ -1,15 +1,12 @@
 import 'package:crm/AppStaticData/AppStaticData.dart';
 import 'package:crm/AppStaticData/toaster.dart';
-import 'package:crm/Components/Subscriber/SubscriberInvoice/SubscriberInvoice.dart';
 import 'package:crm/Providers/providercolors.dart';
-import 'package:crm/components/Subscriber/SubscriberInvoice/SubscriberInvoice.dart';
 import 'package:crm/model/reseller.dart';
 import 'package:crm/model/subscriber.dart';
 import 'package:crm/service/Payment.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter/services.dart';
-
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
@@ -30,7 +27,7 @@ class SubscriberRenewal extends StatefulWidget {
    int? voiceid;
 
 
-  SubscriberRenewal({this.resellerid, this.uid, this.srvusermode, this.packid,this.subscriberId, this.expiration,this.voiceid});
+  SubscriberRenewal({this.resellerid, this.uid, this.srvusermode, this.packid,this.subscriberId, this.expiration,this.voiceid,});
   @override
   MyAppState createState() => MyAppState();
 }
@@ -56,12 +53,21 @@ class MyAppState extends State<SubscriberRenewal> {
   };
   int selectedAmount = 0;
   late FormGroup form;
-
+Map<String, int> paymentMode = {
+  'User Paid(Cash)': 0,
+  'From Reseller Side User Balance': 1,
+  'User Wallet': 2,
+  'User paid by Demand Pay': 3,
+  'User Paid(Online)': 4,
+  'User Paid(Cheque)': 5,
+  'User Paid(Internet Banking)': 6,
+  'User Paid(Other)': 999,
+};
   void initializeForm() {
     form = FormGroup({
       'uid': FormControl<int>(value: widget.uid),
       'resellerid': FormControl<int>(value: widget.resellerid),
-      'packid': FormControl<int>(validators: [Validators.required]),
+      'packid': FormControl<int>(value: widget.packid, validators: [Validators.required]),
       'ottpackid': FormControl<int>(),
       'coupon_code': FormControl<String>(),
       'priceid': FormControl<int>(validators: [Validators.required]),
@@ -71,10 +77,8 @@ class MyAppState extends State<SubscriberRenewal> {
       'paydate': FormControl<String>(),
       'comment1': FormControl<String>(),
       'pay_status': FormControl<int>(),
+      'pay_type': FormControl<int>(),
       'vpackid': FormControl<int>(validators: [Validators.required]),
-      'ipv4':FormControl<String>(),
-      'ipv4id':FormControl<int>(),
-      'ipmode':FormControl<int>(),
     });
   }
 
@@ -90,6 +94,7 @@ class MyAppState extends State<SubscriberRenewal> {
 
       }
     });
+     GetRenewalPrice(widget.resellerid!);
 
   }
 
@@ -187,13 +192,14 @@ GetRenewalPriceResp resp = await subscriberSrv.getRenewalVoice(
   
     resellerOpts = isSubscriber
       ? {
-          'Subscriber Renewal': 3,
-          'Subscriber Schedule': 4,
+          'Subscriber Online Renewal': 3,
+          'Subscriber Online Schedule': 4,
         }
       : {
           'Reseller Renewal': 1,
           'Reseller Schedule': 2,
         };
+       
     
   }
 
@@ -288,16 +294,16 @@ late Razorpay razorpay;
     final unittype = filteredPrice.unittype;
     final timeunit = filteredPrice.timeunit;
     final extradays = filteredPrice.extradays;
-    this.voiceValidity = validity;
+    voiceValidity = validity;
     // this.packValidity = this.expMode != 0
     //     ? this.calculateValidityOnExpiryMode(validity)
     //     : validity;
 
-    this.voprice = price;
-    this.votaxmode = taxmode;
-    this.Vunittype = unittype;
-    this.Vtimeunit = timeunit;
-    this.Vextradays = extradays;
+    voprice = price;
+    votaxmode = taxmode;
+    Vunittype = unittype;
+    Vtimeunit = timeunit;
+    Vextradays = extradays;
     // print('validity----${validity}');
     }
 
@@ -443,16 +449,17 @@ late Razorpay razorpay;
     totalTax = bbpaidtax + (vopaidtax ?? 0);
     toPayAmount = (totalAmount ?? 0) + (totalTax ?? 0);
     if (form.value['pay_status']== 2) {
-      form.control('userpayedamt').value=toPayAmount;
+     form.control('userpayedamt').value = toPayAmount.toInt(); // Cast to int
       // print('Grand Total2====$toPayAmount');
     }
   }
-  bool showValidity = true;
+  bool showSheduleDate = false;
+  bool showValidity=true;
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
      final notifier = Provider.of<ColorNotifire>(context);
+     final screenWidth = MediaQuery.of(context).size.width;
     return ReactiveForm(
       formGroup: form,
       child: Container(
@@ -536,7 +543,7 @@ late Razorpay razorpay;
                                         : Colors.black)),
                                                                           ),
                         
-                        onChanged: (newValue) {
+                       onChanged: (newValue) {
                           setState(() {
                             GetRenewalPrice(widget.resellerid!);
 
@@ -684,25 +691,38 @@ late Razorpay razorpay;
                                         ? notifier.geticoncolor
                                         : Colors.black)),
                                                                           ),
-                        
-                        onChanged: (value) {
-                          setState(() {
-                            if (form.value['renewal_through'] == 3) {
-                              // If "Reseller Renewal" is selected, hide the validity text
-                              showValidity = true;
-                            } else if (form.value['renewal_through'] == 4){
-                              // Otherwise, show the validity text
-                              showValidity = false;
+                         onChanged: (value) {
+    setState(() {
+      if (form.value['renewal_through'] == 1 || form.value['renewal_through']  == 3) {
+        // If "Subscriber Online Renewal" or "Subscriber Online Schedule" is selected, show validity
+        showSheduleDate = false;
+        showValidity=true;
+      } else if (form.value['renewal_through']  == 2 || form.value['renewal_through']  == 4) {
+        // If "Reseller Renewal" or "Reseller Schedule" is selected, handle accordingly
+        showSheduleDate = true;
+        showValidity=false;
+      }
+      calculateScheduleValidityDate();
+    });
+  },
+                        // onChanged: (value) {
+                        //   setState(() {
+                        //     if (form.value['renewal_through'] == 3) {
+                        //       // If "Reseller Renewal" is selected, hide the validity text
+                        //       showValidity = true;
+                        //     } else if (form.value['renewal_through'] == 4){
+                        //       // Otherwise, show the validity text
+                        //       showValidity = false;
 
-                            }
-                            calculateScheduleValidityDate();
-                          });
-                        },
+                        //     }
+                        //     calculateScheduleValidityDate();
+                        //   });
+                        // },
                       ),
                     ),
                     const SizedBox(height: 10),
                     Visibility(
-                      visible: form.value['renewal_through'] == resellerOpts['Reseller Schedule'],
+                      visible: showSheduleDate,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 18.0),
                         child:ReactiveTextField<String>(
@@ -716,7 +736,7 @@ late Razorpay razorpay;
                                                               
                                                                             labelStyle: mediumGreyTextStyle.copyWith(
                                           fontSize: 13),
-                                                                             labelText: 'Pack Name',
+                                                                             labelText: 'Schedule Date',
                                                                           enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                                 borderSide: BorderSide(
@@ -775,85 +795,88 @@ late Razorpay razorpay;
                     //     ),
                     //   ),
                     // ),
-                    const SizedBox(height: 10),
-                    Padding(padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child:ReactiveDropdownField<int>(
-                        formControlName: 'ottpackid', // Provide a unique form control name
-                        items: renewOtt.map((item) {
-                          return DropdownMenuItem<int>(
-                            value: item.ottId,
-                            child: Text(item.planName),
-                          );
-                        }).toList(),
-                        dropdownColor: notifier.getcontiner,
-                                                       style: TextStyle(color: notifier.getMainText),
+                    // const SizedBox(height: 10),
+                    // Padding(padding: const EdgeInsets.symmetric(horizontal: 20),
+                    //   child:ReactiveDropdownField<int>(
+                    //     formControlName: 'ottpackid', // Provide a unique form control name
+                    //     items: renewOtt.map((item) {
+                    //       return DropdownMenuItem<int>(
+                    //         value: item.ottId,
+                    //         child: Text(item.planName),
+                    //       );
+                    //     }).toList(),
+                    //     dropdownColor: notifier.getcontiner,
+                    //                                    style: TextStyle(color: notifier.getMainText),
                                                                         
                                                                        
-                                                                         decoration: InputDecoration(
-                                                                           contentPadding:const EdgeInsets.only(left: 15),
+                    //                                                      decoration: InputDecoration(
+                    //                                                        contentPadding:const EdgeInsets.only(left: 15),
                                                               
-                                                                            labelStyle: mediumGreyTextStyle.copyWith(
-                                          fontSize: 13),
-                                                                             labelText: 'OTT Plan',
-                                                                          enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(
-                                    color: notifier.isDark
-                                        ? notifier.geticoncolor
-                                        : Colors.black)),
-                        border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(
-                                    color: notifier.isDark
-                                        ? notifier.geticoncolor
-                                        : Colors.black)),
-                                                                          ),
-                      ),
-                    ),
+                    //                                                         labelStyle: mediumGreyTextStyle.copyWith(
+                    //                       fontSize: 13),
+                    //                                                          labelText: 'OTT Plan',
+                    //                                                       enabledBorder: OutlineInputBorder(
+                    //             borderRadius: BorderRadius.circular(10),
+                    //             borderSide: BorderSide(
+                    //                 color: notifier.isDark
+                    //                     ? notifier.geticoncolor
+                    //                     : Colors.black)),
+                    //     border: OutlineInputBorder(
+                    //             borderRadius: BorderRadius.circular(10),
+                    //             borderSide: BorderSide(
+                    //                 color: notifier.isDark
+                    //                     ? notifier.geticoncolor
+                    //                     : Colors.black)),
+                    //                                                       ),
+                    //   ),
+                    // ),
                     const SizedBox(height: 10),
-                    Padding(padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child:ReactiveDropdownField<int>(
-                        formControlName: 'pay_status', // Provide a unique form control name
-                        items: paymentStsOpt.keys.map<DropdownMenuItem<int>>(
-                              (String key) {
-                            final newValue=paymentStsOpt[key];
-                            return DropdownMenuItem<int>(
-                              value: newValue,
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 10),
-                                child: Text(key),
-                              ),
-                            );
+                    Visibility(
+                      visible:isSubscriber==false,
+                      child: Padding(padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child:ReactiveDropdownField<int>(
+                          formControlName: 'pay_status', // Provide a unique form control name
+                          items: paymentStsOpt.keys.map<DropdownMenuItem<int>>(
+                                (String key) {
+                              final newValue=paymentStsOpt[key];
+                              return DropdownMenuItem<int>(
+                                value: newValue,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 10),
+                                  child: Text(key),
+                                ),
+                              );
+                            },
+                          ).toList(),
+                          dropdownColor: notifier.getcontiner,
+                                                         style: TextStyle(color: notifier.getMainText),
+                                                                          
+                                                                         
+                                                                           decoration: InputDecoration(
+                                                                             contentPadding:const EdgeInsets.only(left: 15),
+                                                                
+                                                                              labelStyle: mediumGreyTextStyle.copyWith(
+                                            fontSize: 13),
+                                                                               labelText: 'Payment Status',
+                                                                            enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(
+                                      color: notifier.isDark
+                                          ? notifier.geticoncolor
+                                          : Colors.black)),
+                          border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(
+                                      color: notifier.isDark
+                                          ? notifier.geticoncolor
+                                          : Colors.black)),
+                                                                            ),
+                          onChanged: (_){
+                            setState(() {
+                              setPaidAmount();
+                            });
                           },
-                        ).toList(),
-                        dropdownColor: notifier.getcontiner,
-                                                       style: TextStyle(color: notifier.getMainText),
-                                                                        
-                                                                       
-                                                                         decoration: InputDecoration(
-                                                                           contentPadding:const EdgeInsets.only(left: 15),
-                                                              
-                                                                            labelStyle: mediumGreyTextStyle.copyWith(
-                                          fontSize: 13),
-                                                                             labelText: 'Payment Status',
-                                                                          enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(
-                                    color: notifier.isDark
-                                        ? notifier.geticoncolor
-                                        : Colors.black)),
-                        border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(
-                                    color: notifier.isDark
-                                        ? notifier.geticoncolor
-                                        : Colors.black)),
-                                                                          ),
-                        onChanged: (_){
-                          setState(() {
-                            setPaidAmount();
-                          });
-                        },
+                        ),
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -926,6 +949,67 @@ suffixIcon: Row(
                         ),
                       ),
                     ),
+                    ),
+                    const SizedBox(height: 10),
+                    Visibility(
+                      visible: form.value['pay_status'] == paymentStsOpt['Paid'],
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child:ReactiveDropdownField<
+                                                                    int>(
+                                                              formControlName:
+                                                                  'pay_type',
+                                                           
+                                                                                        
+                                                                                         
+                                                          
+                                                              isExpanded: true,
+                                                              items: paymentMode.keys.map<
+                                                                  DropdownMenuItem<
+                                                                      int>>(
+                                                                (String key) {
+                                                                  final value =
+                                                                      paymentMode[key];
+                                                                  return DropdownMenuItem<
+                                                                      int>(
+                                                                    value: value,
+                                                                    child: Padding(
+                                                                      padding:
+                                                                          const EdgeInsets
+                                                                              .only(
+                                                                              left:
+                                                                                  10),
+                                                                      child:
+                                                                          Text(key),
+                                                                    ),
+                                                                  );
+                                                                },
+                                                              ).toList(),
+                                                                dropdownColor: notifier.getcontiner,
+                                                           style: TextStyle(color: notifier.getMainText),
+                                                                            
+                                                                           
+                                                                             decoration: InputDecoration(
+                                                                               contentPadding:const EdgeInsets.only(left: 15),
+                                                                  
+                                                                                hintStyle: mediumGreyTextStyle.copyWith(
+                                                                                                fontSize: 13),
+                                                                                hintText: 'Payment Mode',
+                                                                               enabledBorder: OutlineInputBorder(
+                                                                                        borderRadius:BorderRadius .circular(10.0),
+                                                                                        borderSide: BorderSide(
+                                                                                            color: notifier.isDark
+                                                                                                ? notifier.geticoncolor
+                                                                                                : Colors.black)),
+                                                          border: OutlineInputBorder(
+                                                                                        borderRadius:BorderRadius .circular(10.0),
+                                                                                        borderSide: BorderSide(
+                                                                                            color: notifier.isDark
+                                                                                                ? notifier.geticoncolor
+                                                                                                : Colors.black)),
+                                                                              ),
+                                                            ),
+                      ),
                     ),
                     const SizedBox(height: 10),
                     Visibility(
@@ -1008,41 +1092,46 @@ suffixIcon: Row(
         
                     const SizedBox(height: 15),
                     if (itemSelected)
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          
-                          Text('Summary',
-                             style: TextStyle(
-                                    color: notifier.getMainText,
-                                    fontWeight: FontWeight.w700,
-                                      fontSize: screenWidth * 0.02,),),
-                          const SizedBox(height: 10),
-                          Visibility(
-                            visible: showValidity,
-                            child:_buildCommonListTile(title: "VALIDITY : ", subtitle:packValidity),
-                            
-                             
-                          ),
-                          if(form.value['renewal_through'] == 4)
-                          const SizedBox(height: 10),
-                          if(form.value['renewal_through'] == 4)
-                          _buildCommonListTile(title: "VALIDITY : ", subtitle:"${schedulePackValidity}"),
-                           const SizedBox(height: 10),
-                          // Text('Internet :-         ₹$bbpaidamount',style: const TextStyle(
-                          //     color: Colors.black,fontSize: 20)),
-                          // Text('Tax :-                 ₹$bbpaidtax',style: const TextStyle(
-                          //     color: Colors.black,fontSize: 20)),
-                          _buildCommonListTile(title: "TOTAL AMOUNT : ", subtitle:"${totalAmount}"),
-                          const SizedBox(height: 10),
-                          _buildCommonListTile(title: "TAX : ", subtitle:"${totalTax}"),
-                          const SizedBox(height: 10),
-                        _buildCommonListTile(title: "TAXABLE AMOUNT : ", subtitle:"${toPayAmount}"),
-                        const SizedBox(height: 10),
-                         
-                        ],
-                      ),
+                 
+    Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Summary',
+            style: TextStyle(
+              color: notifier.getMainText,
+              fontWeight: FontWeight.w700,
+              fontSize: screenWidth * 0.04,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Visibility(
+            visible: showValidity,
+            child: _buildTableRow("VALIDITY", DateFormat.yMMMMd('en_US').add_jm().format(DateTime.parse(packValidity).toLocal()),screenWidth),
+          ),
+          if ([2, 4].contains(form.value['renewal_through'])) ...[
+        const SizedBox(height: 10),
+        _buildTableRow(
+          "VALIDITY : ",
+          schedulePackValidity != null
+              ? DateFormat.yMMMMd('en_US').add_jm().format(schedulePackValidity!.toLocal())
+              : "Not available",
+          screenWidth,
+        ),
+      ],
+          const SizedBox(height: 10),
+          _buildTableRow("TOTAL AMOUNT", "₹ $totalAmount", screenWidth),
+          const SizedBox(height: 10),
+          _buildTableRow("TAX", "₹ $totalTax", screenWidth),
+          const SizedBox(height: 10),
+          _buildTableRow("TAXABLE AMOUNT", "₹ $toPayAmount", screenWidth),
+          const SizedBox(height: 10),
+        ],
+      ),
+    ),
+
                     const SizedBox(height: 10),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -1087,23 +1176,42 @@ suffixIcon: Row(
   late Map<String, int> resellerOpts = {};
 
 
-
-  Widget _buildCommonListTile({required String title, required String subtitle}) {
-     final notifier = Provider.of<ColorNotifire>(context);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        RichText(
-          text: TextSpan(
-            children: [
-              TextSpan(text: title, style: mediumGreyTextStyle),
-              TextSpan(text: subtitle, style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
-            ],
+// Helper function to create a table row with title and subtitle
+Widget _buildTableRow(String title, String subtitle, double screenWidth) {
+final notifier = Provider.of<ColorNotifire>(context);
+  return Table(
+    border: TableBorder.all(borderRadius: BorderRadius.circular(10),color: notifier.getMainText ),
+    columnWidths: const {
+      0: FlexColumnWidth(2),  // Adjust the width ratios as needed
+      1: FlexColumnWidth(3),
+    },
+    children: [
+      TableRow(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Text(
+              title,
+              textAlign: TextAlign.center,
+             style: mediumGreyTextStyle.copyWith(fontWeight: FontWeight.bold)
+             
+            ),
           ),
-        ),
-      ],
-    );
-  }
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Text(
+              subtitle,
+              textAlign: TextAlign.center,
+             style: mediumBlackTextStyle.copyWith(color: notifier.getMainText,fontWeight: FontWeight.bold)
+            ),
+          ),
+        ],
+      ),
+    ],
+  );
+}
+
+
   String formattedDateschedule_dt = '';
   String formattedDatepaydate = '';
    Future<void> _selectDate(BuildContext context, String field) async {
@@ -1127,9 +1235,9 @@ suffixIcon: Row(
           pickedDate.day,
           pickedTime.hour,
           pickedTime.minute,
-        );
+        ).toLocal();
         
-        String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(fullDateTime);
+        String formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(fullDateTime);
         
         setState(() {
           if (field == 'schedule_dt') {

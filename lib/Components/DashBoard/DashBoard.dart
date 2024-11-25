@@ -20,6 +20,7 @@ import 'package:provider/provider.dart';
 // import 'package:timezone/timezone.dart' as tz;
 
 class DashBoard extends StatefulWidget {
+  static const String routeName = '/dashboard';
    SubscriberFullDet? subscriberDet;
   DashBoard({super.key});
 
@@ -334,18 +335,25 @@ _buildcompo1(
   progressValue: _calculateProgress(subscriberSummary?.deactive, subscriberSummary?.totalusers), // Add progressValue here
 ),
                            ),
-                           
-                          ],
-                        ),
-
-                        Row(children: [Expanded(child: _buildcompo1(
+                           Expanded(child: _buildcompo1(
   title: "Hold",
   iconpath: "assets/lock.svg",
   Subscriber: subscriberSummary?.hold ?? "0",
   Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.hold, subscriberSummary?.totalusers)),
   maincolor: const Color(0xffFF4081),
   progressValue: _calculateProgress(subscriberSummary?.hold, subscriberSummary?.totalusers), // Add progressValue here
-),)],),
+),)
+                          ],
+                        ),
+
+//                         Row(children: [Expanded(child: _buildcompo1(
+//   title: "Hold",
+//   iconpath: "assets/lock.svg",
+//   Subscriber: subscriberSummary?.hold ?? "0",
+//   Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.hold, subscriberSummary?.totalusers)),
+//   maincolor: const Color(0xffFF4081),
+//   progressValue: _calculateProgress(subscriberSummary?.hold, subscriberSummary?.totalusers), // Add progressValue here
+// ),)],),
                          Row(
                           children: [
                             Expanded(
@@ -596,7 +604,10 @@ Widget _buildCommonListTile({
         Expanded(
           child: Text(
             title,
-            style: mediumGreyTextStyle,
+            style: mediumBlackTextStyle.copyWith(
+              color: notifier.getMainText,
+            ),
+            // style: mediumGreyTextStyle,
           ),
         ),
         const SizedBox(width: 10), // Add some spacing between title and subtitle

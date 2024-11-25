@@ -5,9 +5,6 @@ import 'package:flutter/material.dart';
 
 
 
-
-
-
 //..............Colors....................
 
 const Color appMainColor = Color(0xff0059E7);
@@ -18,8 +15,8 @@ const Color appGreyColor = Color(0xffa1a1ae);
 
 TextStyle mainTextStyle =  const TextStyle(fontSize: 24,fontWeight: FontWeight.w800,color: Colors.black,fontFamily: "Gilroy");
 TextStyle mainTextStyle1 =  const TextStyle(fontSize: 14,fontWeight: FontWeight.w800,color: Colors.black,fontFamily: "Gilroy");
-TextStyle mediumGreyTextStyle = const TextStyle(fontSize: 11,color: appGreyColor,fontFamily: "Gilroy");
-TextStyle mediumBlackTextStyle = const TextStyle(fontSize: 11,color: Colors.black,fontFamily: "Gilroy");
+TextStyle mediumGreyTextStyle = const TextStyle(fontSize: 14,color: appGreyColor,fontFamily: "Gilroy");
+TextStyle mediumBlackTextStyle = const TextStyle(fontSize: 14,color: Colors.black,fontFamily: "Gilroy");
 
 
 //..............BoxShadow....................

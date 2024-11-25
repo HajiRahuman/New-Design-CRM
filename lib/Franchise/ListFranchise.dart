@@ -241,7 +241,9 @@ Widget  _buildCommonListTile2({
       children: [
         Text(
           title,
-          style: mediumGreyTextStyle,
+          style: mediumBlackTextStyle.copyWith(
+              color: notifier.getMainText,
+            ),
         ),
        
         subtitle
@@ -264,16 +266,17 @@ Widget _buildCommonListTile({
         Expanded(
           child: Text(
             title,
-            style: mediumGreyTextStyle,
+            style: mediumBlackTextStyle.copyWith(
+              color: notifier.getMainText,
+            ),
+          
           ),
         ),
         const SizedBox(width: 10), // Add some spacing between title and subtitle
         Expanded(
           child: Text(
             subtitle,
-            style: mediumBlackTextStyle.copyWith(
-              color: notifier.getMainText,
-            ),
+             style: mediumGreyTextStyle,
           
           ),
         ),

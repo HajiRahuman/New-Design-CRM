@@ -1,7 +1,6 @@
 import 'package:crm/AppBar.dart';
 import 'package:crm/AppStaticData/AppStaticData.dart';
 import 'package:crm/AppStaticData/toaster.dart';
-import 'package:crm/Components/DashBoard/DashBoard.dart';
 import 'package:crm/Controller/Drawer.dart';
 import 'package:crm/Providers/providercolors.dart';
 import 'package:crm/components/DashBoard/SubscriberDashBoard.dart';
@@ -14,7 +13,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../service/subscriber.dart' as subscriberSrv;
-
+import 'package:crm/Utils/Utils.dart';
 class SubsDataUsageDetails extends StatefulWidget {
   const SubsDataUsageDetails({super.key});
 
@@ -401,6 +400,24 @@ DateTime? _startDate;
 
   final paginatedList = listSessionRpt.sublist(startIndex, endIndex);
   final notifier = Provider.of<ColorNotifire>(context);
+// String formatBytes(int bytes) {
+//   if (bytes <= 0) return "--"; // Handle invalid or zero values
+//   const k = 1024;
+//   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  
+//   // Determine the size index using logarithm
+//   final i = (log(bytes) / log(k)).floor();
+  
+//   // Calculate the value in the determined size
+//   final value = bytes / pow(k, i);
+  
+//   return "${value.toStringAsFixed(2)} ${sizes[i]}";
+// }
+
+String extractNumericValue(String value) {
+  // Remove any non-numeric characters and spaces, e.g. "549 MB" -> "549"
+  return value.replaceAll(RegExp(r'[^0-9]'), '');
+}
 
   return Column(
     children: [
@@ -413,7 +430,9 @@ DateTime? _startDate;
               itemCount: paginatedList.length,
               itemBuilder: (context, index) {
                 final session = paginatedList[index];
-
+                final uploadSize = int.parse(extractNumericValue(session.acctinputoctets));
+                final downloadSize = int.parse(extractNumericValue(session.acctoutputoctets));
+                final totalSize = uploadSize + downloadSize;
                 return Column(
                   children: [
                     Container(
@@ -430,11 +449,17 @@ DateTime? _startDate;
                               children: [
                                 _buildCommonListTile(title: "Start AT", subtitle: ": ${session.acctstarttime.isNotEmpty ? DateFormat.yMd().add_jm().format(DateTime.parse(session.acctstarttime)) : "---"}"),
                                 _buildCommonListTile(title: "End On", subtitle: ": ${session.acctstoptime.isNotEmpty ? DateFormat.yMd().add_jm().format(DateTime.parse(session.acctstoptime)) : "---"}"),
-                                _buildCommonListTile(title: "Upload", subtitle: ": ${session.acctinputoctets}"),
-                                _buildCommonListTile(title: "Download", subtitle: ": ${session.acctoutputoctets}"),
+                                _buildCommonListTile(
+                                  title: "Upload",
+                                  subtitle: ": ${formatBytes(uploadSize)}",
+                                ),
+                                _buildCommonListTile(
+                                  title: "Download",
+                                  subtitle: ": ${formatBytes(downloadSize)}",
+                                ),
                                 _buildCommonListTile(
                                   title: "Total",
-                                  subtitle: ": ${(int.parse(extractNumericValue(session.acctinputoctets)) + int.parse(extractNumericValue(session.acctoutputoctets))).toString()} MB",
+                                  subtitle: ": ${formatBytes(totalSize)}",
                                 ),
                               ],
                             ),

@@ -42,10 +42,16 @@ class MyAppState extends State<ResellerPackage> {
 
   List<ResellerPackData> ResellerPackPrice = [];
   Future<void> getViewResellerPackPrice() async {
+     setState(() {
+      isLoading = true; // Set loading to true when fetching data
+    });
     viewResellerPackPriceResp resp = await resellerSrv.ViewResellerPackPrice(widget.resellerId!, 1);
     setState(() {
       if (resp.error) alert(context, resp.msg);
       ResellerPackPrice = resp.error ? [] : resp.data ?? [];
+     
+      isLoading = false; // Set loading to true when fetching data
+    
     });
   }
 
@@ -135,215 +141,238 @@ String formatSpeed(String speedInBps) {
             resizeToAvoidBottomInset: false,
             body:
 
-            Padding(
-              padding: const EdgeInsets.all(0),
-              child:isLoading
-                  ? const Padding(
-                padding: EdgeInsets.only(top:150 ),
-                child: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              )
-                  : Column(
-                children: [
-                  
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: ResellerPackPrice.length,
-                      itemBuilder: (context, index) {
-                        final reseller = ResellerPackPrice[index];
-                          return  Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: ExpansionPanelList(
-expandIconColor: notifier.getMainText,
-                                elevation: 1,
-                                expandedHeaderPadding: EdgeInsets.all(8),
-                              expansionCallback: (int item, bool status) {
-
-                                  setState(() {
-                                    _expandedTileIndex = (_expandedTileIndex == index) ? -1 : index;
-                                    if (_expandedTileIndex != -1) {
-                                      // GetComplaintLog(SubsComplaint.id);
-                                    }
-                                  });
-                                },
-                                children: [
-                                  ExpansionPanel(
-                                    backgroundColor:notifier.getbgcolor,
-                                     isExpanded: _expandedTileIndex == index && reseller.plan.isNotEmpty ,
-                                    headerBuilder: (BuildContext context, bool isExpanded) {
-                                      return Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                           
-                                                  
-                                                                                        _buildCommonListTile(title: 'ID', subtitle: ': ${reseller.packid}'),
-                                                                                       
-                                                                                          _buildCommonListTile(title: 'PACK', subtitle:': ${reseller.packname}'),
-                                                                                       
+            Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(0),
+                  child: Column(
+                    children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.end,
+                                               children: [
+                                                 IconButton(
+                                                               onPressed: () async {
+                                                                 getViewResellerPackPrice();
+                                                               },
+                                                               icon: Icon(Icons.refresh, color: notifier.getMainText),
+                                                             ),
+                                               ],
+                                             ),
+                        ),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: ResellerPackPrice.length,
+                          itemBuilder: (context, index) {
+                            final reseller = ResellerPackPrice[index];
+                              return  Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: ExpansionPanelList(
+                expandIconColor: notifier.getMainText,
+                                    elevation: 1,
+                                    expandedHeaderPadding: EdgeInsets.all(8),
+                                  expansionCallback: (int item, bool status) {
+                
+                                      setState(() {
+                                        _expandedTileIndex = (_expandedTileIndex == index) ? -1 : index;
+                                        if (_expandedTileIndex != -1) {
+                                          // GetComplaintLog(SubsComplaint.id);
+                                        }
+                                      });
+                                    },
+                                    children: [
+                                      ExpansionPanel(
+                                        backgroundColor:notifier.getbgcolor,
+                                         isExpanded: _expandedTileIndex == index && reseller.plan.isNotEmpty ,
+                                        headerBuilder: (BuildContext context, bool isExpanded) {
+                                          return Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                               
+                                                      
+                                                                                            _buildCommonListTile(title: 'ID', subtitle: ': ${reseller.packid}'),
+                                                                                           
+                                                                                              _buildCommonListTile(title: 'PACK', subtitle:': ${reseller.packname}'),
+                                                                                           
+                                                                                              
+                                                                                              _buildCommonListTile(title: 'MODE', subtitle:': ${getPackModeName(reseller.packmode)}'),
                                                                                           
-                                                                                          _buildCommonListTile(title: 'MODE', subtitle:': ${getPackModeName(reseller.packmode)}'),
-                                                                                      
-                                                                                          _buildCommonListTile(title: 'UPLOAD SPEED',subtitle:': ${formatSpeed(reseller.ulspeed)}'),
-                                                                                        _buildCommonListTile(title: 'DOWNLOAD SPEED',subtitle:': ${formatSpeed(reseller.dlspeed)}'),
-                                                                                        
-                                                                                                       
-                                                                                                       
-                                        
-                                                          
-                                                          
-                                                        
+                                                                                              _buildCommonListTile(title: 'UPLOAD SPEED',subtitle:': ${formatSpeed(reseller.ulspeed)}'),
+                                                                                            _buildCommonListTile(title: 'DOWNLOAD SPEED',subtitle:': ${formatSpeed(reseller.dlspeed)}'),
+                                                                                            
+                                                                                                           
+                                                                                                           
+                                            
+                                                              
+                                                              
+                                                            
+                                                         
+                                                     
+                                                    
                                                      
                                                  
-                                                
+                                               
+                                            
+                                                       
                                                  
-                                             
-                                           
-                                        
-                                                   
-                                             
-                                                  const SizedBox(height: 10),                                   ],
-                                                                    
-                                          ),
-                                      );
-                                      
-                                    },
-                                   
-                                    body: SingleChildScrollView(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Column(
-                                          children: [
+                                                      const SizedBox(height: 10),                                   ],
+                                                                        
+                                              ),
+                                          );
                                           
-                                        
-                                                 Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                        },
+                                       
+                                        body: SingleChildScrollView(
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Column(
+                                              children: [
+                                              
+                                            
+                                                     Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          const Divider(),
+                                                          const SizedBox(height: 5),
+                                                       
+                                         SizedBox(
+                                          height: 500,
+                                          width: screenWidth,
+                                           child: ListView(
+                                             scrollDirection: Axis.horizontal,
+                                            
+                                            children: [
+                                              Align(
+                                                alignment: Alignment.topLeft,
+                                                child: SingleChildScrollView(
+                                                  child: Table(
+                                                   border: TableBorder.all(borderRadius: BorderRadius.circular(10),color: notifier.getMainText ),
+                                                    columnWidths: const {
+                                                      0: FixedColumnWidth(150),
+                                                      1: FixedColumnWidth(250),
+                                                      2: FixedColumnWidth(150),
+                                                      3: FixedColumnWidth(150),
+                                                      4: FixedColumnWidth(150),
+                                                      5: FixedColumnWidth(150),
+                                                      6: FixedColumnWidth(150),
+                                                      7: FixedColumnWidth(150),
+                                                    },
                                                     children: [
-                                                      const Divider(),
-                                                      const SizedBox(height: 5),
-                                                   
-                                     SizedBox(
-                                      height: 500,
-                                      width: screenWidth,
-                                       child: ListView(
-                                         scrollDirection: Axis.horizontal,
-                                        
-                                        children: [
-                                          Align(
-                                            alignment: Alignment.topLeft,
-                                            child: SingleChildScrollView(
-                                              child: Table(
-                                               border: TableBorder.all(borderRadius: BorderRadius.circular(10),color: notifier.getMainText ),
-                                                columnWidths: const {
-                                                  0: FixedColumnWidth(150),
-                                                  1: FixedColumnWidth(250),
-                                                  2: FixedColumnWidth(150),
-                                                  3: FixedColumnWidth(150),
-                                                  4: FixedColumnWidth(150),
-                                                  5: FixedColumnWidth(150),
-                                                  6: FixedColumnWidth(150),
-                                                  7: FixedColumnWidth(150),
-                                                },
-                                                children: [
-                                                 TableRow(
-                                                  
-                                                    children: [
-                                                      Text(
-                                                        "ID",
-                                                        textAlign: TextAlign.center,
-                                                       style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                     TableRow(
+                                                      
+                                                        children: [
+                                                          Text(
+                                                            "ID",
+                                                            textAlign: TextAlign.center,
+                                                           style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                          ),
+                                                          Text(
+                                                            "PNAME",
+                                                               textAlign: TextAlign.center,
+                                                           style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                          ),
+                                                          Text(
+                                                            "TAX MODE",
+                                                               textAlign: TextAlign.center,
+                                                            style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                          ),
+                                                          Text(
+                                                            "PRICE",
+                                                               textAlign: TextAlign.center,
+                                                            style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                          ),
+                                                          Text(
+                                                            "TAX AMOUNT",
+                                                               textAlign: TextAlign.center,
+                                                          style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                          ),
+                                                          Text(
+                                                            "VALIDITY",
+                                                               textAlign: TextAlign.center,
+                                                          style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                          ),
+                                                          Text(
+                                                            "EXTRADAYS",
+                                                               textAlign: TextAlign.center,
+                                                          style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                          ),
+                                                          Text(
+                                                            "STATUS",
+                                                               textAlign: TextAlign.center,
+                                                          style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                          ),
+                                                        ],
                                                       ),
-                                                      Text(
-                                                        "PNAME",
-                                                           textAlign: TextAlign.center,
-                                                       style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
-                                                      ),
-                                                      Text(
-                                                        "TAX MODE",
-                                                           textAlign: TextAlign.center,
-                                                        style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
-                                                      ),
-                                                      Text(
-                                                        "PRICE",
-                                                           textAlign: TextAlign.center,
-                                                        style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
-                                                      ),
-                                                      Text(
-                                                        "TAX AMOUNT",
-                                                           textAlign: TextAlign.center,
-                                                      style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
-                                                      ),
-                                                      Text(
-                                                        "VALIDITY",
-                                                           textAlign: TextAlign.center,
-                                                      style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
-                                                      ),
-                                                      Text(
-                                                        "EXTRADAYS",
-                                                           textAlign: TextAlign.center,
-                                                      style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
-                                                      ),
-                                                      Text(
-                                                        "STATUS",
-                                                           textAlign: TextAlign.center,
-                                                      style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
-                                                      ),
+                                                      // dividerRow(const Color(0xff7366ff)),
+                                                      // ignore: unused_local_variable
+                                                      for (var resellers in reseller.plan) ...[
+                                                        
+                                                        newRow(
+                                                          id: ' ${resellers.id}',
+                                                          pname: ' ${resellers.pname}',
+                                                          taxmode: ' ${resellers.taxmode==0? 'Inclusive':'Exclusive'}',
+                                                          price: ' ${resellers.price}',
+                                                         taxamt: '${calculateTax(double.parse(resellers.price))}',
+                                                          validity: ' ${resellers.timeunit}${resellers.unittype==0?' Days':' Month'}',
+                                                          extradays: ' ${resellers.extradays}',
+                                                          status: resellers.pricestatus.toString(), 
+                                                        ),
+                                                        // dividerRow(Colors.red),
+                                                      ],
                                                     ],
                                                   ),
-                                                  // dividerRow(const Color(0xff7366ff)),
-                                                  // ignore: unused_local_variable
-                                                  for (var resellers in reseller.plan) ...[
-                                                    
-                                                    newRow(
-                                                      id: ' ${resellers.id}',
-                                                      pname: ' ${resellers.pname}',
-                                                      taxmode: ' ${resellers.taxmode==0? 'Inclusive':'Exclusive'}',
-                                                      price: ' ${resellers.price}',
-                                                     taxamt: '${calculateTax(double.parse(resellers.price))}',
-                                                      validity: ' ${resellers.timeunit}${resellers.unittype==0?' Days':' Month'}',
-                                                      extradays: ' ${resellers.extradays}',
-                                                      status: resellers.pricestatus.toString(), 
-                                                    ),
-                                                    // dividerRow(Colors.red),
-                                                  ],
-                                                ],
+                                                ),
                                               ),
+                                            ],
+                                                                               ),
+                                         ),
+                                      
+                                                          const SizedBox(height: 10),
+                                                
+                                                          // const Divider(),
+                                                        ],
+                                                      ),
+                                                    
+                                                //   },
+                                                // ),
+                                              ],
                                             ),
                                           ),
-                                        ],
-                                                                           ),
-                                     ),
-                                  
-                                                      const SizedBox(height: 10),
-                                            
-                                                      // const Divider(),
-                                                    ],
-                                                  ),
-                                                
-                                            //   },
-                                            // ),
-                                          ],
                                         ),
                                       ),
-                                    ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            );
-                          
-                        },
+                                );
+                              
+                            },
+                          ),
+                        ),
+                      ),
+                     
+                      const SizedBox(height: 10),
+                    ],
+                  ),
+                ),
+                 if (isLoading) // Show circular progress indicator if isLoading is true
+                    Positioned.fill(
+                      child: Center(
+                        child: Container(
+                          color: Colors.black.withOpacity(0.5),
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                            
+                            ),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                 
-                  const SizedBox(height: 10),
-                ],
-              ),
+              ],
             )
     );
   }
@@ -363,7 +392,9 @@ Widget _buildCommonListTile({
         Expanded(
           child: Text(
             title,
-            style: mediumGreyTextStyle,
+           style: mediumBlackTextStyle.copyWith(
+              color: notifier.getMainText,
+            ),
           ),
         ),
         const SizedBox(width: 10), // Add some spacing between title and subtitle

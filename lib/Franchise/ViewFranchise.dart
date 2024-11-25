@@ -49,7 +49,7 @@ class MyAppState extends State<ViewFranchise> with SingleTickerProviderStateMixi
   final PageController _pageController = PageController();
 
 
-  void fetchData() async {
+  Future<void> fetchData() async {
     final resp = await resellerSrv.fetchResellerDetail(widget.resellerId!);
     setState(() {
       if (resp.error) alert(context, resp.msg);
@@ -163,27 +163,25 @@ class MyAppState extends State<ViewFranchise> with SingleTickerProviderStateMixi
   try {
     if (selectedIndex == 0) {
       
-      print('Selecetedvalue1-----$selectedIndex');
-      fetchData();
+      // print('Selecetedvalue1-----$selectedIndex');
+      await fetchData();
       circle();
       level();
     } else if (selectedIndex == 1) {
-      print(selectedIndex);
+      // print(selectedIndex);
      setState(() {
       isLoading = true;
     });
-  //  SettingNotification(
-  //                                       resellerId: widget
-  //                                           .resellerDet?.settings.resellerId);
-    } else if(selectedIndex == 2) {
-      print(selectedIndex);
+    //  SubscriberInvoice(subscriberId: widget.subscriberDet!.id);
+    // } else if(selectedIndex == 2) {
+    //   print(selectedIndex);
     setState(() {
       isLoading = true;
     });
-      
-                                    // ResellerPackage(
-                                    //     resellerId: widget
-                                    //         .resellerDet?.settings.resellerId);
+      // SubscriberGraph(
+      //   subscriberId: widget.subscriberDet!.id,
+      //   Username: widget.subscriberDet!.username,
+      // );
     }
   } catch (e, stackTrace) {
     print('Exception occurred: $e');
@@ -195,6 +193,11 @@ class MyAppState extends State<ViewFranchise> with SingleTickerProviderStateMixi
     });
   }
 }
+
+                                    // ResellerPackage(
+                                    //     resellerId: widget
+                                    //         .resellerDet?.settings.resellerId);
+   
 
 final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -239,13 +242,13 @@ Widget build(BuildContext context) {
                                       background:  Center(
                                         child: Text(
                                           "Info",
-                                         style: mediumBlackTextStyle.copyWith(),
+                                         style: mediumBlackTextStyle.copyWith(fontWeight: FontWeight.bold),
                                         ),
                                       ),
                                       foreground:  Center(
                                         child: Text(
                                           "Info",
-                                           style: mediumBlackTextStyle.copyWith(color: Colors.white),
+                                           style: mediumBlackTextStyle.copyWith(color: Colors.white,fontWeight: FontWeight.bold),
                                         ),
                                       ),
                                     ),
@@ -253,13 +256,13 @@ Widget build(BuildContext context) {
                                       background: Center(
                                         child: Text(
                                           "Options",
-                                          style: mediumBlackTextStyle.copyWith(),
+                                          style: mediumBlackTextStyle.copyWith(fontWeight: FontWeight.bold),
                                         ),
                                       ),
                                       foreground: Center(
                                         child: Text(
                                           "Options",
-                                            style: mediumBlackTextStyle.copyWith(color: Colors.white),
+                                            style: mediumBlackTextStyle.copyWith(color: Colors.white,fontWeight: FontWeight.bold),
                                         ),
                                       ),
                                     ),
@@ -267,13 +270,13 @@ Widget build(BuildContext context) {
                                       background:  Center(
                                         child: Text(
                                           "Packages",
-                                          style: mediumBlackTextStyle.copyWith(),
+                                          style: mediumBlackTextStyle.copyWith(fontWeight: FontWeight.bold),
                                         ),
                                       ),
                                       foreground: Center(
                                         child: Text(
                                           "Packages",
-                                         style: mediumBlackTextStyle.copyWith(color: Colors.white),
+                                         style: mediumBlackTextStyle.copyWith(color: Colors.white,fontWeight: FontWeight.bold),
                                         ),
                                       ),
                                     ),
@@ -389,27 +392,30 @@ Widget build(BuildContext context) {
      Column(
       children: [
        
-         Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-             
-                                IconButton(onPressed: () async {
-                        setState(() {
-                          isLoading = true;
-                        });
-                        setState(() {
-                          isLoading = true; // Set loading to true before fetching data
-                        });
-                        refreshData().then((_) {
+         Padding(
+           padding: const EdgeInsets.all(8.0),
+           child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+               
+                                  IconButton(onPressed: () async {
                           setState(() {
-                            isLoading = false; // Set loading to false after data is fetched
+                            isLoading = true;
                           });
-                      
-                        });
-                       
-                      }, icon: Icon(Icons.refresh, color:notifier.getMainText),)
-            ],
-          ),
+                          setState(() {
+                            isLoading = true; // Set loading to true before fetching data
+                          });
+                          refreshData().then((_) {
+                            setState(() {
+                              isLoading = false; // Set loading to false after data is fetched
+                            });
+                        
+                          });
+                         
+                        }, icon: Icon(Icons.refresh, color:notifier.getMainText),)
+              ],
+            ),
+         ),
         
         Column(
           children: [
@@ -1170,7 +1176,9 @@ Widget _buildCommonListTile1({
         Expanded(
           child: Text(
             title,
-            style: mediumGreyTextStyle,
+            style:  mediumBlackTextStyle.copyWith(
+              color: notifier.getMainText,
+            ),
           ),
         ),
         const SizedBox(width: 10), // Add some spacing between title and subtitle
@@ -1194,7 +1202,9 @@ Widget  _buildCommonListTile2({
       children: [
         Text(
           title,
-          style: mediumGreyTextStyle,
+          style:  mediumBlackTextStyle.copyWith(
+              color: notifier.getMainText,
+            ),
         ),
        
         subtitle
@@ -1218,7 +1228,9 @@ Widget _buildCommonListTile({
         Expanded(
           child: Text(
             title,
-            style: mediumGreyTextStyle,
+            style:  mediumBlackTextStyle.copyWith(
+              color: notifier.getMainText,
+            ),
           ),
         ),
         const SizedBox(width: 10), // Add some spacing between title and subtitle

@@ -31,7 +31,11 @@ class _SettingNotificationState extends State<SettingNotification> {
     super.initState();
     getMenuAccess();
   }
+  bool isLoading = false;
 Future<void> fetchData() async {
+    setState(() {
+      isLoading = true; // Set loading to true when fetching data
+    });
   final resp = await resellerSrv.fetchResellerDetail(id);
   if (resp.error) {
     alert(context, resp.msg);
@@ -41,6 +45,7 @@ Future<void> fetchData() async {
 
   setState(() {
     resellerDet = resp.data;
+      isLoading = false;
   });
 }
 
@@ -63,40 +68,72 @@ Future<void> fetchData() async {
   }
   @override
   Widget build(BuildContext context) {
+       final notifier = Provider.of<ColorNotifire>(context);
     return Consumer<ColorNotifire>(
       builder: (context, notifire, child) {
         return Scaffold(
           backgroundColor: notifire.getbgcolor,
-          body: SizedBox(
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Column(
-                          children: [
-                            if (resellerDet != null)
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8),
-                                      child: _buildProfile1(isphon: true),
-                                    ),
+          body: Stack(
+            children: [
+              SizedBox(
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          Column(
+                              children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.end,
+                                               children: [
+                                                 IconButton(
+                                                               onPressed: () async {
+                                                                 fetchData();
+                                                               },
+                                                               icon: Icon(Icons.refresh, color: notifier.getMainText),
+                                                             ),
+                                               ],
+                                             ),
                                   ),
-                                ],
-                              ),
-                          ],
+                                if (resellerDet != null)
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8),
+                                          child: _buildProfile1(isphon: true),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                              ],
+                            ),
+                          
+                          const SizedBoxx(),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+               if (isLoading) // Show circular progress indicator if isLoading is true
+                    Positioned.fill(
+                      child: Center(
+                        child: Container(
+                          color: Colors.black.withOpacity(0.5),
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                            
+                            ),
+                          ),
                         ),
-                      
-                      const SizedBoxx(),
-                    ],
-                  ),
-                );
-              },
-            ),
+                      ),
+                    ),
+            ],
           ),
         );
       },
@@ -131,7 +168,7 @@ Future<void> fetchData() async {
           child: Column(
             children: [
             
-               _buildSwitchListTile("Check Overdue Invoices", false),
+               _buildSwitchListTile("Check Overdue Invoices",  resellerDet!.settings.overdue == 1),
 
             ],
           )),
@@ -146,7 +183,7 @@ Future<void> fetchData() async {
           child: Column(
             children: [
               
-               _buildSwitchListTile("SMS Gateway", false),
+               _buildSwitchListTile("SMS Gateway", resellerDet!.settings.smsgwid==0?false:true),
 
             ],
           )),
@@ -191,7 +228,7 @@ Future<void> fetchData() async {
           child: Column(
             children: [
              
-              _buildSwitchListTile("Check Due Invoices",false),
+              _buildSwitchListTile("Check Due Invoices", resellerDet!.settings.paydue == 1),
 
             ],
           )),
@@ -206,7 +243,22 @@ Future<void> fetchData() async {
           child: Column(
             children: [
              
-            _buildSwitchListTile("Allow Same Validity For Voice and Broadband", false),
+              _buildSwitchListTile("Auto Mac Binding",resellerDet!.settings.usermac_autoupdate),
+
+            ],
+          )),
+          const SizedBox(height: 10),
+            Container(
+      
+          
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                        ),
+          child: Column(
+            children: [
+             
+            _buildSwitchListTile("Allow Same Validity For Voice and Broadband",resellerDet!.settings.voiceExpDefer),
 
             ],
           )),
@@ -317,8 +369,8 @@ Future<void> fetchData() async {
           child: Column(
             children: [
               Text('Customer Temporary Suspended If Not Paid Alert',style: mediumBlackTextStyle.copyWith(color:notifier.getMainText)),
-               _buildSwitchListTile("SMS",resellerDet!.settings.paidSms),
-                _buildSwitchListTile("EAMIL",resellerDet!.settings.paidEmail),
+               _buildSwitchListTile("SMS",resellerDet!.settings.suspendSms),
+                _buildSwitchListTile("EAMIL",resellerDet!.settings.suspendEmail),
 
             ],
           )),
@@ -333,8 +385,8 @@ Future<void> fetchData() async {
           child: Column(
             children: [
               Text('Customer Expiry Alert',style: mediumBlackTextStyle.copyWith(color:notifier.getMainText)),
-               _buildSwitchListTile("SMS",false),
-                _buildSwitchListTile("EAMIL",false),
+               _buildSwitchListTile("SMS",resellerDet!.settings.terminateSms),
+                _buildSwitchListTile("EAMIL",resellerDet!.settings.terminateEmail),
 
             ],
           )),
@@ -349,8 +401,8 @@ Future<void> fetchData() async {
           child: Column(
             children: [
               Text('Customer Amount Credit Add Alert',style: mediumBlackTextStyle.copyWith(color:notifier.getMainText)),
-               _buildSwitchListTile("SMS",false),
-                _buildSwitchListTile("EAMIL",false),
+               _buildSwitchListTile("SMS",resellerDet!.settings.topupSms),
+                _buildSwitchListTile("EAMIL",resellerDet!.settings.topupEmail),
 
             ],
           )),
@@ -365,8 +417,8 @@ Future<void> fetchData() async {
           child: Column(
             children: [
               Text('Customer Package Cancel Alert',style: mediumBlackTextStyle.copyWith(color:notifier.getMainText)),
-               _buildSwitchListTile("SMS",resellerDet!.settings.terminateSms),
-                _buildSwitchListTile("EAMIL",resellerDet!.settings.terminateEmail),
+               _buildSwitchListTile("SMS",resellerDet!.settings.cancelRenewalSms),
+                _buildSwitchListTile("EAMIL",resellerDet!.settings.cancelRenewalEmail),
 
             ],
           )),

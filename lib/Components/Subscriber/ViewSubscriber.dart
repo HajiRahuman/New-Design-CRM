@@ -194,7 +194,6 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
  @override
 Widget build(BuildContext context) {
-  double screenWidth = MediaQuery.of(context).size.width;
   final textStyle = Theme.of(context).textTheme.bodyLarge;
   final selectedTextStyle = textStyle?.copyWith(fontWeight: FontWeight.bold);
 
@@ -234,13 +233,13 @@ Widget build(BuildContext context) {
                                       background:  Center(
                                         child: Text(
                                           "Info",
-                                         style: mediumBlackTextStyle.copyWith(),
+                                         style: mediumBlackTextStyle.copyWith(fontWeight: FontWeight.bold),
                                         ),
                                       ),
                                       foreground:  Center(
                                         child: Text(
                                           "Info",
-                                           style: mediumBlackTextStyle.copyWith(color: Colors.white),
+                                           style: mediumBlackTextStyle.copyWith(color: Colors.white,fontWeight: FontWeight.bold),
                                         ),
                                       ),
                                     ),
@@ -248,13 +247,13 @@ Widget build(BuildContext context) {
                                       background: Center(
                                         child: Text(
                                           "Invoice",
-                                          style: mediumBlackTextStyle.copyWith(),
+                                          style: mediumBlackTextStyle.copyWith(fontWeight: FontWeight.bold),
                                         ),
                                       ),
                                       foreground: Center(
                                         child: Text(
                                           "Invoice",
-                                            style: mediumBlackTextStyle.copyWith(color: Colors.white),
+                                            style: mediumBlackTextStyle.copyWith(color: Colors.white,fontWeight: FontWeight.bold),
                                         ),
                                       ),
                                     ),
@@ -262,13 +261,13 @@ Widget build(BuildContext context) {
                                       background:  Center(
                                         child: Text(
                                           "Graph",
-                                          style: mediumBlackTextStyle.copyWith(),
+                                          style: mediumBlackTextStyle.copyWith(fontWeight: FontWeight.bold),
                                         ),
                                       ),
                                       foreground: Center(
                                         child: Text(
                                           "Graph",
-                                         style: mediumBlackTextStyle.copyWith(color: Colors.white),
+                                         style: mediumBlackTextStyle.copyWith(color: Colors.white,fontWeight: FontWeight.bold),
                                         ),
                                       ),
                                     ),
@@ -338,6 +337,7 @@ Widget build(BuildContext context) {
                                   SubscriberInvoice(subscriberId:widget.subscriberDet!.id),
                                   if (widget.subscriberDet != null)
                                   SubscriberGraph(subscriberId:widget.subscriberDet!.id, Username:widget.subscriberDet!.username,),
+                                  
                                 ],
                               ),
                             ),
@@ -385,27 +385,30 @@ Widget build(BuildContext context) {
         
         
        
-        Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-             
-                                IconButton( onPressed: () async {
-                        setState(() {
-                          isLoading = true;
-                        });
-                        setState(() {
-                          isLoading = true; // Set loading to true before fetching data
-                        });
-                        refreshData().then((_) {
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+               
+                                  IconButton( onPressed: () async {
                           setState(() {
-                            isLoading = false; // Set loading to false after data is fetched
+                            isLoading = true;
                           });
-                      
-                        });
-                       
-                      }, icon: Icon(Icons.refresh, color: notifier.getMainText),)
-            ],
-          ),
+                          setState(() {
+                            isLoading = true; // Set loading to true before fetching data
+                          });
+                          refreshData().then((_) {
+                            setState(() {
+                              isLoading = false; // Set loading to false after data is fetched
+                            });
+                        
+                          });
+                         
+                        }, icon: Icon(Icons.refresh, color: notifier.getMainText),)
+              ],
+            ),
+        ),
         Column(
           children: [
               const SizedBox(height: 10),
@@ -468,11 +471,14 @@ Widget build(BuildContext context) {
                                   borderColor: widget.subscriberDet?.conn == 'Online'
                                       ? const Color(0xff43A047) // Green border for Active
                                       : const Color(0xFFEE4B2B), // Red // Color when not Online
+),                                  
+     _buildCommonListTile(
+  title: "EXPIRY DATE",
+  subtitle: ': ${widget.subscriberDet!.expiration != "No Expiry" && widget.subscriberDet!.expiration.isNotEmpty 
+      ? DateFormat.jm().format(DateTime.parse(widget.subscriberDet!.expiration))
+      : "---"}',
 ),
 
-
-                                        
-                                        _buildCommonListTile(title: "EXPIRY DATE", subtitle: ': ${DateFormat('dd/MM/yyyy-hh:mm a').format(DateTime.parse(widget.subscriberDet?.expiration ?? 'N/A'))}'),
                                         
                                         _buildCommonListTile(title: "IPV4 MODE", subtitle: ': ${widget.subscriberDet
                                                       ?.ipmode ??
@@ -486,10 +492,7 @@ Widget build(BuildContext context) {
   subtitle: widget.subscriberDet!.authreject_dt.isNotEmpty 
       ? ': ${DateFormat('dd/MM/yyyy-hh:mm a').format(DateTime.parse(widget.subscriberDet?.authreject_dt ?? 'N/A'))}' 
       : "---"
-),
-
-
-                                                    
+),                                                 
                                         
                                           if ( widget.subscriberDet?.conn == 'Online')
                                         _buildCommonListTile(title: "IP ADDRESS", subtitle:  ': ${widget.subscriberDet
@@ -626,10 +629,8 @@ Widget build(BuildContext context) {
                                                                                     ),
                                                                                     children:
                                                                                         [
-                                              _buildCommonListTile(title: "NAME", subtitle:': ${widget.subscriberDet!.info!.fullname}'),
-                                                                                      
+                                              _buildCommonListTile(title: "NAME", subtitle:': ${widget.subscriberDet!.info.fullname}'),
                                                                                       _buildCommonListTile(title: "ACCOUNT ID", subtitle:': ${widget.subscriberDet?.id ??'N/A'}'),
-                                                                                      
                                                                                       _buildCommonListTile(title: "CIRCLE", subtitle: ': ${idAndNames
                                                                 .firstWhere(
                                                                   (circle) => circle.id == widget.subscriberDet?.circleid,
@@ -750,7 +751,9 @@ Widget _buildCommonListTile3({
         Expanded(
           child: Text(
             title,
-            style: mediumGreyTextStyle,
+            style:  mediumBlackTextStyle.copyWith(
+              color: notifier.getMainText,
+            ),
           ),
         ),
         const SizedBox(width: 10), // Add some spacing between title and subtitle
@@ -819,7 +822,7 @@ PopupMenuItem _buildPopupAdminMenuItem() {
                  if (widget.subscriberDet?.conn == 'Online')
                 row(title: 'Live Graph', icon: Icons.reset_tv),
                    if (widget.subscriberDet?.conn == 'Online' && isSubscriber==false)
-                row(title: 'Session Check/Stop', icon: Icons.fact_check),
+                row(title: 'Log Off/Session Close', icon: Icons.fact_check),
                 row(title: 'Upload Document', icon: Icons.upload_file),
                   if (widget.subscriberDet!.info?.addressflag! == true)
                   row(title: 'Upload Document(Different Address)', icon: Icons.upload_file),
@@ -1084,7 +1087,7 @@ TableRow row({required String title, required IconData icon}) {
                                         );
         
         }
-         if (title == 'Session Check/Stop') {
+         if (title == 'Log Off/Session Close') {
            showDialog(
                                                context: context,
                                                builder: (ctx) =>
@@ -1199,7 +1202,7 @@ TableRow row({required String title, required IconData icon}) {
               title,
               style: mediumBlackTextStyle.copyWith(color: notifier.getMainText),
             ),
-            if (title == 'Session Check/Stop') 
+            if (title == 'Log Off/Session Close') 
               Positioned(
                 // top: -5, 
                 right: -0.1,
@@ -1235,7 +1238,9 @@ Widget _buildCommonListTile1({
         Expanded(
           child: Text(
             title,
-            style: mediumGreyTextStyle,
+            style:  mediumBlackTextStyle.copyWith(
+              color: notifier.getMainText,
+            ),
           ),
         ),
         const SizedBox(width: 10),
@@ -1274,7 +1279,9 @@ Widget _buildCommonListTile1({
       children: [
         Text(
           title,
-          style: mediumGreyTextStyle,
+          style:  mediumBlackTextStyle.copyWith(
+              color: notifier.getMainText,
+            ),
         ),
        
         subtitle
@@ -1297,7 +1304,9 @@ Widget _buildCommonListTile({
         Expanded(
           child: Text(
             title,
-            style: mediumGreyTextStyle,
+            style:  mediumBlackTextStyle.copyWith(
+              color: notifier.getMainText,
+            ),
           ),
         ),
         const SizedBox(width: 10), // Add some spacing between title and subtitle

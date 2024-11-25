@@ -5,19 +5,14 @@
 import 'package:crm/AppStaticData/AppStaticData.dart';
 import 'package:crm/Components/DashBoard/DashBoard.dart';
 import 'package:crm/Components/DashBoard/SubscriberDashBoard.dart';
-import 'package:crm/Components/Subscriber/SubscriberInvoice/SubscriberInvoice.dart';
 import 'package:crm/Layout/Search.dart';
 import 'package:crm/Providers/providercolors.dart';
-
-
-import 'package:crm/Widgets/SizedBox.dart';
 import 'package:crm/main.dart';
 import 'package:crm/service/auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 
@@ -52,17 +47,7 @@ getMenuAccess() async {
   });
 }
 
-  List<Map<String, dynamic>> fields = [
-    {'id': 1, 'label': 'Profile ID', 'key': 'profileid', 'hide': false},
-    {'id': 2, 'label': 'Account No', 'key': 'id', 'hide': false},
-    {'id': 3, 'label': 'UserName', 'key': 'fullname', 'hide': true},
-    {'id': 4, 'label': 'Email', 'key': 'emailpri', 'hide': true},
-    {'id': 5, 'label': 'Mobile', 'key': 'mobile', 'hide': true},
-    {'id': 6, 'label': 'Local IPV4', 'key': 'ipv4', 'hide': true},
-    {'id': 7, 'label': 'Public IPV4', 'key': 'ipaddr', 'hide': true},
-    {'id': 8, 'label': 'Mac Address', 'key': 'usermac', 'hide': true},
-  ];
-
+ 
   
   void _handleMenuButtonPressed() {
     if (widget.scaffoldKey.currentState!.isDrawerOpen) {
@@ -72,7 +57,34 @@ getMenuAccess() async {
     }
   }
   @override
-  
+  void _navigateToDashboard() {
+  if (isSubscriber) {
+    // Check if the current page is already SubscriberDashBoard
+    if (navigatorKey.currentContext != null && navigatorKey.currentState!.canPop()) {
+      navigatorKey.currentState!.popUntil((route) => route.isFirst);
+    } else {
+      Navigator.pushReplacement(
+        navigatorKey.currentContext!,
+        MaterialPageRoute(
+          builder: (context) => SubscriberDashBoard(subscriberId: id),
+        ),
+      );
+    }
+  } else {
+    // Check if the current page is already DashBoard
+    if (navigatorKey.currentContext != null && navigatorKey.currentState!.canPop()) {
+      navigatorKey.currentState!.popUntil((route) => route.isFirst);
+    } else {
+      Navigator.pushReplacement(
+        navigatorKey.currentContext!,
+        MaterialPageRoute(
+          builder: (context) => DashBoard(),
+        ),
+      );
+    }
+  }
+}
+
   Widget build(BuildContext context) {
         final notifier = Provider.of<ColorNotifire>(context);
     return BottomAppBar(
@@ -99,24 +111,46 @@ getMenuAccess() async {
           onPressed: () {
             setState(() {
               if(isSubscriber==false){
-                  Navigator.pushAndRemoveUntil(
-                      navigatorKey.currentContext as BuildContext,
-                      MaterialPageRoute(
-                          builder: (context) => DashBoard()),
-                      (Route<dynamic> route) => false,
-                  );
+                if (ModalRoute.of(context)?.settings.name != '/dashboard') {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>  DashBoard(),
+        settings:const RouteSettings(name: '/dashboard'),
+      ),
+      (Route<dynamic> route) => false,
+    );
+  }
+                  // Navigator.pushAndRemoveUntil(
+                  //     navigatorKey.currentContext as BuildContext,
+                  //     MaterialPageRoute(
+                  //         builder: (context) => DashBoard()),
+                  //     (Route<dynamic> route) => false,
+                  // );
               }else{
-                Navigator.pushAndRemoveUntil(
-                      navigatorKey.currentContext as BuildContext,
-                      MaterialPageRoute(
-                          builder: (context) => SubscriberDashBoard(subscriberId: id,)),
-                      (Route<dynamic> route) => false,
-                  ); 
+                   if (ModalRoute.of(context)?.settings.name != '/Subsdashboard') {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SubscriberDashBoard(subscriberId: id,),
+        settings:const RouteSettings(name: '/Subsdashboard'),
+      ),
+      (Route<dynamic> route) => false,
+    );
+  }
+                // Navigator.pushAndRemoveUntil(
+                //       navigatorKey.currentContext as BuildContext,
+                //       MaterialPageRoute(
+                //           builder: (context) => SubscriberDashBoard(subscriberId: id,)),
+                //       (Route<dynamic> route) => false,
+                //   ); 
               }
-            });
+            }
+            );
           
           },
         ),
+        if(isSubscriber==false)
         IconButton(
           icon:  Icon(Icons.search,color: notifier.geticoncolor,),
           onPressed: () {
@@ -175,9 +209,6 @@ PopupMenuItem _buildPopupAdminMenuItem(BuildContext context) {
                   0: FixedColumnWidth(20),
                 },
                 children: [
-                  // Removed the 'Profile' row
-                  // Removed the 'Settings' row
-                  
                   row(title: 'Logout', icon: 'assets/log-out.svg'),
                   row1(title: 'Theme', icon:  notifier.isDark ? "assets/sun.svg" : "assets/moon.svg", )
                 ],
