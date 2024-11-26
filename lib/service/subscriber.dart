@@ -4,9 +4,41 @@ import './http.dart' as http;
 import 'package:dio/dio.dart' as dio;
 
 
-Future<ListSubscriberResp> listSubscriber() async {
-  final resp = await http.get('subscriber');
-  return ListSubscriberResp.toJson((resp));
+// Future<ListSubscriberResp> listSubscriber() async {
+  // final resp = await http.get('subscriber');
+  // return ListSubscriberResp.toJson((resp));
+// }
+Future<ListSubscriberResp> listSubscriber({
+  int? acctstatus, // Account status, can be 1, -1, or 2 (Active, Expiry, Hold)
+  int? conn, // Connection type, can be 1 or 2 (Online, Offline)
+  bool? reselusertype, // Reseller user type
+}) async {
+  String url = 'subscriber?';
+
+  // If acctstatus is provided, add it to the URL and do not include conn
+  if (acctstatus != null) {
+    url += 'acctstatus=$acctstatus';
+  }
+
+  // If conn is provided, add it to the URL and do not include acctstatus
+  if (conn != null) {
+    if (acctstatus != null) {
+      url += '&';
+    }
+    url += 'conn=$conn';
+  }
+
+  // If reselusertype is provided, add it to the URL
+  if (reselusertype != null) {
+    if (acctstatus != null || conn != null) {
+      url += '&';
+    }
+    url += 'reselusertype=$reselusertype';
+  }
+
+  // Make the HTTP request
+  final resp = await http.get(url);
+  return ListSubscriberResp.toJson((resp)); // Assuming the response is in JSON format
 }
 
 Future<SubscriberFullDetResp> fetchSubscriberDetail(int subscriberId) async {

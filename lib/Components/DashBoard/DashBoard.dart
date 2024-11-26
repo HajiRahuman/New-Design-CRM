@@ -4,6 +4,7 @@
 import 'package:crm/AppBar.dart';
 import 'package:crm/AppStaticData/AppStaticData.dart';
 import 'package:crm/AppStaticData/toaster.dart';
+import 'package:crm/Components/Subscriber/ListSubscriber.dart';
 import 'package:crm/Components/Subscriber/ViewSubscriber.dart';
 import 'package:crm/Controller/Drawer.dart';
 import 'package:crm/Providers/providercolors.dart';
@@ -131,7 +132,8 @@ class _DashBoard extends State<DashBoard> with SingleTickerProviderStateMixin{
   Subscriber: subscriberSummary?.totalusers ?? "0",
   Indicator: _buildIndicator(cardcolors[0], 1.0), // Full progress for total users
   maincolor: const Color(0xff2F3F95),
-  progressValue: 1.0, // Full bar for total users
+  progressValue: 1.0, 
+   category: 'Total'// Full bar for total users
 ),
                         _buildcompo1(
   title: "Active",
@@ -139,7 +141,8 @@ class _DashBoard extends State<DashBoard> with SingleTickerProviderStateMixin{
   Subscriber: subscriberSummary?.active ?? "0",
   Indicator: _buildIndicator(cardcolors[1], _calculateProgress(subscriberSummary?.active, subscriberSummary?.totalusers)),
   maincolor: const Color(0xff43A047),
-  progressValue: _calculateProgress(subscriberSummary?.active, subscriberSummary?.totalusers), // Add this line
+  progressValue: _calculateProgress(subscriberSummary?.active, subscriberSummary?.totalusers),
+   category: 'Active' // Add this line
 ),
                        
                      _buildcompo1(
@@ -148,7 +151,8 @@ class _DashBoard extends State<DashBoard> with SingleTickerProviderStateMixin{
   Subscriber: subscriberSummary?.mainonline ?? "0",
   Indicator: _buildIndicator(cardcolors[2], _calculateProgress(subscriberSummary?.mainonline, subscriberSummary?.totalusers)),
   maincolor: const Color(0xff25D366),
-  progressValue: _calculateProgress(subscriberSummary?.mainonline, subscriberSummary?.totalusers), // Add progressValue here
+  progressValue: _calculateProgress(subscriberSummary?.mainonline, subscriberSummary?.totalusers),
+   category: 'Online' // Add progressValue here
 ),
 _buildcompo1(
     title: "Offline",
@@ -156,7 +160,8 @@ _buildcompo1(
  Subscriber: subscriberSummary?.offline ?? "0",
   Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.offline, subscriberSummary?.totalusers)),
   maincolor: const Color(0xffFF6F00),
-  progressValue: _calculateProgress(subscriberSummary?.offline, subscriberSummary?.totalusers), // Add progressValue here
+  progressValue: _calculateProgress(subscriberSummary?.offline, subscriberSummary?.totalusers), 
+   category: 'Offline' // Add progressValue here
 ),
  _buildcompo1(
   title: "Expiry",
@@ -164,7 +169,8 @@ _buildcompo1(
   Subscriber: subscriberSummary?.deactive ?? "0",
   Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.deactive, subscriberSummary?.totalusers)),
   maincolor: const Color(0xffE53935),
-  progressValue: _calculateProgress(subscriberSummary?.deactive, subscriberSummary?.totalusers), // Add progressValue here
+  progressValue: _calculateProgress(subscriberSummary?.deactive, subscriberSummary?.totalusers),
+  category: 'Expired' // Add progressValue here
 ),
 _buildcompo1(
   title: "Hold",
@@ -172,7 +178,8 @@ _buildcompo1(
   Subscriber: subscriberSummary?.hold ?? "0",
   Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.hold, subscriberSummary?.totalusers)),
   maincolor: const Color(0xffFF4081),
-  progressValue: _calculateProgress(subscriberSummary?.hold, subscriberSummary?.totalusers), // Add progressValue here
+  progressValue: _calculateProgress(subscriberSummary?.hold, subscriberSummary?.totalusers),
+  category: 'Hold'  // Add progressValue here
 ),
                       
                         
@@ -387,52 +394,62 @@ Widget _buildcompo1({
   required String Subscriber,
   required Widget Indicator,
   required Color maincolor,
-  required double progressValue, // Add this parameter
+  required double progressValue,
+  String? category, // Add this parameter
 }) {
   final notifier = Provider.of<ColorNotifire>(context);
   return Padding(
     padding: const EdgeInsets.all(15.0),
     child: Material(
       color: Colors.transparent,
-      child: Container(
-        height: 100,
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(12)),
-          color: notifier.getcontiner,
-          boxShadow: boxShadow,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ListTile(
-              dense: true,
-              leading: Container(
-                height: 50,
-                width: 50,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: maincolor.withOpacity(0.2),
-                ),
-                child: Center(
-                  child: SvgPicture.asset(
-                    iconpath,
-                    height: 25,
-                    width: 25,
+      child: GestureDetector(
+        onTap: () {
+          // Trigger the getListSubscriber function with category parameter
+           Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
+                                    return  ListSubscriber(category: category);
+                                  }));
+         
+        },
+        child: Container(
+          height: 100,
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.all(Radius.circular(12)),
+            color: notifier.getcontiner,
+            boxShadow: boxShadow,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ListTile(
+                dense: true,
+                leading: Container(
+                  height: 50,
+                  width: 50,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: maincolor.withOpacity(0.2),
+                  ),
+                  child: Center(
+                    child: SvgPicture.asset(
+                      iconpath,
+                      height: 25,
+                      width: 25,
+                    ),
                   ),
                 ),
+                title: Text(
+                  title,
+                  style: mediumGreyTextStyle,
+                ),
+                subtitle: Text(
+                  Subscriber,
+                  style: mainTextStyle.copyWith(color: notifier.getMainText),
+                ),
               ),
-              title: Text(
-                title,
-                style: mediumGreyTextStyle,
-              ),
-              subtitle: Text(
-                Subscriber,
-                style: mainTextStyle.copyWith(color: notifier.getMainText),
-              ),
-            ),
-            _buildIndicator(maincolor, progressValue), // Pass progress value
-          ],
+              _buildIndicator(maincolor, progressValue), // Pass progress value
+            ],
+          ),
         ),
       ),
     ),
