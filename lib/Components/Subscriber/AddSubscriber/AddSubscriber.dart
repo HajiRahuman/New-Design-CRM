@@ -4,10 +4,8 @@ import 'package:animated_segmented_tab_control/animated_segmented_tab_control.da
 import 'package:crm/AppBar.dart';
 import 'package:crm/AppStaticData/AppStaticData.dart';
 import 'package:crm/AppStaticData/toaster.dart';
-import 'package:crm/Components/Subscriber/SubscriberInvoice/SubscriberInvoice.dart';
 import 'package:crm/Controller/Drawer.dart';
 import 'package:crm/Providers/providercolors.dart';
-import 'package:crm/components/Subscriber/SubscriberInvoice/SubscriberInvoice.dart';
 import 'package:crm/model/UpdateSubscriber.dart';
 
 import 'package:flutter/material.dart';
@@ -49,7 +47,7 @@ class AddSubscriber extends StatefulWidget {
   MyAppState createState() => MyAppState();
 }
 
-class MyAppState extends State<AddSubscriber> {
+class MyAppState extends State<AddSubscriber> with SingleTickerProviderStateMixin {
   FormGroup? form;
 
   void createForm() {
@@ -161,7 +159,7 @@ class MyAppState extends State<AddSubscriber> {
   TextEditingController downLimitController = TextEditingController();
   TextEditingController upLimitController = TextEditingController();
   TextEditingController totLimitController = TextEditingController();
-  final PageController _pageController = PageController();
+  
   int? reseller;
   int? ResellerAlice;
   int selectedIndex = 0;
@@ -239,11 +237,32 @@ class MyAppState extends State<AddSubscriber> {
   Map<String, int> Country = {
     'India': 0,
   };
+ late TabController _tabController; // Use TabController here.
+  // Track the selected tab.
+
+
+  
+
+  @override
+  void dispose() {
+    _tabController.dispose(); // Dispose of the TabController.
+    super.dispose();
+  }
 
   @override
   void initState() {
     print('AliceId-----${widget.aliceid}');
     super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+
+    // Listen to changes in the TabController.
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) {
+        setState(() {
+          selectedIndex = _tabController.index;
+        });
+      }
+    });
     bool enableMac = widget.updateSubsDet != null
         ? widget.updateSubsDet?.enablemac == 1
         : false;
@@ -252,6 +271,7 @@ class MyAppState extends State<AddSubscriber> {
     if (widget.subscriberId != null) {
      
       updateSubDet();
+      
       
     } else {
       createAddrForm(0, {'alicename': 'Installation'});
@@ -280,11 +300,7 @@ class MyAppState extends State<AddSubscriber> {
               ? widget.updateSubsDet?.addressBook[index].pincode
               : null,
           validators: [Validators.required]),
-      'city': FormControl<String>(
-          value: widget.updateSubsDet != null
-              ? widget.updateSubsDet?.addressBook[index].village
-              : null,
-          validators: [Validators.required]),
+     
       'state': FormControl<String>(
           value: widget.updateSubsDet != null
               ? widget.updateSubsDet?.addressBook[index].state
@@ -295,7 +311,12 @@ class MyAppState extends State<AddSubscriber> {
               ? widget.updateSubsDet?.addressBook[index].district
               : null,
           validators: [Validators.required]),
-      'village': FormControl<String>(validators: [Validators.required]),
+      'village': FormControl<String>(
+        validators: [Validators.required],
+         value: widget.updateSubsDet != null
+              ? widget.updateSubsDet?.addressBook[index].village
+              : null
+        ),
       'region': FormControl<String>(validators: [Validators.required]),
       'block': FormControl<String>(
           value: widget.updateSubsDet != null
@@ -344,7 +365,7 @@ class MyAppState extends State<AddSubscriber> {
     );
     setState(() {
       if (selectedDetail != null) {
-        form?.control('address_book.$index.city').value = selectedDetail.Name;
+        form?.control('address_book.$index.village').value = selectedDetail.Name;
         form?.control('address_book.$index.state').value = selectedDetail.State;
         form?.control('address_book.$index.district').value =
             selectedDetail.District;
@@ -353,7 +374,7 @@ class MyAppState extends State<AddSubscriber> {
         form?.control('address_book.$index.block').value = selectedDetail.Block;
       }
     });
-     
+   
   }
 
   List<resellerAliceDet> reselleralice = [];
@@ -400,21 +421,34 @@ class MyAppState extends State<AddSubscriber> {
   }
 
   void updateSubDet() async {
-    final resp =
-        await updatesubscriberSrv.updateSubscriber(widget.subscriberId!);
-    setState(() {
-      if (resp.error) alert(context, resp.msg);
-      widget.updateSubsDet = resp.data;
-      createForm();
-      print('Id----${widget.subscriberId}');
-      print('Id----${widget.updateSubsDet?.addressBook}');
-      widget.updateSubsDet?.addressBook.asMap().forEach((index, e) {
-        print('addressss EEEEEE--- ${e}');
-        createAddrForm(index, e);
-      });
+  final resp = await updatesubscriberSrv.updateSubscriber(widget.subscriberId!);
+  setState(() {
+    if (resp.error) {
+      alert(context, resp.msg);
+      return;
+    }
+
+    widget.updateSubsDet = resp.data;
+    createForm();
+    print('Id----${widget.subscriberId}');
+    print('Id----${widget.updateSubsDet?.addressBook}');
+    
+    widget.updateSubsDet?.addressBook.asMap().forEach((index, e) {
+      print('Address Entry--- ${e}');
+      createAddrForm(index, e);
+
+      // Fetch pincode details for each address entry
+      if (e.pincode != null) {
+        fetchPincodeDet(e.pincode, index);
+      }
     });
+  });
+
+  if (widget.updateSubsDet?.packid != null) {
     GetPack(widget.updateSubsDet!.packid);
   }
+}
+
 
   GetPackDet? getPackOpt = null;
   Future<void> GetPack(packid) async {
@@ -619,7 +653,7 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: SegmentedTabControl(
-                                
+                                controller: _tabController,
                                 tabTextColor: Colors.black,
                                 selectedTabTextColor: Colors.white,
                                 indicatorPadding: const EdgeInsets.all(4),
@@ -655,7 +689,7 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
                               child: SizedBox(
                                 height: MediaQuery.of(context).size.height - 200, // Adjust as needed
                                 child: TabBarView(
-                                  
+                                     controller: _tabController,
                                   physics:const BouncingScrollPhysics(),
                                   children: [
                                    
@@ -1550,7 +1584,7 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
                                                                                 'City is Required!',
                                                                           },
                                                                           formControlName:
-                                                                              'city',
+                                                                              'village',
                                                                           // controller: cityController,
                                                                          
                                                          style: TextStyle(color: notifier.getMainText),
@@ -3110,122 +3144,51 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
                                 ),
                               ),
                             ),
-                          // Expanded(
-                          //   child: PageView(
-                          //     controller: _pageController,
-                          //     onPageChanged: (index) {
-                          //       setState(() {
-                          //         selectedIndex = index;
-                          //       });
-                          //     },
-                          //     children: [
-                          //       // if (selectedOption == 'Individual')
-                          //       SingleChildScrollView(
-                          //         child:
-                          //       ),
-                          //       // if (selectedOption == 'Individual')
-                                
-                          //       // if (selectedOption == 'Individual')
-                               
-                          //       // if (selectedOption == 'Bulk') Filepic(),
-                          //     ],
-                          //   ),
-                          // ),
+                       
                           // // if (selectedOption == 'Individual')
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               if (selectedIndex > 0)
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
                                    backgroundColor: appMainColor
                                   ),
-                                  onPressed: () async {
-                                    if (form!.valid) {
-                                      // Perform any actions needed for the "Previous" button
-                                    }
-                                    _pageController.previousPage(
-                                      duration:
-                                          const Duration(milliseconds: 300),
-                                      curve: Curves.ease,
-                                    );
-                                  },
-                                  child: const Text('Previous',
-                                      style: TextStyle(
+            onPressed: () {
+              setState(() {
+                selectedIndex--;
+              });
+              _tabController.animateTo(selectedIndex); // Use TabController.
+            },
+            child: const Text('Previous',style: TextStyle(
                                           fontWeight: FontWeight.bold,color: Colors.white)),
-                                ),
-                              const SizedBox(width: 10),
-                              if (selectedIndex < 3)
-                              ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                   backgroundColor: appMainColor
-                                  ),
-                                  onPressed: () async {
-                                    form?.control('address_book.0.city').value;
-                                    form?.control('address_book.0.state').value;
-                                    form
-                                        ?.control('address_book.0.district')
-                                        .value;
-                                    form
-                                        ?.control('address_book.0.region')
-                                        .value;
-                                    form?.control('address_book.0.block').value;
-                                    form
-                                        ?.control('authpsw')
-                                        .patchValue(authpswController.text);
-                                    form?.control('expiration').value;
-                                    final int? upLimitValue =
-                                        int.tryParse(upLimitController.text);
-                                    form
-                                        ?.control('uplimit')
-                                        .patchValue(upLimitValue);
-                                    final int? downLimitValue =
-                                        int.tryParse(downLimitController.text);
-                                    form
-                                        ?.control('dllimit')
-                                        .patchValue(downLimitValue);
-                                    final int? totalLimitValue =
-                                        int.tryParse(totLimitController.text);
-                                    form
-                                        ?.control('totallimit')
-                                        .patchValue(totalLimitValue);
-                                    form?.control('userinfo.latitude').value;
-                                    form?.control('userinfo.longitude').value;
+          ),
+        const SizedBox(width: 10),
+       ElevatedButton(
+  style: ElevatedButton.styleFrom(
+    backgroundColor: appMainColor,
+  ),
+  onPressed: () async {
+    if (selectedIndex < 2) {
+      setState(() {
+        selectedIndex++;
+      });
+      _tabController.animateTo(selectedIndex); // Use TabController.
+    } else {
+      // Call the submit function when on the last tab
+      await _handleSubmit();
+    }
+  },
+  child: Text(
+    selectedIndex < 2 ? 'Next' : 'Submit',
+    style: const TextStyle(
+      fontWeight: FontWeight.bold,
+      color: Colors.white,
+    ),
+  ),
+),
 
-                                    if (selectedIndex == 2) {
-                                      final value = {
-                                        ...?form?.value
-                                      }; // Create a copy of the map
-                                      if (widget.subscriberId == null) {
-                                        final encryptPwd =
-                                            await encryptPasswordAndSubmit(
-                                                value);
-                                        print('encrypt-- $encryptPwd');
-                                        value['profilepsw'] = encryptPwd;
-                                      }
-                                      print('value--$value');
-                                      await widget.subscriberId != null
-                                          ? updateSub(value)
-                                          : await addSubscribers(value);
-                                    }
-                                    if (form!.valid) {
-                                    } else {
-                                      form!.markAllAsTouched();
-                                    }
-                                    if (selectedIndex < 2) {
-                                      _pageController.nextPage(
-                                        duration:
-                                            const Duration(milliseconds: 300),
-                                        curve: Curves.ease,
-                                      );
-                                    }
-                                  },
-                                  child: Text(
-                                    selectedIndex < 2 ? 'Next' : 'Submit',
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold,color:Colors.white),
-                                  ),
-                                ),
+                             
                             ],
                           ),
                         ],
@@ -3244,6 +3207,55 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
               ),
         );
   }
+  
+  Future<void> _handleSubmit() async {
+  // Accessing form values
+  form?.control('address_book.0.village').value;
+  form?.control('address_book.0.state').value;
+  form?.control('address_book.0.district').value;
+  form?.control('address_book.0.region').value;
+  form?.control('address_book.0.block').value;
+
+  // Patching values to form controls
+  form?.control('authpsw').patchValue(authpswController.text);
+  form?.control('expiration').value;
+
+  final int? upLimitValue = int.tryParse(upLimitController.text);
+  form?.control('uplimit').patchValue(upLimitValue);
+
+  final int? downLimitValue = int.tryParse(downLimitController.text);
+  form?.control('dllimit').patchValue(downLimitValue);
+
+  final int? totalLimitValue = int.tryParse(totLimitController.text);
+  form?.control('totallimit').patchValue(totalLimitValue);
+
+  form?.control('userinfo.latitude').value;
+  form?.control('userinfo.longitude').value;
+
+  if (selectedIndex == 2) {
+    // Extract form data and submit
+    final value = {
+      ...?form?.value, // Copy of form values
+    };
+
+    if (widget.subscriberId == null) {
+      // Encrypt password if subscriber ID is null
+      final encryptPwd = await encryptPasswordAndSubmit(value);
+      print('encrypt-- $encryptPwd');
+      value['profilepsw'] = encryptPwd;
+    }
+
+    print('value--$value');
+
+    // Update or Add subscribers based on condition
+    if (widget.subscriberId != null) {
+      updateSub(value);
+    } else {
+      await addSubscribers(value);
+    }
+  }
+}
+
 
   String formattedDate =
       DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());

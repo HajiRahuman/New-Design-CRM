@@ -4,47 +4,47 @@
 
 class PincodeDet {
   final String Name;
-  // final String Description;
-  // final String BranchType;
-  // final String Deliverystatus;
-  // final String Circle;
+  final String Description;
+  final String BranchType;
+  final String Deliverystatus;
+  final String Circle;
   final String District;
-  // final String Division;
+  final String Division;
   final String Region;
   final String Block;
   final String State;
-  // final String Country;
-  // final String Pincode;
+  final String Country;
+  final String Pincode;
 
   PincodeDet({
     required this.Name,
-    // required this.Description,
-    // required this.BranchType,
-    // required this.Deliverystatus,
-    // required this.Circle,
+    required this.Description,
+    required this.BranchType,
+    required this.Deliverystatus,
+    required this.Circle,
     required this.District,
-    // required this.Division,
+    required this.Division,
     required this.Region,
     required this.Block,
     required this.State,
-    // required this.Country,
-    // required this.Pincode,
+    required this.Country,
+    required this.Pincode,
   });
 
   factory PincodeDet.toJson(Map<String, dynamic> json) {
     return PincodeDet(
       Name: json['Name'] ?? '',
-      // Description: json['Description'] ?? '',
-      // BranchType: json['BranchType'] ?? '',
-      // Deliverystatus: json['Deliverystatus'] ?? '',
-      // Circle: json['Circle'] ?? '',
+      Description: json['Description'] ?? '',
+      BranchType: json['BranchType'] ?? '',
+      Deliverystatus: json['Deliverystatus'] ?? '',
+      Circle: json['Circle'] ?? '',
       District: json['District'] ?? '',
-      // Division: json['Division'] ?? '',
+      Division: json['Division'] ?? '',
       Region: json['Region'] ?? '',
       Block: json['Block'] ?? '',
       State: json['State'] ?? '',
-      // Country: json['Country'] ?? '',
-      // Pincode: json['Pincode'] ?? '',
+      Country: json['Country'] ?? '',
+      Pincode: json['Pincode'] ?? '',
     );
   }
 }

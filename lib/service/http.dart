@@ -17,7 +17,7 @@ import 'package:crm/main.dart' show navigatorKey;
 
 
 BaseOptions options = BaseOptions(
-  baseUrl: 'https://crm.gsisp.in/api/',
+  baseUrl: 'https://bms.gsisp.in/api/',
   contentType: Headers.jsonContentType,
   responseType: ResponseType.json,
 );
