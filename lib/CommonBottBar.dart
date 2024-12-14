@@ -94,7 +94,7 @@ class _ComunBottomBarState1 extends State<ComunBottomBar1> {
     text: TextSpan(
       children: [
         TextSpan(
-          text: "For more information, visit our website ",
+          text: "For More Information.Kindly click this link to visit Website ",
          style: mediumBlackTextStyle.copyWith(
                     color:  notifier.getMainText, // Use the provided color or the default color from notifier
                   ),

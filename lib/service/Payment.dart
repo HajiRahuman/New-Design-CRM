@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:crm/AppStaticData/logger.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import './http.dart' as http;
 import 'package:razorpay_flutter/razorpay_flutter.dart';
@@ -30,18 +31,22 @@ class PaymentService {
     razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
   }
 
-  void _makePayment(String key, String id, String amount) {
-    options['key'] = key;
-    options['order_id'] = id;
-    options['amount'] = amount;
-    options['name'] = 'Live Test';
-    options['handler'] = '';
-    options['description'] = 'Live';
-    // options['razorpay_payment_id']='';
-    // options['razorpay_order_id']='';
-    // options['razorpay_signature']='';
-    razorpay.open(options);
-  }
+  void _makePayment(String key, String id, String amount) async {
+  SharedPreferences pref = await SharedPreferences.getInstance();
+  final username = pref.getString('username') ?? '---'; // Fallback to 'Guest' if not found
+  // final isSubscriber = pref.getBool('isSubscriber') ?? false;
+  //  final company = pref.getString('company') ?? 'Admin'; 
+
+  options['key'] = key;
+  options['order_id'] = id;
+  options['amount'] = amount;
+  options['name'] = username; // Use username dynamically
+  options['handler'] = '';
+  options['description'] = '';
+
+  razorpay.open(options);
+}
+
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
     logger.i('Payment is success');

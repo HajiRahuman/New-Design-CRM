@@ -3,48 +3,39 @@
 
 
 class PincodeDet {
-  final String Name;
-  final String Description;
-  final String BranchType;
-  final String Deliverystatus;
-  final String Circle;
-  final String District;
-  final String Division;
-  final String Region;
-  final String Block;
-  final String State;
-  final String Country;
-  final String Pincode;
+  final int pincodeId;
+  final int pincode;
+  final String areaName;
+  final int blockId;
+  final String blockName;
+  final String stateName;
+  final String districtName;
+  final int sid;
+  final int distId;
 
   PincodeDet({
-    required this.Name,
-    required this.Description,
-    required this.BranchType,
-    required this.Deliverystatus,
-    required this.Circle,
-    required this.District,
-    required this.Division,
-    required this.Region,
-    required this.Block,
-    required this.State,
-    required this.Country,
-    required this.Pincode,
+    required this.pincodeId,
+    required this.pincode,
+    required this.areaName,
+    required this.blockId,
+    required this.blockName,
+    required this.stateName,
+    required this.districtName,
+    required this.sid,
+    required this.distId,
   });
 
-  factory PincodeDet.toJson(Map<String, dynamic> json) {
+  factory PincodeDet.toJson(Map<String, dynamic> map) {
     return PincodeDet(
-      Name: json['Name'] ?? '',
-      Description: json['Description'] ?? '',
-      BranchType: json['BranchType'] ?? '',
-      Deliverystatus: json['Deliverystatus'] ?? '',
-      Circle: json['Circle'] ?? '',
-      District: json['District'] ?? '',
-      Division: json['Division'] ?? '',
-      Region: json['Region'] ?? '',
-      Block: json['Block'] ?? '',
-      State: json['State'] ?? '',
-      Country: json['Country'] ?? '',
-      Pincode: json['Pincode'] ?? '',
+      pincodeId: map['pincode_id']?? 0,
+      pincode: map['pincode']??0,
+      areaName: map['area_name']??"",
+      blockId: map['blockid']??0,
+      blockName: map['block_name']??"",
+      stateName: map['state_name']??"",
+      districtName: map['district_name']??'',
+      sid: map['sid']??0,
+      distId: map['distid']??0,
     );
   }
 }
@@ -233,7 +224,7 @@ class resellerResp {
 
 class resellerAliceDet {
   int aliceid;
-  // String circleName;
+  String aliceName;
   int resellerid;
   // String address;
   // String region;
@@ -245,13 +236,14 @@ class resellerAliceDet {
   String village;
 
   resellerAliceDet({required this.resellerid,required this.aliceid,
-    required this.village});
+    required this.village,required this.aliceName});
 
   factory resellerAliceDet.toJson(Map<dynamic, dynamic> data){
     return resellerAliceDet(
 
       resellerid: data['resellerid']  ?? 0,
       village: data['village'] ??'',
+      aliceName: data['alicename'] ??'',
       aliceid: data ['aliceid']  ?? '',
     );
   }

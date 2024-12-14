@@ -46,7 +46,7 @@ Future<GetPackResp> getPack(int packid) async {
 
 
 Future<PincodeResp> getPincode(int pincode) async {
-  var resp = await http.get('address/$pincode/postal');
+  var resp = await http.get('area_pincode/$pincode');
   return PincodeResp.toJson(resp);
 }
 

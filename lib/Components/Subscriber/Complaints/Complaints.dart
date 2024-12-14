@@ -42,10 +42,10 @@ class _Complaints extends State<Complaints> with SingleTickerProviderStateMixin 
  void initState() {
     super.initState();
     getMenuAccess();
-  GetComplaintType();
+  // GetComplaintType();
   
-   GetListSubsComplaint();
-  ResellerList();
+  //  GetListSubsComplaint();
+  // ResellerList();
   
   }
 
@@ -55,17 +55,28 @@ class _Complaints extends State<Complaints> with SingleTickerProviderStateMixin 
   int selectedAmount = 0;
   bool isSubscriber=false;
 getMenuAccess() async{
+  //  setState(() {
+  //   isLoading = true; // Set loading to true when fetching data
+  // });
     SharedPreferences pref = await SharedPreferences.getInstance();
     levelid = pref.getInt('level_id') as int;
     isIspAdmin = pref.getBool('isIspAdmin') as bool;
     id = pref.getInt('id') as int;
-    isSubscriber = pref.getBool('isSubscriber') as bool;  
+    isSubscriber = pref.getBool('isSubscriber') as bool; 
+    GetComplaintType();
+  
+   GetListSubsComplaint();
+  ResellerList();
+    // isLoading = false; 
   }
 
 
 
 List<resellerDet> resellerOpt = [];
   Future<void> ResellerList() async {
+     setState(() {
+    isLoading = true; // Set loading to true when fetching data
+  });
     resellerResp resp = (await addsubscriberSrv.reseller());
     setState(() {
       resellerOpt = resp.error == true ? [] : resp.data ?? [];
@@ -76,22 +87,35 @@ List<resellerDet> resellerOpt = [];
 List<SubsComplaintDet> SubsComplaints = [];
 
 Future<void> GetListSubsComplaint() async {
- 
+  setState(() {
+    isLoading = true; // Set loading to true when fetching data
+  });
   SubsComplaintResp complaintsResp;
 
   if (isSubscriber) {
     complaintsResp = await subscriberSrvs.subsComplaints(widget.subscriberId);
+    setState(() {
+    isLoading = true; // Set loading to true when fetching data
+  });
   // ignore: dead_code
   } else {
     complaintsResp = await subscriberSrvs.GetTotComplaints();
+    setState(() {
+    isLoading = true; // Set loading to true when fetching data
+  });
   }
 
   setState(() {
     if (complaintsResp.error) {
+
       alert(context, complaintsResp.msg);
+      
+isLoading = false;
     } else {
       SubsComplaints = complaintsResp.data ?? [];
+      isLoading = false;
     }
+    isLoading = false;
   });
 }
 
@@ -99,37 +123,49 @@ Future<void> GetListSubsComplaint() async {
 SubscriberComplaintService subscriberSrv = SubscriberComplaintService();
 List<ComplaintTypeDet> ComplaintsTypes= [];
   Future<void> GetComplaintType() async {
+     setState(() {
+    isLoading = true; // Set loading to true when fetching data
+  });
     String apiUrl = 'complaintsType';
   ComplaintTypeResp resp = (await subscriberSrv.complaintType(apiUrl));
     setState(() {
      ComplaintsTypes = resp.error == true ? [] : resp.data ?? [];
+     isLoading = false;
     });
   }
 
 Future<void> AddComplaints(value) async {
+   
     final resp = await subscriberSrvs.addComplaint(form!.value);
     if (resp['error'] == false) {
       alert(context, resp['msg'], resp['error']);
       Navigator.pop(context, true);
+
     }
   }
 
 
 List<SubsComplaintLogDet> ComplaintsLog= [];
   Future<void> GetComplaintLog(int id) async {
-  
+  setState(() {
+    isLoading = true; // Set loading to true when fetching data
+  });
   SubsComplaintLogResp resp = (await subscriberSrvs.GetSubsComplaintLog(id));
     setState(() {
      ComplaintsLog = resp.error == true ? [] : resp.data ?? [];
+      isLoading = false;
     });
   }
   SubscriberInfoComplaint subscriberInfoSrv = SubscriberInfoComplaint();
 List<SearchDet> search = [];
   Future<void> SubcriberInfo(int id) async {
-  
+  setState(() {
+    isLoading = true; // Set loading to true when fetching data
+  });
   SearchResp  resp = (await subscriberInfoSrv.subsInfo(id));
     setState(() {
      search = resp.error == true ? [] : resp.data ?? [];
+      isLoading = false;
     });
   }
   int _expandedTileIndex = -1;
@@ -153,26 +189,27 @@ List<SearchDet> search = [];
    
    final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
-  Widget build(BuildContext context) {
-   notifire = Provider.of<ColorNotifire>(context, listen:true);
-       final notifier = Provider.of<ColorNotifire>(context);
-    return Scaffold(
-      key: _scaffoldKey,
-      backgroundColor: notifire.getbgcolor,
-      body: SizedBox(
-        height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              child: Column(
-                children: [
-                  
-                  const SizedBoxx(),
-                  const ComunTitle(title: 'List Complaints', path: "Complaints"),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 0, right: padding, left: padding, bottom: 0),
-                    child: Container(
+ @override
+Widget build(BuildContext context) {
+  notifire = Provider.of<ColorNotifire>(context, listen: true);
+  final notifier = Provider.of<ColorNotifire>(context);
+
+  return Scaffold(
+    key: _scaffoldKey,
+    backgroundColor: notifire.getbgcolor,
+    body: Stack(
+      children: [
+        SizedBox(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const SizedBoxx(),
+                    const ComunTitle(title: 'List Complaints', path: "Complaints"),
+                    Container(
                       decoration: BoxDecoration(
                         color: notifire.getcontiner,
                         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
@@ -183,38 +220,44 @@ List<SearchDet> search = [];
                             children: [
                               Expanded(
                                 child: Padding(
-                                  padding: const EdgeInsets.all(padding),
+                                  padding: const EdgeInsets.all(8),
                                   child: _buildProfile1(isphon: true),
                                 ),
                               ),
                             ],
                           ),
-                          
                         ],
                       ),
                     ),
-                  ),
-                  _buildPaginationControls(),
-                  const SizedBoxx(),
-                  
-                ],
-              ),
-            );
-          },
+                    const SizedBoxx(),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
-      ),
-      drawer: DarwerCode(),
-       bottomNavigationBar:  BottomAppBar(
-            shadowColor:notifier.getprimerycolor ,
-             color: notifier.getprimerycolor,
-             surfaceTintColor: notifier.getprimerycolor,
-            child: BottomNavBar(scaffoldKey: _scaffoldKey),
-            
-          ), 
-    );
-  }
+        // Loading Indicator
+        if (isLoading)
+          Positioned.fill(
+            child: Container(
+              color: Colors.black.withOpacity(0.5),
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          ),
+      ],
+    ),
+    drawer: DarwerCode(),
+    bottomNavigationBar: BottomAppBar(
+      shadowColor: notifier.getprimerycolor,
+      color: notifier.getprimerycolor,
+      surfaceTintColor: notifier.getprimerycolor,
+      child: BottomNavBar(scaffoldKey: _scaffoldKey),
+    ),
+  );
+}
 
-  
 
   Widget _buildProfile1({required bool isphon}) {
        final startIndex = (currentPage - 1) * itemsPerPage;
@@ -252,10 +295,13 @@ List<SearchDet> search = [];
                                   style: mediumBlackTextStyle.copyWith(
                                       color: Colors.white),
                                 )),
-                                IconButton(onPressed: (){}, icon:Icon(Icons.refresh, color:notifier.getMainText,),)
+                                IconButton( onPressed: () async {
+                    getMenuAccess();
+  
+                }, icon:Icon(Icons.refresh, color:notifier.getMainText,),)
             ],
           ),
-        
+        const SizedBox(height: 10),
         Row(
           children: [
             Expanded(
@@ -267,131 +313,128 @@ List<SearchDet> search = [];
                          itemCount:paginatedList.length,
                         itemBuilder: (BuildContext context, int index) {
                           final  SubsComplaint = paginatedList[index];
-                          return Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: ExpansionPanelList(
-                                  expandIconColor:    appGreyColor,
-                                elevation: 1,
-                                expandedHeaderPadding: EdgeInsets.all(8),
-                                expansionCallback: (int item, bool status) {
-                                  setState(() {
-                                    _expandedTileIndex = (_expandedTileIndex == index) ? -1 : index;
-                                    if (_expandedTileIndex != -1) {
-                                      GetComplaintLog(SubsComplaint.id);
-                                    }
-                                  });
-                                },
-                                children: [
-                                  ExpansionPanel(
-                                      backgroundColor: notifire.getcontiner,
-                                    headerBuilder: (BuildContext context, bool isExpanded) {
-                                      return ListTile(
-                                       leading: 
-                                        CircleAvatar(
-                                          radius: 20,
-                                          child: IconButton(
-                                                     onPressed: () {
-                                                       
-                                                       if (!isSubscriber!=false) {
-                                                         showDialog(
-                                                           context: context,
-                                                           builder: (ctx) => Dialog.fullscreen(
-                                                             backgroundColor: notifire.getbgcolor,
-                                                             child: AddComplaint(SubComplaints: SubsComplaint, resellerid:widget.resellerID, subsID:widget.subscriberId,)
-                                                           ),
-                                                         ).then((val) => {
-                                                           print('dialog--$val'),
-                                                         });
-                                                       }
-                                                       },
-                                                     
-                                                      icon:  isSubscriber ? Icon(Icons.person) :Icon(Icons.edit) 
-                                                   ),
-                                        ),
-                                                 
-                                                                                         
-                                        title: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                        //     ListTile(
-                                      
-                                                 
-                                                                                         
-                                        // title:_buildCommonListTile(title: 'ID', subtitle:SubsComplaint.id.toString()),
-                                        //     ),
-                                          Padding(
-                              padding: EdgeInsets.symmetric(horizontal: isphon ? 10 : padding),
-                              child: Column(
-                                children: [
-                                  _buildCommonListTile(title: 'ID', subtitle:SubsComplaint.id.toString()),
-                                  
-                                                                                       
-                                                                                         _buildCommonListTile(title: 'PROFILE ID', subtitle:SubsComplaint.profileid),
-                                                                                       
-                                                                                         _buildCommonListTile(title: 'STATUS', subtitle:getStatusText(SubsComplaint.status)),
-                                                                                        
-                                                                                        _buildCommonListTile(title: 'TYPE', subtitle:ComplaintsTypes.firstWhere(
-                                                                      (comType) => comType.id == SubsComplaint.type,
-                                                                      orElse: () => ComplaintTypeDet(id: 0, name: ''),
-                                                                    ).name,),
-                                ],
-                              ),
-                            ),
-                                                                                 ],
-                                        ),
-                                      );
+                          return  Column(
+                            children: [
+                              ExpansionPanelList(
+                                      expandIconColor:    appGreyColor,
+                                    elevation: 1,
+                                    expandedHeaderPadding: EdgeInsets.all(8),
+                                    expansionCallback: (int item, bool status) {
+                                      setState(() {
+                                        _expandedTileIndex = (_expandedTileIndex == index) ? -1 : index;
+                                        if (_expandedTileIndex != -1) {
+                                          GetComplaintLog(SubsComplaint.id);
+                                        }
+                                      });
                                     },
-                                    isExpanded: _expandedTileIndex == index,
-                                    body: SingleChildScrollView(
-                                      child: Column(
-                                        children: [
-                                      const  Divider(),
-                                          ListView.builder(
-                                            shrinkWrap: true,
-                                            physics: const NeverScrollableScrollPhysics(),
-                                             itemCount: ComplaintsLog.length,
-                                            itemBuilder: (BuildContext context, int index) {
-                                              final ComplaintsLogs =ComplaintsLog[index];
-                                                  DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(ComplaintsLogs.createdon);
-                                          
-                                              return Padding(
-                                                padding: EdgeInsets.symmetric(horizontal: isphon ? 10 : padding),
-                                                child: Column(children: [
-                                                  
-                                                  _buildCommonListTile(title: "DATE", subtitle:': ${DateFormat.yMd().add_jm().format(dateTime)}'),
-                                                                                  
-                                                                                    _buildCommonListTile(title: "COMMENTS", subtitle:": ${ComplaintsLogs.comments}"),
-                                                                                  
-                                                                                  _buildCommonListTile(title: "ASSIGNEE", subtitle:': ${resellerOpt.firstWhere(
-                                                                              (resellerType) => resellerType.id ==  ComplaintsLogs.assignee,
-                                                                              orElse: () => resellerDet(
-                                                                                id: 0,
-                                                                                full_name: '',
-                                                                                profileid: '',
-                                                                                company: '',
-                                                                                mobile: '',
-                                                                                email: '',
-                                                                                levelid: 0,
-                                                                                level_role: 0,
-                                                                                circle: 0,
-                                                                              ),
-                                                                            ).company}'),
-                                                                                 
-                                                                                  _buildCommonListTile(title: "STATUS", subtitle:': ${getStatusText(  ComplaintsLogs.status)}'),
-                                                                                 
-                                                                                  _buildDivider()
-                                                
-                                                ],),
-                                              );
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ),
+                                    children: [
+                                      ExpansionPanel(
+                                          backgroundColor: notifire.getcontiner,
+                                        headerBuilder: (BuildContext context, bool isExpanded) {
+                                          return Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Column(children: [
+                                              ListTile(
+                                                  title: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text('ID : ${SubsComplaint.id}',
+                                      
+                                        style: mediumBlackTextStyle.copyWith(color: notifier.getMainText,fontWeight: FontWeight.bold,fontSize: 16,fontFamily: "Gilroy",),
+                                                  ),
+                                                   CircleAvatar(
+                                              radius: 20,
+                                              child: IconButton(
+                                                         onPressed: () {
+                                                           
+                                                           if (!isSubscriber!=false) {
+                                                             showDialog(
+                                                               context: context,
+                                                               builder: (ctx) => Dialog.fullscreen(
+                                                                 backgroundColor: notifire.getbgcolor,
+                                                                 child: AddComplaint(SubComplaints: SubsComplaint, resellerid:widget.resellerID, subsID:widget.subscriberId,)
+                                                               ),
+                                                             ).then((val) => {
+                                                               print('dialog--$val'),
+                                                             });
+                                                           }
+                                                           },
+                                                         
+                                                          icon:  isSubscriber ? Icon(Icons.person) :Icon(Icons.edit) 
+                                              )
+                                                 ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            );
+                                              ),
+                                          
+                                                                                               _buildCommonListTile(title: 'PROFILE ID', subtitle:": ${SubsComplaint.profileid}"),
+                                                                                             
+                                                                                               _buildCommonListTile(title: 'STATUS', subtitle:": ${getStatusText(SubsComplaint.status)}"),
+                                                                                              
+                                                                                              _buildCommonListTile(title: 'TYPE', subtitle:": ${ComplaintsTypes.firstWhere(
+                                                                            (comType) => comType.id == SubsComplaint.type,
+                                                                            orElse: () => ComplaintTypeDet(id: 0, name: ''),
+                                                                          ).name}",),
+                                                                  
+                                            
+                                            ],),
+                                          );
+                                          
+                               
+                                        },
+                                        isExpanded: _expandedTileIndex == index,
+                                        body: SingleChildScrollView(
+                                          child: Column(
+                                            children: [
+                                          const  Divider(),
+                                              ListView.builder(
+                                                shrinkWrap: true,
+                                                physics: const NeverScrollableScrollPhysics(),
+                                                 itemCount: ComplaintsLog.length,
+                                                itemBuilder: (BuildContext context, int index) {
+                                                  final ComplaintsLogs =ComplaintsLog[index];
+                                                      DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(ComplaintsLogs.createdon);
+                                              
+                                                  return Padding(
+                                                    padding:const EdgeInsets.all(8),
+                                                    child: Column(children: [
+                                                      
+                                                      _buildCommonListTile(title: "DATE", subtitle:': ${DateFormat.yMd().add_jm().format(dateTime)}'),
+                                                                                      
+                                                                                        _buildCommonListTile(title: "COMMENTS", subtitle:": ${ComplaintsLogs.comments}"),
+                                                                                      
+                                                                                      _buildCommonListTile(title: "ASSIGNEE", subtitle:': ${resellerOpt.firstWhere(
+                                                                                  (resellerType) => resellerType.id ==  ComplaintsLogs.assignee,
+                                                                                  orElse: () => resellerDet(
+                                                                                    id: 0,
+                                                                                    full_name: '',
+                                                                                    profileid: '',
+                                                                                    company: '',
+                                                                                    mobile: '',
+                                                                                    email: '',
+                                                                                    levelid: 0,
+                                                                                    level_role: 0,
+                                                                                    circle: 0,
+                                                                                  ),
+                                                                                ).company}'),
+                                                                                     
+                                                                                      _buildCommonListTile(title: "STATUS", subtitle:': ${getStatusText(  ComplaintsLogs.status)}'),
+                                                                                     
+                                                                                      _buildDivider()
+                                                    
+                                                    ],),
+                                                  );
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height:10)
+                            ],
+                          );
                           
                         },
                       ),
@@ -399,6 +442,7 @@ List<SearchDet> search = [];
                   ),
           ],
         ),
+         _buildPaginationControls(),
       ],
     );
   }

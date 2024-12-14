@@ -205,7 +205,9 @@ _buildcompo1(
   Subscriber: subscriberSummary?.totalusers ?? "0",
   Indicator: _buildIndicator(cardcolors[0], 1.0), // Full progress for total users
   maincolor: const Color(0xff2F3F95),
-  progressValue: 1.0, // Full bar for total users
+  progressValue: 1.0,
+    category: 'Total'
+   // Full bar for total users
 ),
                             ),
                             Expanded(
@@ -215,7 +217,8 @@ _buildcompo1(
   Subscriber: subscriberSummary?.active ?? "0",
   Indicator: _buildIndicator(cardcolors[1], _calculateProgress(subscriberSummary?.active, subscriberSummary?.totalusers)),
   maincolor: const Color(0xff43A047),
-  progressValue: _calculateProgress(subscriberSummary?.active, subscriberSummary?.totalusers), // Add this line
+  progressValue: _calculateProgress(subscriberSummary?.active, subscriberSummary?.totalusers),
+    category: 'Active' // Add this line
 ),
                             ),
                           ],
@@ -229,7 +232,8 @@ _buildcompo1(
   Subscriber: subscriberSummary?.mainonline ?? "0",
   Indicator: _buildIndicator(cardcolors[2], _calculateProgress(subscriberSummary?.mainonline, subscriberSummary?.totalusers)),
   maincolor: const Color(0xff25D366),
-  progressValue: _calculateProgress(subscriberSummary?.mainonline, subscriberSummary?.totalusers), // Add progressValue here
+  progressValue: _calculateProgress(subscriberSummary?.mainonline, subscriberSummary?.totalusers),
+    category: 'Online' // Add progressValue here
 ),
                             ),
                             Expanded(
@@ -239,7 +243,8 @@ _buildcompo1(
  Subscriber: subscriberSummary?.offline ?? "0",
   Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.offline, subscriberSummary?.totalusers)),
   maincolor: const Color(0xffFF6F00),
-  progressValue: _calculateProgress(subscriberSummary?.offline, subscriberSummary?.totalusers), // Add progressValue here
+  progressValue: _calculateProgress(subscriberSummary?.offline, subscriberSummary?.totalusers), 
+    category: 'Offline'// Add progressValue here
 ),
                             ),
                           ],
@@ -253,7 +258,8 @@ _buildcompo1(
   Subscriber: subscriberSummary?.deactive ?? "0",
   Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.deactive, subscriberSummary?.totalusers)),
   maincolor: const Color(0xffE53935),
-  progressValue: _calculateProgress(subscriberSummary?.deactive, subscriberSummary?.totalusers), // Add progressValue here
+  progressValue: _calculateProgress(subscriberSummary?.deactive, subscriberSummary?.totalusers), 
+    category: 'Expired'// Add progressValue here
 ),
                             ),
             Expanded(child: _buildcompo1(
@@ -262,7 +268,8 @@ _buildcompo1(
   Subscriber: subscriberSummary?.hold ?? "0",
   Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.hold, subscriberSummary?.totalusers)),
   maincolor: const Color(0xffFF4081),
-  progressValue: _calculateProgress(subscriberSummary?.hold, subscriberSummary?.totalusers), // Add progressValue here
+  progressValue: _calculateProgress(subscriberSummary?.hold, subscriberSummary?.totalusers),
+    category: 'Hold' // Add progressValue here
 ),)
                           ],
                         ),
@@ -292,7 +299,8 @@ _buildcompo1(
   Subscriber: subscriberSummary?.totalusers ?? "0",
   Indicator: _buildIndicator(cardcolors[0], 1.0), // Full progress for total users
   maincolor: const Color(0xff2F3F95),
-  progressValue: 1.0, // Full bar for total users
+  progressValue: 1.0,
+    category: 'Total' // Full bar for total users
 ),
 
                             ),
@@ -303,7 +311,8 @@ _buildcompo1(
   Subscriber: subscriberSummary?.active ?? "0",
   Indicator: _buildIndicator(cardcolors[1], _calculateProgress(subscriberSummary?.active, subscriberSummary?.totalusers)),
   maincolor: const Color(0xff43A047),
-  progressValue: _calculateProgress(subscriberSummary?.active, subscriberSummary?.totalusers), // Add this line
+  progressValue: _calculateProgress(subscriberSummary?.active, subscriberSummary?.totalusers), 
+    category: 'Active'// Add this line
 ),
                             ),
                             Expanded(
@@ -313,7 +322,9 @@ _buildcompo1(
   Subscriber: subscriberSummary?.mainonline ?? "0",
   Indicator: _buildIndicator(cardcolors[2], _calculateProgress(subscriberSummary?.mainonline, subscriberSummary?.totalusers)),
   maincolor: const Color(0xff25D366),
-  progressValue: _calculateProgress(subscriberSummary?.mainonline, subscriberSummary?.totalusers), // Add progressValue here
+  progressValue: _calculateProgress(subscriberSummary?.mainonline, subscriberSummary?.totalusers),
+    category: 'Online'
+   // Add progressValue here
 ),
                             ),
                             Expanded(
@@ -324,6 +335,7 @@ _buildcompo1(
   Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.offline, subscriberSummary?.totalusers)),
   maincolor: const Color(0xffFF6F00),
   progressValue: _calculateProgress(subscriberSummary?.offline, subscriberSummary?.totalusers), // Add progressValue here
+    category: 'Offline'
 ),
                             ),
                           ],
@@ -340,6 +352,7 @@ _buildcompo1(
   Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.deactive, subscriberSummary?.totalusers)),
   maincolor: const Color(0xffE53935),
   progressValue: _calculateProgress(subscriberSummary?.deactive, subscriberSummary?.totalusers), // Add progressValue here
+    category: 'Expired'
 ),
                            ),
                            Expanded(child: _buildcompo1(
@@ -349,6 +362,7 @@ _buildcompo1(
   Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.hold, subscriberSummary?.totalusers)),
   maincolor: const Color(0xffFF4081),
   progressValue: _calculateProgress(subscriberSummary?.hold, subscriberSummary?.totalusers), // Add progressValue here
+    category: 'Hold'
 ),)
                           ],
                         ),
@@ -539,7 +553,9 @@ Widget _buildcompo2({required double width}) {
                     _buildCommonListTile(
                       title: "PROFILE ID",
                       subtitle:": ${expirySubs.profileid}",
-                      subtitleStyle:const TextStyle(color: appMainColor),  // Customize style if needed
+                      subtitleStyle: mediumBlackTextStyle.copyWith(
+                    color: appMainColor,
+                  ), // Customize style if needed
                       onSubtitleTap: () {
                         // Navigate to viewSubscriber when profileid is tapped
                          navigateToViewSubscriber(

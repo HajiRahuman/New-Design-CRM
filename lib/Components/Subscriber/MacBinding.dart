@@ -65,7 +65,7 @@ class MyAppState extends State<MacBinding> {
       itemCount: usermac.length,
       itemBuilder: (BuildContext context, int index) {
         return ListTile(
-          title: Text(usermac[index].usermac ?? ''),
+          title: Text(usermac[index].usermac),
         );
       },
     );
@@ -81,7 +81,7 @@ class MyAppState extends State<MacBinding> {
         usermac = resp.data ?? [];
         if (usermac.isNotEmpty && widget.enablemac == 1) {
 
-          String concatenatedUserMacs = usermac.map((e) => e.usermac ?? '').join(', ');
+          String concatenatedUserMacs = usermac.map((e) => e.usermac).join(', ');
           macBindingController.text = concatenatedUserMacs;
         }
       }
@@ -99,7 +99,7 @@ class MyAppState extends State<MacBinding> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
+    //double screenHeight = MediaQuery.of(context).size.height;
         
   final notifier = Provider.of<ColorNotifire>(context);
     return Form(
@@ -158,8 +158,7 @@ class MyAppState extends State<MacBinding> {
                           0xFFFA63C58),
                     ),
                     child: Text(
-                      widget.acctstatus ??
-                          'N/A',
+                      widget.acctstatus,
                       style:
                       const TextStyle(
                           color: Colors
@@ -182,8 +181,7 @@ class MyAppState extends State<MacBinding> {
                       0xFFFA63C58),
                 ),
                 child: Text(
-                  widget.conn ??
-                      'N/A',
+                  widget.conn,
                   style:
                   const TextStyle(
                       color: Colors

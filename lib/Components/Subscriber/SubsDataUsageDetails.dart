@@ -8,7 +8,6 @@ import 'package:crm/main.dart';
 import 'package:crm/model/subscriber.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -74,7 +73,7 @@ class _SubsDataUsageDetailsState extends State<SubsDataUsageDetails> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 DateTime? _startDate;
   DateTime? _endDate;
-  bool _switchValue = false;
+  final bool _switchValue = false;
 
   Future<void> _selectDate(BuildContext context, bool isStart) async {
     final DateTime? picked = await showDatePicker(
@@ -185,7 +184,7 @@ DateTime? _startDate;
                      
                     ),
                   ),
-                  SizedBox(width: 16),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: TextFormField(
                       readOnly: true,
@@ -325,12 +324,12 @@ DateTime? _startDate;
         ),
         showTitles: true,
         reservedSize: 40,
-        getTitles: (value) {
-          if (value % 5 == 0) {
-            return '${value.toInt()} GB'; // Y-axis labels
-          }
-          return '';
-        },
+        // showTitles: (value) {
+        //   if (value % 5 == 0) {
+        //     return '${value.toInt()} GB'; // Y-axis labels
+        //   }
+        //   return '';
+        // },
       ),
       bottomTitles: SideTitles(
         getTextStyles: (context, value) => mediumBlackTextStyle.copyWith(
@@ -395,7 +394,7 @@ DateTime? _startDate;
 
   // Ensure startIndex is not out of bounds and adjust accordingly
   if (startIndex >= totalItems || totalItems == 0) {
-    return Center(child: Text('No more items to display.'));
+    return const Center(child: Text('No more items to display.'));
   }
 
   final paginatedList = listSessionRpt.sublist(startIndex, endIndex);
@@ -566,7 +565,7 @@ Widget _buildPaginationControls() {
         color: isSelected ? appMainColor : Colors.grey[300],
         borderRadius: BorderRadius.circular(20.0),
       ),
-      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Text(
         title,
         style: TextStyle(

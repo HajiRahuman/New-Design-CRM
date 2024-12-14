@@ -344,13 +344,7 @@ pw.TextStyle commonTextStyle = pw.TextStyle(
          
         build: (context) {
           return 
-        pw.Container(
-            padding: const pw.EdgeInsets.all(8),
-        decoration: pw.BoxDecoration(
-          // borderRadius: pw.BorderRadius.circular(10),
-          border: pw.Border.all(color: PdfColors.grey), // Corrected color reference
-        ),
-          child: 
+        
           pw.Container(
             //  padding: const pw.EdgeInsets.all(8),
         decoration: pw.BoxDecoration(
@@ -390,7 +384,7 @@ pw.TextStyle commonTextStyle = pw.TextStyle(
       ),
       pw.TextSpan(
         text: "bmssupport@gsisp.in\n",
-        style: pw.TextStyle(font: pw.Font.times()),
+        style: pw.TextStyle(font: pw.Font.times(), color: const PdfColor.fromInt(0xff0059E7),),
       ),
       pw.TextSpan(
         text: "9442887912\n",
@@ -509,7 +503,7 @@ pw.Padding(
                  
                   // Second Section: Bill To and Ship To
                   pw.TableRow(
-                    decoration:const pw.BoxDecoration(color: PdfColors.grey300),
+                 
                     children: [
                       pw.Padding(
                         
@@ -527,7 +521,10 @@ pw.Padding(
                   pw.TableRow(
                     children: [
                      
-                        pw.Column(children: [
+                        pw.Column(
+                          // mainAxisAlignment: pw.MainAxisAlignment.start,
+                          crossAxisAlignment: pw.CrossAxisAlignment.start,
+                          children: [
                           pw.Padding(
                             padding: const pw.EdgeInsets.all(8.0),
                             child: 
@@ -540,7 +537,9 @@ pw.Padding(
                   ),
                       
 
-                     pw.Column(children: [
+                     pw.Column(
+                           crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
                           pw.Padding(
                             padding: const pw.EdgeInsets.all(8.0),
                             child: 
@@ -557,56 +556,40 @@ pw.Padding(
                   
                 ],
               ),
-             pw.Table(
-              border:pw. TableBorder.all(
-                color: PdfColors.black, // Border color
-                width: 1,            // Border width
-              ),
-              columnWidths: {
-                   0:const pw.FlexColumnWidth(1.5),
-                1:const pw.FlexColumnWidth(4.7),
-                2:const pw.FlexColumnWidth(4),
-                3:const pw.FlexColumnWidth(4.7),
-                4:const pw.FlexColumnWidth(4.7),
-                5:const pw.FlexColumnWidth(4.7),
-                  6:const pw.FlexColumnWidth(4.7),
-                    7:const pw.FlexColumnWidth(4.7),
-                8:const pw.FlexColumnWidth(4.7),
-                9:const pw.FlexColumnWidth(5.7),
-            
-              },
-              children: [
-                pw.TableRow(
-                    decoration:const pw.BoxDecoration(color: PdfColors.grey300),
-                  children: [
-                     tableHeader('#'),
-                    tableHeader('Item'),
-                    tableHeader('Rate'),
-                    tableHeader('CGST\n%'),
-                    tableHeader('CGST\nAmt'),
-                    tableHeader('SGST\n%'),
-                    tableHeader('SGST\nAmt'),
-                    tableHeader('IGST\n%'),
-                     tableHeader('IGST\nAmt'),
-                    tableHeader('Total\nAmount'),
-                  ],
-                ),
-                pw.TableRow(
-                  children: [
-                      tableCell("1"),
-                    tableCell(invoice.packname.isNotEmpty?invoice.packname:invoice.additionalinfo),
-                    tableCell(invoice.allamount.toString()),
-                    tableCell(invoice.cgst.toString().isNotEmpty == true ? invoice.cgst.toString() : "---"),
-                    tableCell(invoice.alltaxamt.toString()),
-                    tableCell(invoice.sgst.toString().isNotEmpty == true ? invoice.sgst.toString() : "---"),
-                    tableCell(invoice.alltaxamt.toString()),
-                    tableCell(invoice.igst.toString().isNotEmpty == true ? invoice.igst.toString() : "---"),
-                    tableCell('--'),
-                    tableCell(invoice.totalamount.toString()),
-                  ],
-                ),
-              ],
-            ),
+              // ignore: deprecated_member_use
+              pw.Table.fromTextArray(
+  context: context,
+  border: pw.TableBorder.all(),
+  headerStyle:pw.TextStyle(font: pw.Font.timesBold()),
+  cellStyle: pw.TextStyle(font: pw.Font.times()),
+  cellAlignment: pw.Alignment.center,
+  headerAlignment: pw.Alignment.center,
+  cellHeight: 30,
+    cellAlignments: {
+      0: pw.Alignment.center,
+      1: pw.Alignment.center,
+      2: pw.Alignment.center,
+      3: pw.Alignment.center,
+      4: pw.Alignment.center,
+      5: pw.Alignment.center,
+      6: pw.Alignment.center,
+      7: pw.Alignment.center,
+      8: pw.Alignment.center,
+      9: pw.Alignment.center,
+    },
+  headers: ['#', 'Item', 'Rate', 'CGST\n%', 'CGST\nAmt', 'SGST\n%', 'SGST\nAmt', 'IGST\n%', 'IGST\nAmt', 'Total\nAmount'],
+  data: [
+    ['1', invoice.packname.isNotEmpty ? invoice.packname : invoice.additionalinfo, invoice.allamount.toString(), 
+    invoice.cgst.toString().isNotEmpty == true ? invoice.cgst.toString() : "---",
+     invoice.alltaxamt.toString(), 
+     invoice.sgst.toString().isNotEmpty == true ? invoice.sgst.toString() : "---", 
+     invoice.alltaxamt.toString(), 
+     invoice.igst.toString().isNotEmpty == true ? invoice.igst.toString() : "---", 
+     '--', invoice.totalamount.toString()],
+    // Add more rows as needed
+  ],
+),
+
           pw.Spacer(),
  pw.Table(
                 border: pw.TableBorder.all(),
@@ -693,22 +676,17 @@ _buildCommonListTile1(title: 'Balance Due',subtitle:'₹ ${invoice.balancedue.to
      ])
 
                     ],
-                  ),
-                
-                  
+                  ),                 
                 ],
-              ),
- 
- 
-           
+              ),          
               pw.SizedBox(height: 10),
           pw.Center(child:
-              pw.Text('*** This is computer generated invoice no signature required ***',  style: pw.TextStyle(font: pw.Font.timesBold()))),
+              pw.Text('** This is computer generated invoice no signature required **',  style: pw.TextStyle(font: pw.Font.timesBold()))),
+              pw.Divider(),
                  pw.Spacer(),
             ],
           ),
-          ),
-        );
+          );
         },
       ),
     );
@@ -749,7 +727,7 @@ Future<String> savePDF(int invid) async {
 
   final now = DateTime.now();
   final timestamp = '${now.day}-${now.month}-${now.year}-${now.hour}-${now.minute}-${now.second}';
-  final fileName = "Invoice_$timestamp.pdf";
+  const fileName = "Tax Invoice.pdf";
 
   final file = File("${output!.path}/$fileName");
   await file.writeAsBytes(await pdf.save());
@@ -1095,7 +1073,7 @@ String getLocalityLabel(int local) {
                                             
                                          _buildCommonListTile(title: 'PRICE NAME', subtitle: ': ${invoice.pricename.isNotEmpty? invoice.pricename: "---"}'),
                                            
-                                        _buildCommonListTile(title: 'VALIDITY DATE', subtitle:': ${invoice.expiration.isNotEmpty  ? DateFormat.yMMMMd('en_US').add_jm() .format(DateTime.parse(invoice.expiration).toLocal()): "---" }'),
+                                        _buildCommonListTile(title: 'VALIDITY DATE', subtitle:': ${invoice.expiration.isNotEmpty  ? DateFormat.yMMMMd('en_US').add_jm().format(DateTime.parse(invoice.expiration).toLocal()): "---" }'),
                                           
                                         ],
                                       ),

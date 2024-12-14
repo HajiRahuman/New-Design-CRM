@@ -32,6 +32,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// ignore: must_be_immutable
 class ViewSubscriber extends StatefulWidget {
   SubscriberFullDet? subscriberDet;
   UpdateUserDataDet? subscriberUpdateDet;
@@ -44,11 +45,11 @@ class ViewSubscriber extends StatefulWidget {
 }
 
 class MyAppState extends State<ViewSubscriber> with SingleTickerProviderStateMixin {
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
-  final GlobalKey<ScaffoldState> _key = GlobalKey();
+  // final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
+  // final GlobalKey<ScaffoldState> _key = GlobalKey();
   TextEditingController authPwdController = TextEditingController();
   final formkey = GlobalKey<FormState>();
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  // final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   int selectedIndex = 0;
   PageController _pageController = PageController();
@@ -181,7 +182,7 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
         Username: widget.subscriberDet!.username,
       );
     }
-  } catch (e, stackTrace) {
+  } catch (e) {
     print('Exception occurred: $e');
     // print('Stack trace: $stackTrace');
   } finally {
@@ -194,8 +195,8 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
  @override
 Widget build(BuildContext context) {
-  final textStyle = Theme.of(context).textTheme.bodyLarge;
-  final selectedTextStyle = textStyle?.copyWith(fontWeight: FontWeight.bold);
+  // final textStyle = Theme.of(context).textTheme.bodyLarge;
+  // final selectedTextStyle = textStyle?.copyWith(fontWeight: FontWeight.bold);
 
   final notifier = Provider.of<ColorNotifire>(context);
 
@@ -473,9 +474,9 @@ Widget build(BuildContext context) {
                                       : const Color(0xFFEE4B2B), // Red // Color when not Online
 ),                                  
      _buildCommonListTile(
-  title: "EXPIRY DATE",
+  title: "VALIDITY",
   subtitle: ': ${widget.subscriberDet!.expiration != "No Expiry" && widget.subscriberDet!.expiration.isNotEmpty 
-      ? DateFormat.jm().format(DateTime.parse(widget.subscriberDet!.expiration))
+      ? DateFormat.yMMMMd('en_US').add_jm().format(DateTime.parse(widget.subscriberDet!.expiration))
       : "---"}',
 ),
 
@@ -659,11 +660,11 @@ Widget build(BuildContext context) {
                                                                                       
                                                                                       _buildCommonListTile(title: "CREATED DATE", subtitle: ': ${widget.subscriberDet?.createdon ??'N/A'}'),
                                                                                       
-                                                                                      _buildCommonListTile(title: "MOBILE", subtitle:': ${widget.subscriberDet?.info?.mobile ??'N/A'}'),
+                                                                                      _buildCommonListTile(title: "MOBILE", subtitle:': ${widget.subscriberDet?.info.mobile ??'N/A'}'),
                                                                                       
-                                                                                      _buildCommonListTile(title: "EMAIL", subtitle:  ': ${widget.subscriberDet!.info?.emailpri ??'N/A'}'),
+                                                                                      _buildCommonListTile(title: "EMAIL", subtitle:  ': ${widget.subscriberDet!.info.emailpri}'),
                                                                                       
-                                                                                      _buildCommonListTile(title: "GST", subtitle: ': ${widget.subscriberDet!.info?.ugst ??'N/A'}'),
+                                                                                      _buildCommonListTile(title: "GST", subtitle: ': ${widget.subscriberDet!.info.ugst}'),
                                                                                       
                                               
                                               ]
@@ -711,7 +712,7 @@ Widget build(BuildContext context) {
                                                                                       
                                                                                        if (widget.subscriberDet!.address_book.length >1) 
                                                                                       Visibility(
-                                                                                          visible:widget.subscriberDet!.info!.addressflag=true    ,
+                                                                                          visible:widget.subscriberDet!.info.addressflag=true    ,
                                                                                         child: _buildCommonListTile(title: "BILLING ADDRESS", subtitle: ': ${widget.subscriberDet!.address_book.isNotEmpty
                                                               ? widget.subscriberDet!.address_book[1].address.toString()
                                                               : 'N/A'}'),
@@ -784,7 +785,7 @@ void _showPopupMenu(BuildContext context, Offset offset, Size screenSize) {
 }
 
 PopupMenuItem _buildPopupAdminMenuItem() {
-   final notifier = Provider.of<ColorNotifire>(context, listen: false);
+  //  final notifier = Provider.of<ColorNotifire>(context, listen: false);
   return PopupMenuItem(
     enabled: false,
     padding: const EdgeInsets.all(0),
@@ -824,7 +825,7 @@ PopupMenuItem _buildPopupAdminMenuItem() {
                    if (widget.subscriberDet?.conn == 'Online' && isSubscriber==false)
                 row(title: 'Log Off/Session Close', icon: Icons.fact_check),
                 row(title: 'Upload Document', icon: Icons.upload_file),
-                  if (widget.subscriberDet!.info?.addressflag! == true)
+                  if (widget.subscriberDet!.info.addressflag == true)
                   row(title: 'Upload Document(Different Address)', icon: Icons.upload_file),
                 row(title: 'Upload Picture', icon: Icons.people),
                 row(title: 'Upload Signature', icon: Icons.edit),
@@ -890,7 +891,7 @@ TableRow row({required String title, required IconData icon}) {
                                                   resellerid:widget.subscriberDet!.resellerid,
                                                   mac:widget.subscriberDet!.mac,
                                                   srvusermode: widget.subscriberDet!.srvusermode,
-                                                aliceid: widget.subscriberDet!.info!.aliceid,
+                                                aliceid: widget.subscriberDet!.info.aliceid,
                                                 );
 
                                               })).then((val) => {

@@ -37,10 +37,14 @@ class _ListHotel extends State<ListHotel> with SingleTickerProviderStateMixin {
   int limit = 5;
 
   Future<void> getListHotel() async {
+     setState(() {
+    isLoading = true; // Set loading to true when fetching data
+  });
     HotelResp resp = await hotelSrv.listHotel();
     setState(() {
       if (resp.error) alert(context, resp.msg);
       listHotel = resp.error == true ? [] : resp.data ?? [];
+      isLoading = false;
     });
   }
 
@@ -66,46 +70,63 @@ class _ListHotel extends State<ListHotel> with SingleTickerProviderStateMixin {
        key: _scaffoldKey,
      drawer: DarwerCode(), 
       backgroundColor:notifier.getbgcolor,
-      body: SizedBox(
-        height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              child: Column(
-                children: [
-                  const SizedBoxx(),
-                  const ComunTitle(title: 'List Hotel', path: "Hotel"),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 0, right: padding, left: padding, bottom: 0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color:notifier.getcontiner,
-                        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
-                      ),
-                      child: Column(
+      body: Stack(
+        children: [
+          SizedBox(
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Column(
                         children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(padding),
-                                  child: _buildProfile1(isphon: true),
-                                ),
+                          const SizedBoxx(),
+                          const ComunTitle(title: 'List Hotel', path: "Hotel"),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 0, right: padding, left: padding, bottom: 0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color:notifier.getcontiner,
+                                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
                               ),
-                            ],
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(padding),
+                                          child: _buildProfile1(isphon: true),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
+                          _buildPaginationControls(),
+                          const SizedBoxx(),
                         ],
                       ),
-                    ),
+                    ],
                   ),
-                  _buildPaginationControls(),
-                  const SizedBoxx(),
-                ],
+                );
+              },
+            ),
+          ),
+           if (isLoading)
+          Positioned.fill(
+            child: Container(
+              color: Colors.black.withOpacity(0.5),
+              child: const Center(
+                child: CircularProgressIndicator(),
               ),
-            );
-          },
-        ),
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar:  BottomAppBar(
             shadowColor:notifier.getprimerycolor ,

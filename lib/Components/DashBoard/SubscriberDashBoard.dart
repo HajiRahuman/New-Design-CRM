@@ -39,14 +39,14 @@ class SubscriberDashBoard extends StatefulWidget {
 }
 
 class MyAppState extends State<SubscriberDashBoard> with SingleTickerProviderStateMixin {
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
-  final GlobalKey<ScaffoldState> _key = GlobalKey();
+  // final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
+  // final GlobalKey<ScaffoldState> _key = GlobalKey();
   TextEditingController authPwdController = TextEditingController();
   final formkey = GlobalKey<FormState>();
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  //final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   int selectedIndex = 0;
-  PageController _pageController = PageController();
+  //PageController _pageController = PageController();
 
   Future<void> fetchData() async {
     final resp = await subscriberSrv.fetchSubscriberDetail(id);
@@ -220,9 +220,9 @@ String extractNumericValue(String value) {
 
  @override
 Widget build(BuildContext context) {
-  double screenWidth = MediaQuery.of(context).size.width;
-  final textStyle = Theme.of(context).textTheme.bodyLarge;
-  final selectedTextStyle = textStyle?.copyWith(fontWeight: FontWeight.bold);
+  // double screenWidth = MediaQuery.of(context).size.width;
+  // final textStyle = Theme.of(context).textTheme.bodyLarge;
+  // final selectedTextStyle = textStyle?.copyWith(fontWeight: FontWeight.bold);
 
   final notifier = Provider.of<ColorNotifire>(context);
  if (widget.subscriberDet == null) {

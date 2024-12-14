@@ -9,8 +9,11 @@ import 'package:crm/Providers/providercolors.dart';
 import 'package:crm/Widgets/CommonTitle.dart';
 import 'package:crm/Widgets/SizedBox.dart';
 import 'package:crm/model/subscriber.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../service/subscriber.dart' as subscriberSrv;
 
@@ -139,7 +142,7 @@ Future<void> getListSubscriber({int? acctstatus, int? conn}) async {
                       const SizedBoxx(),
                       const ComunTitle(title: 'List Subscriber', path: "Subscriber"),
                       Padding(
-                        padding: const EdgeInsets.only(top: 0, right: padding, left: padding, bottom: 0),
+                        padding: const EdgeInsets.only(top: 0, right:8, left: 8, bottom: 0),
                         child: Container(
                           decoration: BoxDecoration(
                             color: notifire.getcontiner,
@@ -151,7 +154,7 @@ Future<void> getListSubscriber({int? acctstatus, int? conn}) async {
                                 children: [
                                   Expanded(
                                     child: Padding(
-                                      padding: const EdgeInsets.all(padding),
+                                      padding: const EdgeInsets.all(8),
                                       child: _buildProfile1(isphon: true),
                                     ),
                                   ),
@@ -232,80 +235,183 @@ Future<void> getListSubscriber({int? acctstatus, int? conn}) async {
             ),
           ],
         ),
-        const SizedBox(height: 10),
+        // const SizedBox(height: 10),
         // Show loading indicator or the list of subscribers based on isLoading
       Row(
                 children: [
                   Expanded(
-                    child: ListView.builder(
-                      shrinkWrap: true,
+                    child:
+                      ListView.builder(
+                  shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: paginatedList.length,
                       itemBuilder: (context, index) {
                         final subscriber = paginatedList[index];
-                        return Column(
+                  return Column(
+                    children: [
+                      Container(
+                      decoration: BoxDecoration(
+    color: notifire.getcontiner, // Move the color inside the decoration
+    borderRadius: BorderRadius.circular(12),
+    border: Border.all(color: Colors.grey.withOpacity(0.3)),
+  ),
+                        child: Column(
                           children: [
-                            Container(
-                              padding: EdgeInsets.all(isphon ? 10 : padding),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: Colors.grey.withOpacity(0.3)),
-                              ),
-                              child: Column(
+                            ListTile(
+                          
+                              title: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: isphon ? 10 : padding),
-                                    child: Column(
-                                      children: [
-                                        _buildCommonListTile2(
-                                          title: subscriber.fullname,
-                                          subtitle: InkWell(
-                                            child: SvgPicture.asset(
-                                              "assets/settings.svg",
-                                              height: 18,
-                                              width: 18,
-                                              color: notifier.getMainText,
-                                            ),
-                                            onTap: () {
-                                              navigateToViewSubscriber(subscriber.id, context);
-                                            },
-                                          ),
-                                        ),
-                                        _buildCommonListTile(
-                                            title: "MOBILE", subtitle: ": ${subscriber.mobile}"),
-                                        _buildCommonListTile(
-                                            title: "PROFILE", subtitle: ": ${subscriber.profileid}"),
-                                        _buildCommonListTile1(
-                                          title: "ACCOUNT",
-                                          subtitle: " ${subscriber.acctstatus}",
-                                          subtitleColor: subscriber.acctstatus == 'Active'
-                                              ? const Color(0xff43A047) // Green for Active
-                                              : const Color(0xFFEE4B2B), // Red for Inactive
-                                          borderColor: subscriber.acctstatus == 'Active'
-                                              ? const Color(0xff43A047) // Green border for Active
-                                              : const Color(0xFFEE4B2B), // Red border for Inactive
-                                        ),
-                                        _buildCommonListTile1(
-                                          title: "STATUS",
-                                          subtitle: " ${subscriber.conn}",
-                                          subtitleColor: subscriber.conn == 'Online'
-                                              ? const Color(0xff25D366) // Green for Online
-                                              : const Color(0xFFEE4B2B), // Red for Offline
-                                          borderColor: subscriber.conn == 'Online'
-                                              ? const Color(0xff25D366) // Green border for Online
-                                              : const Color(0xFFEE4B2B), // Red border for Offline
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                                  Text(subscriber.profileid, 
+                                  
+                                    style: mediumBlackTextStyle.copyWith(color: notifier.getMainText,fontWeight: FontWeight.bold,fontSize: 16,fontFamily: "Gilroy",),
+                                              ),
+                                               InkWell(
+                              child: SvgPicture.asset(
+                                "assets/settings.svg",
+                                color: notifier.getMainText,
+                              ),
+                              onTap: () {
+                                navigateToViewSubscriber(subscriber.id, context);
+                              },
+                            ),
                                 ],
                               ),
-                            ),
-                            const SizedBox(height: 10),
+                              subtitle:Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child:
+                            
+                             Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                               children: [
+                                Text(subscriber.fullname,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText),),
+                                 Text(subscriber.mobile,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText),),
+                                   Text("VALIDITY : ${subscriber.expiration.isNotEmpty 
+                                     ? (subscriber.expiration == 'No Expiry' 
+                                         ? 'No Expiry' 
+                                         : DateFormat('MMM dd, yyyy ,\nhh:mm:ss a').format(DateTime.parse(subscriber.expiration).toLocal())) 
+                                     : "---"}",  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText),),
+                                
+                               ],
+                             ),
+                          ),
+                          Column(
+                            children: [
+                              _buildCommonListTile1(
+                                subtitle: "${subscriber.acctstatus}",
+                                subtitleColor: subscriber.acctstatus == 'Active'
+                                    ? const Color(0xff43A047) // Green for Active
+                                    : const Color(0xFFEE4B2B), // Red for Inactive
+                                borderColor: subscriber.acctstatus == 'Active'
+                                    ? const Color(0xff43A047) // Green border for Active
+                                    : const Color(0xFFEE4B2B), // Red border for Inactive
+                              ),
+                              _buildCommonListTile1(
+                                subtitle: "${subscriber.conn}",
+                                subtitleColor: subscriber.conn == 'Online'
+                                    ? const Color(0xff25D366) // Green for Online
+                                    : const Color(0xFFEE4B2B), // Red for Offline
+                                borderColor: subscriber.conn == 'Online'
+                                    ? const Color(0xff25D366) // Green border for Online
+                                    : const Color(0xFFEE4B2B), // Red border for Offline
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      
+                           
+                             )
                           ],
-                        );
-                      },
-                    ),
+                        ),
+                      ),
+                      const SizedBox(height: 10)
+                    ],
+                  );
+                },
+              ),
+                    
+                    // ListView.builder(
+                    //   shrinkWrap: true,
+                    //   physics: const NeverScrollableScrollPhysics(),
+                    //   itemCount: paginatedList.length,
+                    //   itemBuilder: (context, index) {
+                    //     final subscriber = paginatedList[index];
+                    //     return Column(
+                    //       children: [
+                    //         Container(
+                    //           padding: EdgeInsets.all(isphon ? 10 : padding),
+                    //           decoration: BoxDecoration(
+                    //             borderRadius: BorderRadius.circular(12),
+                    //             border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                    //           ),
+                    //           child: Column(
+                    //             children: [
+                    //               Padding(
+                    //                 padding: EdgeInsets.symmetric(horizontal: isphon ? 10 : padding),
+                    //                 child: Column(
+                    //                   children: [
+                    //                     _buildCommonListTile2(
+                    //                       title: subscriber.fullname,
+                    //                       subtitle: InkWell(
+                    //                         child: SvgPicture.asset(
+                    //                           "assets/settings.svg",
+                    //                           height: 18,
+                    //                           width: 18,
+                    //                           color: notifier.getMainText,
+                    //                         ),
+                    //                         onTap: () {
+                    //                           navigateToViewSubscriber(subscriber.id, context);
+                    //                         },
+                    //                       ),
+                    //                     ),
+                    //                     _buildCommonListTile(
+                    //                         title: "MOBILE", subtitle: ": ${subscriber.mobile}"),
+                    //                     _buildCommonListTile(
+                    //                         title: "PROFILE", subtitle: ": ${subscriber.profileid}"),
+                    //                     Row(
+                    //                       // mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    //                       children: [
+                    //                         Expanded(
+                    //                           child: _buildCommonListTile1(
+                    //                             title: "ACCOUNT",
+                    //                             subtitle: "${subscriber.acctstatus}",
+                    //                             subtitleColor: subscriber.acctstatus == 'Active'
+                    //                                 ? const Color(0xff43A047) // Green for Active
+                    //                                 : const Color(0xFFEE4B2B), // Red for Inactive
+                    //                             borderColor: subscriber.acctstatus == 'Active'
+                    //                                 ? const Color(0xff43A047) // Green border for Active
+                    //                                 : const Color(0xFFEE4B2B), // Red border for Inactive
+                    //                           ),
+                    //                         ),
+                    //                      const SizedBox(width: 10),
+                    //                     Expanded(
+                    //                       child: _buildCommonListTile1(
+                    //                         title: "STATUS",
+                    //                         subtitle: "${subscriber.conn}",
+                    //                         subtitleColor: subscriber.conn == 'Online'
+                    //                             ? const Color(0xff25D366) // Green for Online
+                    //                             : const Color(0xFFEE4B2B), // Red for Offline
+                    //                         borderColor: subscriber.conn == 'Online'
+                    //                             ? const Color(0xff25D366) // Green border for Online
+                    //                             : const Color(0xFFEE4B2B), // Red border for Offline
+                    //                       ),
+                    //                     ),
+                    //                      ],
+                    //                     ),
+                    //                   ],
+                    //                 ),
+                    //               ),
+                    //             ],
+                    //           ),
+                    //         ),
+                    //         const SizedBox(height: 10),
+                    //       ],
+                    //     );
+                    //   },
+                    // ),
                   ),
                 ],
               ),
@@ -316,48 +422,87 @@ Future<void> getListSubscriber({int? acctstatus, int? conn}) async {
   }
 
   Widget _buildCommonListTile1({
-    required String title,
+    //  required String title,
     required String subtitle,
-    Color? subtitleColor,
-    Color? borderColor, // Optional border color parameter
+     Color? subtitleColor,
+       Color? borderColor,
   }) {
     final notifier = Provider.of<ColorNotifire>(context, listen: false);
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 2), // Control the gap between items
+      padding: const EdgeInsets.symmetric(vertical: 3), // Control the gap between items
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Text(
-              title,
-              style: mediumBlackTextStyle.copyWith(
-                color: notifier.getMainText,
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(3, 0, 3, 0), // Add padding for better visual appearance
-              decoration: BoxDecoration(
-                border: Border.all(color: borderColor ?? Colors.transparent), // Use provided border color or transparent if not provided
-                borderRadius: BorderRadius.circular(4), // Border radius
-              ),
-              child: Text(
-                textAlign: TextAlign.center,
-                subtitle,
-                style: mediumBlackTextStyle.copyWith(
-                  color: subtitleColor ?? notifier.getMainText,
+          // Expanded(
+          //   child: Text(
+          //     title,
+          //     style: mediumBlackTextStyle.copyWith(
+          //       color: notifier.getMainText,
+          //     ),
+          //   ),
+          // ),
+          // const SizedBox(width: 10),
+            Container(
+                padding: const EdgeInsets.fromLTRB(3, 0, 3, 0), // Add padding for better visual appearance
+                decoration: BoxDecoration(
+                  border: Border.all(color: borderColor ?? Colors.transparent), // Use provided border color or transparent if not provided
+                  borderRadius: BorderRadius.circular(4), // Border radius
+                ),
+                child: Text(
+                  textAlign: TextAlign.center,
+                  subtitle,
+                  style: mediumBlackTextStyle.copyWith(
+                    color: subtitleColor ?? notifier.getMainText,
+                  ),
                 ),
               ),
-            ),
-          ),
+          
         ],
       ),
     );
   }
+// Widget _buildCommonListTile1({
+//     required String title,
+//     required String subtitle,
+//     Color? subtitleColor,
+//     Color? borderColor, // Optional border color parameter
+//   }) {
+//     final notifier = Provider.of<ColorNotifire>(context, listen: false);
 
+//     return Container(
+//       padding: const EdgeInsets.symmetric(vertical: 2), // Control the gap between items
+//       child: Row(
+//           //  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//         children: [
+//         Text(
+//                 title,
+//                 style: mediumBlackTextStyle.copyWith(
+//                   color: notifier.getMainText,
+//                 ),
+//               ),
+         
+          
+//           const SizedBox(width: 10),
+        // Container(
+        //         padding: const EdgeInsets.fromLTRB(3, 0, 3, 0), // Add padding for better visual appearance
+        //         decoration: BoxDecoration(
+        //           border: Border.all(color: borderColor ?? Colors.transparent), // Use provided border color or transparent if not provided
+        //           borderRadius: BorderRadius.circular(4), // Border radius
+        //         ),
+        //         child: Text(
+        //           textAlign: TextAlign.center,
+        //           subtitle,
+        //           style: mediumBlackTextStyle.copyWith(
+        //             color: subtitleColor ?? notifier.getMainText,
+        //           ),
+        //         ),
+        //       ),
+         
+          
+//         ],
+//       ),
+//     );
+//   }
   Widget _buildCommonListTile({
     required String title,
     required String subtitle,
@@ -418,11 +563,13 @@ Future<void> getListSubscriber({int? acctstatus, int? conn}) async {
   }
 
   Widget _buildPaginationControls() {
+     final notifier = Provider.of<ColorNotifire>(context, listen: false);
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: Icon(Icons.arrow_back,color: notifier.geticoncolor),
           onPressed: currentPage > 1
               ? () {
                   setState(() {
@@ -431,9 +578,9 @@ Future<void> getListSubscriber({int? acctstatus, int? conn}) async {
                 }
               : null,
         ),
-        Text('$currentPage'),
+        Text('$currentPage',style:TextStyle(color: notifier.getMainText,),),
         IconButton(
-          icon: Icon(Icons.arrow_forward),
+          icon: Icon(Icons.arrow_forward,color: notifier.geticoncolor,),
           onPressed: (currentPage * itemsPerPage) < listSubscriber.length
               ? () {
                   setState(() {
