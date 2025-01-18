@@ -47,8 +47,10 @@ class _ListHotel extends State<ListHotel> with SingleTickerProviderStateMixin {
 
   String? menuIdString = '';
   List<int> menuIdList = [];
+  bool isIspAdmin = false;
 Future<void> getMenuAccess() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
+  isIspAdmin = pref.getBool('isIspAdmin') as bool;
 
     setState(() {
      
@@ -257,7 +259,7 @@ late List<bool> _obscurePasswords;
                                 onPressed: () async {
                                     if (  menuIdList.any((id) => [
                                        1405
-                                        ].contains(id))) {
+                                        ].contains(id)) || isIspAdmin==true) {
                         showDialog(
                           context: context,
                           builder: (ctx) =>
@@ -726,6 +728,9 @@ TableRow row1({
     TableRowInkWell(
       onTap: () {
         Navigator.of(context).pop();
+         if (  menuIdList.any((id) => [
+                                       1407
+                                        ].contains(id)) ||isIspAdmin==true) {
         if (title == 'Activation') {
           showDialog(
             context: context,
@@ -740,6 +745,7 @@ TableRow row1({
             }
           });
         }
+                                        }
         if (title == 'Change Auth PWD') {
           showDialog(
             context: context,
@@ -765,7 +771,7 @@ TableRow row1({
         Navigator.of(context).pop();
           if (  menuIdList.any((id) => [
                                        1407
-                                        ].contains(id))) {
+                                        ].contains(id)) ||isIspAdmin ==true) {
         if (title == 'Activation') {
           showDialog(
             context: context,

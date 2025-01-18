@@ -108,9 +108,10 @@ Future<void> getListSubscriber({int? acctstatus, int? conn}) async {
 }
 String? menuIdString = '';
   List<int> menuIdList = [];
+   bool isIspAdmin = false;
 Future<void> getMenuAccess() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-
+  isIspAdmin = pref.getBool('isIspAdmin') as bool;
     setState(() {
      
       menuIdString = pref.getString("menu_id");
@@ -243,9 +244,9 @@ Future<void> getMenuAccess() async {
                 fixedSize: const Size.fromHeight(40),
               ),
               onPressed: () {
-                 if (  menuIdList.any((id) => [
+                 if (menuIdList.any((id) => [
                                        1202
-                                        ].contains(id))) {
+                                        ].contains(id)) ||isIspAdmin ==true) {
                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
                   return AddSubscriber();
                 }));
@@ -306,7 +307,7 @@ Future<void> getMenuAccess() async {
                               onTap: () {
                                   if (  menuIdList.any((id) => [
                                        1204
-                                        ].contains(id))) {
+                                        ].contains(id)) ||isIspAdmin ==true ) {
                                 navigateToViewSubscriber(subscriber.id, context);
                                         }
                               },

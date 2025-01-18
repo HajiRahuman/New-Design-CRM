@@ -68,8 +68,10 @@ Future<void> getListCard() async {
 }
  String? menuIdString = '';
   List<int> menuIdList = [];
+bool isIspAdmin = false;
 Future<void> getMenuAccess() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
+  isIspAdmin = pref.getBool('isIspAdmin') as bool;
 
     setState(() {
      
@@ -235,7 +237,7 @@ String getCarddurationtypeLabel(int id) {
               onPressed: () {
                 if (  menuIdList.any((id) => [
                                         1002, 1003
-                                        ].contains(id))) {
+                                        ].contains(id))||isIspAdmin==true) {
                   Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
                   return CardAddUpdate(card: null,);
                 }));

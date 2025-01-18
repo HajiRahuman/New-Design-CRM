@@ -913,7 +913,7 @@ TableRow row({required String title, required IconData icon}) {
         }
           if (  menuIdList.any((id) => [
                                        1203
-                                        ].contains(id))) {
+                                        ].contains(id)) ||isIspAdmin ==true) {
           if (title == 'Update') {
            Navigator.pushReplacement(
                                           context,
@@ -1162,6 +1162,10 @@ TableRow row({required String title, required IconData icon}) {
            
         
         }
+          if (  menuIdList.any((id) => [
+                                       1211, 1212
+                                        ].contains(id)) ||isIspAdmin ==true) {
+        
          if (title == 'Upload Document') {
            showDialog(
                                           context: context,
@@ -1176,6 +1180,7 @@ TableRow row({required String title, required IconData icon}) {
           
         
         }
+                                        
          if (title == 'Upload Document(Different Address)') {
            showDialog(
                                             context: context,
@@ -1190,6 +1195,7 @@ TableRow row({required String title, required IconData icon}) {
           
         
         }
+                                        }
          if (title == 'Upload Picture') {
            showDialog(
                                           context: context,
@@ -1217,6 +1223,9 @@ TableRow row({required String title, required IconData icon}) {
                                         });
         
         }
+          if (  menuIdList.any((id) => [
+                                       1211, 1212
+                                        ].contains(id)) ||isIspAdmin ==true) {
         if (title == 'View Document') {
           showDialog(
                                           context: context,
@@ -1229,6 +1238,7 @@ TableRow row({required String title, required IconData icon}) {
                                           // print('dialog--$val'),
                                         });
         }
+                                        }
          if (title == 'Complaints') {
            Navigator.push(
                       context,
