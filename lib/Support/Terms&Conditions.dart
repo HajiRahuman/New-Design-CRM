@@ -101,7 +101,7 @@ Future<void> GetCompanyInfo() async {
                               children: [
                                     Text( cleanTerms.isNotEmpty 
                 ? cleanTerms 
-                : 'No privacy info available', style: mediumBlackTextStyle.copyWith(
+                : 'Terms & Conditions Policy is not available', style: mediumBlackTextStyle.copyWith(
               color: notifier.getMainText),
       ),
                              ],)

@@ -564,3 +564,44 @@ class GetPackResp {
 
 
 
+class GetLevelDet {
+    final int levelId;
+  final int levelRole;
+  final String levelName;
+  final List<int> levelMenu;
+
+  GetLevelDet({
+     required this.levelId,
+    required this.levelRole,
+    required this.levelName,
+    required this.levelMenu,
+
+    
+  });
+  factory GetLevelDet.toJson(Map<dynamic, dynamic> json) {
+    return GetLevelDet(
+      levelId: json['level_id'],
+      levelRole: json['level_role'],
+      levelName: json['level_name'],
+      levelMenu: List<int>.from(json['level_menu']),
+    );
+  }
+}
+
+class GetLevelDetResp {
+  final String msg;
+  final bool error;
+  final List<GetLevelDet>? data;
+
+  GetLevelDetResp({required this.msg, required this.error, this.data});
+
+  factory GetLevelDetResp.toJson(Map<dynamic, dynamic> data) {
+    return GetLevelDetResp(
+        error: data['error'],
+        msg: data['msg'],
+        data: data['data'] is List
+            ? List<GetLevelDet>.from(
+                data['data'].map((e) => GetLevelDet.toJson(e)))
+            : []);
+  }
+}

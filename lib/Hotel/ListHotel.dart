@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:crm/AppBar.dart';
 
 import 'package:crm/AppStaticData/AppStaticData.dart';
@@ -7,18 +9,25 @@ import 'package:crm/Controller/Drawer.dart';
 import 'package:crm/Hotel/ChangeAuthPwdHotel.dart';
 import 'package:crm/Hotel/HotelAddUser.dart';
 import 'package:crm/Providers/providercolors.dart';
+import 'package:crm/Utils/Utils.dart';
 
 import 'package:crm/Widgets/CommonTitle.dart';
 import 'package:crm/Widgets/SizedBox.dart';
 import 'package:crm/model/hotel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:intl/intl.dart';
 
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../service/hotel.dart' as hotelSrv;
 
 class ListHotel extends StatefulWidget {
-  const ListHotel({super.key});
+  final String? category;
+  final int? id;
+  final bool? search;
+  const ListHotel({super.key,  this.id, this.search,this.category});
 
   @override
   State<ListHotel> createState() => _ListHotel();
@@ -36,33 +45,116 @@ class _ListHotel extends State<ListHotel> with SingleTickerProviderStateMixin {
   int currentPage = 1;
   int limit = 5;
 
-  Future<void> getListHotel() async {
-     setState(() {
+  String? menuIdString = '';
+  List<int> menuIdList = [];
+Future<void> getMenuAccess() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+
+    setState(() {
+     
+      menuIdString = pref.getString("menu_id");
+
+      // Safely decode menu_id string into a list
+      if (menuIdString != null) {
+        try {
+          menuIdList = List<int>.from(jsonDecode(menuIdString!));
+        } catch (e) {
+          menuIdList = [];
+
+          print("Error decoding menu_id: $e");
+        }
+      } else {
+        menuIdList = [];
+      }
+    });
+
+    
+  }
+@override
+void initState() {
+  super.initState();
+  getMenuAccess();
+  getListHotel();
+  // Initialize _obscurePasswords dynamically after fetching the hotels
+  _obscurePasswords = [];
+}
+
+Future<void> getListHotel({String? category}) async {
+  setState(() {
     isLoading = true; // Set loading to true when fetching data
   });
-    HotelResp resp = await hotelSrv.listHotel();
-    setState(() {
-      if (resp.error) alert(context, resp.msg);
-      listHotel = resp.error == true ? [] : resp.data ?? [];
-      isLoading = false;
-    });
+
+  HotelResp resp;
+
+  // If widget.search is true, perform the search operation
+  if (widget.search == true) {
+    resp = await hotelSrv.listHotelSearch(widget.id!); // Search for hotels using widget.id
+  } else {
+    // Handle different categories or default case (Total)
+   if (widget.category == 'Online') {
+    resp = await hotelSrv.listHotel(conn: 1); // Assuming conn: 1 for online
+  } else if (widget.category== 'Offline') {
+    resp = await hotelSrv.listHotel(conn: 2); // Assuming conn: 2 for offline
+  } else if (widget.category == 'Active') {
+    resp = await hotelSrv.listHotel(acctstatus: 1); // Active hotels
+  } else if (widget.category == 'Expired') {
+    resp = await hotelSrv.listHotel(acctstatus: -1); // Expired hotels
+  } else if (widget.category == 'Total') {
+    resp = await hotelSrv.listHotel(); // All hotels (Total)
+  } else {
+    resp = await hotelSrv.listHotel(); // Default: All hotels
+  }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    getListHotel();
+  setState(() {
+    if (resp.error) {
+      alert(context, resp.msg);
+    }
+    listHotel = resp.error == true ? [] : resp.data ?? [];
+    // Initialize _obscurePasswords based on the list of hotels fetched
+    _obscurePasswords = List<bool>.filled(listHotel.length, true);
+    isLoading = false; // Set loading to false once data is fetched
+  });
+}
 
+
+// Future<void> getListHotel() async {
+//   setState(() {
+//     isLoading = true;
+//   });
+
+//   HotelResp resp;
+
+//   // Choose the appropriate service call based on the value of `widget.search`
+//   if (widget.search == true) {
+//     resp = await hotelSrv.listHotelSearch(widget.id!);
+//   } else {
+//     resp = await hotelSrv.listHotel();
+//   }
+
+//   setState(() {
+//     if (resp.error) {
+//       alert(context, resp.msg);
+//     }
+//     listHotel = resp.error == true ? [] : resp.data ?? [];
+//     // Initialize _obscurePasswords based on the list of hotels fetched
+//     _obscurePasswords = List<bool>.filled(listHotel.length, true);
+//     isLoading = false;
+//   });
+// }
+
+
+
+// ignore: unused_element
+late List<bool> _obscurePasswords; 
+  
+
+  String obscurePassword(String password, bool isObscured) {
+    return isObscured ? '*' * password.length : password;
   }
-
-
-
-  String obscurePassword(String password) {
-    return _obscurePassword ? '*' * password.length : password;
-  }
-  final bool _obscurePassword = true;
   int selectedHotelIndex = -1;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  
   @override
   Widget build(BuildContext context) {
       final notifier = Provider.of<ColorNotifire>(context);
@@ -107,6 +199,7 @@ class _ListHotel extends State<ListHotel> with SingleTickerProviderStateMixin {
                               ),
                             ),
                           ),
+                           if(widget.search!=true)
                           _buildPaginationControls(),
                           const SizedBoxx(),
                         ],
@@ -147,6 +240,7 @@ class _ListHotel extends State<ListHotel> with SingleTickerProviderStateMixin {
 
   final paginatedList =  listHotel.sublist(startIndex, endIndex);
      final notifier = Provider.of<ColorNotifire>(context);
+     double screenWidth = MediaQuery.of(context).size.width;
     return Column(
       children: [
         Row(
@@ -161,6 +255,9 @@ class _ListHotel extends State<ListHotel> with SingleTickerProviderStateMixin {
                                   fixedSize: const Size.fromHeight(40),
                                 ),
                                 onPressed: () async {
+                                    if (  menuIdList.any((id) => [
+                                       1405
+                                        ].contains(id))) {
                         showDialog(
                           context: context,
                           builder: (ctx) =>
@@ -172,7 +269,8 @@ class _ListHotel extends State<ListHotel> with SingleTickerProviderStateMixin {
                           print('dialog--$val'),
                           if (val)  getListHotel(),
                         });
-                      },
+                      }
+                                },
                                 child: Text(
                                   "Add",
                                   style: mediumBlackTextStyle.copyWith(
@@ -200,56 +298,53 @@ class _ListHotel extends State<ListHotel> with SingleTickerProviderStateMixin {
         const SizedBoxx(),
         Row(
           children: [
-            Expanded(
-              child: ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: paginatedList.length,
-                itemBuilder: (context, index) {
-                  final hotelsubs = paginatedList[index];
-                    final isHotelSelected = index == selectedHotelIndex;
-                  return Column(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(isphon ? 10 : padding),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey.withOpacity(0.3)),
-                        ),
-                        child: Column(
-                          children: [
-                             
-                  //          ListTile(
-                                   
-                  //                   // leading: const CircleAvatar(
-                  //                   //   backgroundColor: Colors.transparent,
-                  //                   //   backgroundImage: AssetImage("assets/avatar2.png"),
-                  //                   // ),
-                  //                   subtitle: Padding(
-                  //                     padding: const EdgeInsets.only(top: 6),
-                  //                     child:  _buildCommonListTile(title: "LOGIN ID : ", subtitle:hotelsubs.profileid),
-                                 
-                  //                   ),
-                  //                    trailing: PopupMenuButton(
-                  //                     iconColor:notifier.geticoncolor ,
-                  //                      color: notifier.getcontiner,
-                  // shadowColor: Colors.grey.withOpacity(0.5),
-                  // shape: RoundedRectangleBorder(
-                  //     borderRadius: BorderRadius.circular(12)),
-                  //                     itemBuilder: (BuildContext context){
-                                        
-                  //                       return[
-                  //                       _buildPopupAdminMenuItem(hotelsubs),
-                  //                     ];})
-                                     
-                                   
-                  //                 ),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: isphon ? 10 : padding),
-                              child: Column(
-                                children: [
-                                  
-                                  _buildCommonListTile2(title:hotelsubs.profileid,subtitle: PopupMenuButton(
+             Expanded(
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              physics: const BouncingScrollPhysics(),
+                              scrollDirection: Axis.vertical,
+                             itemCount: paginatedList.length,
+                              itemBuilder: (context, index) {
+                          
+                              final hotelsubs = paginatedList[index];
+                    // final isHotelSelected = index == selectedHotelIndex;
+                                             
+                                return Column(
+                                  children: [
+                                    Container(
+                                       padding:const EdgeInsets.all(0),
+                                                            decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                                                            ),
+                                      child: Column(
+                                        children: [
+                                           
+                                          Padding(
+                                            padding: const EdgeInsets.all(0),
+                                            
+                                              child: ExpansionTile(
+                                                collapsedIconColor:  notifier.getMainText ,
+                                                iconColor: notifier.getMainText ,
+                                                expandedAlignment:
+                                                Alignment.topLeft,
+                                                leading:  Text(
+                                                  'ID',
+                                                  // ignore: deprecated_member_use
+                                                  textScaleFactor: 1,
+                                               style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                ),
+                                                title:
+                                                Row(
+                                                  mainAxisAlignment:MainAxisAlignment.spaceEvenly,
+                                                  children: [
+                                                    Text(hotelsubs.id.toString(),
+                                                        // ignore: deprecated_member_use
+                                                        textScaleFactor: 1,
+                                                          style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                    ),
+                                                  
+                                       PopupMenuButton(
                                       iconColor: notifier.geticoncolor ,
                                        color: notifier.getcontiner,
                   shadowColor: Colors.grey.withOpacity(0.5),
@@ -259,31 +354,271 @@ class _ListHotel extends State<ListHotel> with SingleTickerProviderStateMixin {
                                         
                                         return[
                                         _buildPopupAdminMenuItem(hotelsubs),
-                                      ];}) ),
-                                  _buildCommonListTile(title: "ACCOUNT", subtitle: ": ${hotelsubs.acctstatus}"),
-                                   
-                                  _buildCommonListTile(title: "STATUS", subtitle:": ${hotelsubs.conn}"),
-                                  
+                                      ];}) 
+                                              
+                                                    
+                                                  ],
+                                                ),
+                                                children: [
+                                                  Column(
+                                                    children: [
+                                                       SizedBox(
+                                                  height: 150,
+                                                  width: screenWidth,
+                                                   child: ListView(
+                                                     scrollDirection: Axis.horizontal,
+                                                    
+                                                    children: [
+                                                      Align(
+                                                        alignment: Alignment.topLeft,
+                                                        child: SingleChildScrollView(
+                                                          child: Padding(
+                                                            padding: const EdgeInsets.all(8.0),
+                                                            child: Table(
+                                                              border: TableBorder.all(borderRadius: BorderRadius.circular(10),color: notifier.getMainText ),
+                                                              columnWidths: const {
+                                                                0: FixedColumnWidth(150),
+                                                                1: FixedColumnWidth(150),
+                                                                2: FixedColumnWidth(150),
+                                                                3: FixedColumnWidth(150),
+                                                                4: FixedColumnWidth(150),
+                                                                5: FixedColumnWidth(150),
+                                                                6: FixedColumnWidth(150),
+                                                                7: FixedColumnWidth(150),
+                                                                 8: FixedColumnWidth(150),
+                                                                 9: FixedColumnWidth(150),
+                                                                 10: FixedColumnWidth(150),
+                                                                 11: FixedColumnWidth(150),
+                                                                 12: FixedColumnWidth(150),
+                                                                 13: FixedColumnWidth(150),
+                                                                 14: FixedColumnWidth(150),
+                                                              },
+                                                              children: [
+                                                                 TableRow(
+                                                                
+                                                                  children: [
+                                                                    Text(
+                                                                      "PASSWORD",
+                                                                      textAlign: TextAlign.center,
+                                                                     style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                                    ),
+                                                                     Text(
+                                                                      "MODE",
+                                                                      textAlign: TextAlign.center,
+                                                                     style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                                    ),
+                                                                     Text(
+                                                                      "RESELLER",
+                                                                      textAlign: TextAlign.center,
+                                                                     style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                                    ),
+                                                                    Text(
+                                                                      "D/L",
+                                                                      textAlign: TextAlign.center,
+                                                                     style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                                    ),
+                                                                    Text(
+                                                                      "U/L",
+                                                                         textAlign: TextAlign.center,
+                                                                      style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                                    ),
+                                                                   
+                                                                    Text(
+                                                                      "TOTAL",
+                                                                         textAlign: TextAlign.center,
+                                                                      style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                                    ),
+                                                                    Text(
+                                                                      "ONLINE TIME",
+                                                                         textAlign: TextAlign.center,
+                                                                    style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                                    ),
+                                                                    Text(
+                                                                      "REJECTION MSG",
+                                                                         textAlign: TextAlign.center,
+                                                                     style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                                    ),
+                                                                    Text(
+                                                                      "REJECTION ON",
+                                                                         textAlign: TextAlign.center,
+                                                                     style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                                    ),
+                                                                    // Text(
+                                                                    //   "EXPIRY",
+                                                                    //      textAlign: TextAlign.center,
+                                                                    // style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                                    // ),
+                                                                    // Text(
+                                                                    //   "DURATION TYPE",
+                                                                    //      textAlign: TextAlign.center,
+                                                                    // style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)
+                                                                    // ),
+                                                                   
+                                                                  ],
+                                                                ),
+                                                                // dividerRow(const Color(0xff7366ff)),
+                                                                // ignore: unused_local_variable
+                                                                // for (var invoices in  listSubsInvoive) ...[
+                                                                  
+                                                                  newRow(
+                                                                 password: hotelsubs.authPassword,
+                                                                 mode:hotelsubs.packMode ,
+                                                                 reseller:hotelsubs.resellerId ,
+                                                                 dlLimit: formatBytes(hotelsubs.dlLimit),
+  upLimit: formatBytes(hotelsubs.ulLimit),
+  totalLimit: formatBytes(hotelsubs.totalLimit),
+  onlineLimit: formatBytes(hotelsubs.timeLimit),
+  rejectionMSG:hotelsubs.authReject.isNotEmpty? hotelsubs.authReject :"---",
+  rejectionON:hotelsubs.authRejectDate.isNotEmpty 
+                                     ? (hotelsubs.authRejectDate== 'No Expiry' 
+                                         ? 'No Expiry' 
+                                         : DateFormat('MMM dd, yyyy ,\nhh:mm:ss a').format(DateTime.parse(hotelsubs.authRejectDate).toLocal())) 
+                                     : "---",
+
+ 
+                                                                //  type:cardsubs.cardType ,
+                                                                //  price:cardsubs.cardPrice ,
+                                                                //  expiry: cardsubs.cardExpiry,
+                                                                //  cardduration:cardsubs.cardDuration, cardDurationType: cardsubs.cardDurationType ,
+                                                                    
+                                                                
+                                                                  ),
+                                                                  // dividerRow(Colors.red),
+                                                                // ],
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                                                       ),
+                                                 ),
+                                                    
+                                                     
+                                                    ],
+                                                  ),
+                                                ],
+                                              
+                                            ),
+                                          ),
+                                         Divider(color: Colors.grey.withOpacity(0.3)),
+                                 Column(
+                    children: [
+                     Column(
+                          children: [
+                            ListTile(
                           
-                                    _buildCommonListTile(title: "PASSWORD", subtitle: ': ${isHotelSelected
-                                                    ? hotelsubs.authpsw
-                                                    : obscurePassword(hotelsubs.authpsw)}'),
-                                 
-                                ],
+                            
+                              subtitle:Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child:
+                            
+                             Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                               children: [
+                                Text(hotelsubs.username,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText),),
+                                 Text(hotelsubs.packName,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText),),
+                                   Text("VALIDITY : ${hotelsubs.expiration.isNotEmpty 
+                                     ? (hotelsubs.expiration == 'No Expiry' 
+                                         ? 'No Expiry' 
+                                         : DateFormat('MMM dd, yyyy ,\nhh:mm:ss a').format(DateTime.parse(hotelsubs.expiration).toLocal())) 
+                                     : "---"}",  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText),),
+                                
+                               ],
+                             ),
+                          ),
+                          Column(
+                            children: [
+                              _buildCommonListTile3(
+                                subtitle: "${hotelsubs.acctStatus}",
+                                subtitleColor: hotelsubs.acctStatus == 'Active'
+                                    ? const Color(0xff43A047) // Green for Active
+                                    : const Color(0xFFEE4B2B), // Red for Inactive
+                                borderColor: hotelsubs.acctStatus == 'Active'
+                                    ? const Color(0xff43A047) // Green border for Active
+                                    : const Color(0xFFEE4B2B), // Red border for Inactive
                               ),
-                            ),
+                              _buildCommonListTile3(
+                                subtitle: "${hotelsubs.conn}",
+                                subtitleColor: hotelsubs.conn == 'Online'
+                                    ? const Color(0xff25D366) // Green for Online
+                                    : const Color(0xFFEE4B2B), // Red for Offline
+                                borderColor: hotelsubs.conn == 'Online'
+                                    ? const Color(0xff25D366) // Green border for Online
+                                    : const Color(0xFFEE4B2B), // Red border for Offline
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      
+                           
+                             )
                           ],
                         ),
-                      ),
-                      const SizedBox(height: 10),
+                      
+                      const SizedBox(height: 10)
                     ],
-                  );
-                },
-              ),
-            ),
+                  ),
+                                  
+                                          
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                     
+                                  ],
+                                );
+                              },
+                            )),
+
           ],
         ),
       ],
+    );
+  }
+
+  
+  Widget _buildCommonListTile3({
+    //  required String title,
+    required String subtitle,
+     Color? subtitleColor,
+       Color? borderColor,
+  }) {
+    final notifier = Provider.of<ColorNotifire>(context, listen: false);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 3), // Control the gap between items
+      child: Row(
+        children: [
+          // Expanded(
+          //   child: Text(
+          //     title,
+          //     style: mediumBlackTextStyle.copyWith(
+          //       color: notifier.getMainText,
+          //     ),
+          //   ),
+          // ),
+          // const SizedBox(width: 10),
+            Container(
+                padding: const EdgeInsets.fromLTRB(3, 0, 3, 0), // Add padding for better visual appearance
+                decoration: BoxDecoration(
+                  border: Border.all(color: borderColor ?? Colors.transparent), // Use provided border color or transparent if not provided
+                  borderRadius: BorderRadius.circular(4), // Border radius
+                ),
+                child: Text(
+                  textAlign: TextAlign.center,
+                  subtitle,
+                  style: mediumBlackTextStyle.copyWith(
+                    color: subtitleColor ?? notifier.getMainText,
+                  ),
+                ),
+              ),
+          
+        ],
+      ),
     );
   }
  PopupMenuItem _buildPopupAdminMenuItem(HotelDet hotelsubs) {
@@ -303,8 +638,8 @@ class _ListHotel extends State<ListHotel> with SingleTickerProviderStateMixin {
                 0: FixedColumnWidth(20),
               },
               children: [
-                row1(title: 'Activation', icon: Icons.edit, hotelsubs: hotelsubs),
-                row1(title: 'Change Auth PWD', icon: Icons.key, hotelsubs: hotelsubs),
+                row1(title: 'Activation', icon: Icons.edit, hotelsubs: hotelsubs, context: context),
+                row1(title: 'Change Auth PWD', icon: Icons.key, hotelsubs: hotelsubs, context: context),
               ],
             ),
           ),
@@ -313,37 +648,110 @@ class _ListHotel extends State<ListHotel> with SingleTickerProviderStateMixin {
     ),
   );
 }
+TableRow newRow({
+  required String password,
+  required String  mode,
+  required int reseller,
+   required String dlLimit, // Changed to String
+  required String upLimit, // Changed to String
+  required String totalLimit, // Changed to String
+  required String onlineLimit, // Changed to String
+  required String rejectionMSG,
+  required String  rejectionON,
+  
+}) {
+  // Convert price and taxAmt to double
+  
+final notifier = Provider.of<ColorNotifire>(context, listen: false);
+  return TableRow(
+    children: [
+       Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Text( password, textAlign: TextAlign.center,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
+      ),
+        Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Text( "$mode", textAlign: TextAlign.center,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
+      ),
+        Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Text( "$reseller", textAlign: TextAlign.center,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
+      ),
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Text(dlLimit, textAlign: TextAlign.center,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
+      ),
+      
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Text(upLimit, textAlign: TextAlign.center,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
+      ),
+     Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Text(totalLimit , textAlign: TextAlign.center,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
+      ),
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Text(onlineLimit, textAlign: TextAlign.center,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
+      ),
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Text(
+  rejectionMSG,
+  textAlign: TextAlign.center,
+  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText),
+),
+
+
+      ),
+       Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Text(rejectionON, textAlign: TextAlign.center,  style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
+      ),
+//     
+    ],
+  );
+}
+ 
 
 bool light1 = true;
-TableRow row1({required String title, required IconData icon, required HotelDet hotelsubs}) {
+TableRow row1({
+  required String title,
+  required IconData icon,
+  required HotelDet hotelsubs,
+  required BuildContext context, // Add this to pass context explicitly
+}) {
   final notifier = Provider.of<ColorNotifire>(context, listen: false);
   return TableRow(children: [
     TableRowInkWell(
       onTap: () {
+        Navigator.of(context).pop();
         if (title == 'Activation') {
           showDialog(
             context: context,
-            builder: (ctx) =>
-                Dialog.fullscreen(
-                  backgroundColor: notifier.getbgcolor,
-                  child: HotelAddUser(hotel: hotelsubs),
-                ),
-          ).then((val) => {
-            print('dialog--$val'),
-            if (val) getListHotel(),
-          }); // Call logout function when Logout is clicked
+            builder: (ctx) => Dialog.fullscreen(
+              backgroundColor: notifier.getbgcolor,
+              child: HotelAddUser(hotel: hotelsubs),
+            ),
+          ).then((val) {
+            print('dialog--$val');
+            if (val == true) {
+              getListHotel();
+            }
+          });
         }
         if (title == 'Change Auth PWD') {
           showDialog(
             context: context,
-            builder: (ctx) =>
-                AlertDialog(
-                  backgroundColor: notifier.getbgcolor,
-                  actions: [ChangeAuthPwdHotel(hotel: hotelsubs)],
-                ),
-          ).then((val) => {
-            print('dialog--$val'),
-            if (val) getListHotel(),
+            builder: (ctx) => AlertDialog(
+              backgroundColor: notifier.getbgcolor,
+              actions: [ChangeAuthPwdHotel(hotel: hotelsubs)],
+            ),
+          ).then((val) {
+            print('dialog--$val');
+            if (val == true) {
+              getListHotel();
+            }
           });
         }
       },
@@ -354,41 +762,51 @@ TableRow row1({required String title, required IconData icon, required HotelDet 
     ),
     TableRowInkWell(
       onTap: () {
+        Navigator.of(context).pop();
+          if (  menuIdList.any((id) => [
+                                       1407
+                                        ].contains(id))) {
         if (title == 'Activation') {
           showDialog(
             context: context,
-            builder: (ctx) =>
-                Dialog.fullscreen(
-                  backgroundColor: notifier.getbgcolor,
-                  child: HotelAddUser(hotel: hotelsubs),
-                ),
-          ).then((val) => {
-            print('dialog--$val'),
-            if (val) getListHotel(),
-          }); //
+            builder: (ctx) => Dialog.fullscreen(
+              backgroundColor: notifier.getbgcolor,
+              child: HotelAddUser(hotel: hotelsubs),
+            ),
+          ).then((val) {
+            print('dialog--$val');
+            if (val == true) {
+              getListHotel();
+            }
+          });
         }
+                                        }
         if (title == 'Change Auth PWD') {
           showDialog(
             context: context,
-            builder: (ctx) =>
-                AlertDialog(
-                  backgroundColor: notifier.getbgcolor,
-                  actions: [ChangeAuthPwdHotel(hotel: hotelsubs)],
-                ),
-          ).then((val) => {
-            print('dialog--$val'),
-            if (val) getListHotel(),
+            builder: (ctx) => AlertDialog(
+              backgroundColor: notifier.getbgcolor,
+              actions: [ChangeAuthPwdHotel(hotel: hotelsubs)],
+            ),
+          ).then((val) {
+            print('dialog--$val');
+            if (val == true) {
+              getListHotel();
+            }
           });
         }
       },
       child: Padding(
         padding: const EdgeInsets.only(bottom: 5, left: 20, top: 12, right: 20),
-        child: Text(title,
-            style: mediumBlackTextStyle.copyWith(color: notifier.getMainText)),
+        child: Text(
+          title,
+          style: mediumBlackTextStyle.copyWith(color: notifier.getMainText),
+        ),
       ),
     ),
   ]);
 }
+
 Widget  _buildCommonListTile2({
   required String title,
   required Widget subtitle,
@@ -442,6 +860,40 @@ Widget _buildCommonListTile({
     ),
   );
 }
+
+Widget _buildCommonListTile1({
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+    required ColorNotifire notifier,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Text(
+              title,
+              style: mediumGreyTextStyle,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: GestureDetector(
+              onTap: onTap,
+              child: Text(
+                subtitle,
+                style: mediumBlackTextStyle.copyWith(
+                  color: notifier.getMainText,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
   Widget _buildPaginationControls() {
     final notifier = Provider.of<ColorNotifire>(context);
     final totalPages = (  listHotel.length / itemsPerPage).ceil();

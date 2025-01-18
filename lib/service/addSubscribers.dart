@@ -11,7 +11,7 @@ Future <circleResp> circle(String apiUrl) async {
 
 
 Future <resellerResp> reseller() async {
-  var resp = await http.get('reseller/list');
+  var resp = await http.get('reseller');
   return resellerResp.toJson(resp);
 }
 
@@ -50,4 +50,16 @@ Future<PincodeResp> getPincode(int pincode) async {
   return PincodeResp.toJson(resp);
 }
 
+//  async listLevel(){
+//     const resp = await lastValueFrom(this.http.get<LevelsResp>('/level'));
+//     const user = this.currentUser.getData();
+//     const level = resp.data.filter(x=> {
+//       return user.isIspAdmin || user.isSuperAdmin || x.level_role < user.level_role
+//     });
+//     this.levelStore.setData(level)
+//   }
+Future<GetLevelDetResp> getLevel() async {
+  final resp = await http.get('level');
+  return GetLevelDetResp.toJson(resp);
+}
 

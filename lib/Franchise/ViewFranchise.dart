@@ -50,7 +50,7 @@ class MyAppState extends State<ViewFranchise> with SingleTickerProviderStateMixi
 
 
   Future<void> fetchData() async {
-    final resp = await resellerSrv.fetchResellerDetail(widget.resellerId!);
+    final resp = await resellerSrv.fetchResellerDetail(isIspAdmin ?widget.resellerId!:id);
     setState(() {
       if (resp.error) alert(context, resp.msg);
       widget.resellerDet = resp.data;
@@ -118,11 +118,11 @@ class MyAppState extends State<ViewFranchise> with SingleTickerProviderStateMixi
     id = pref.getInt('id') as int;
     isSubscriber = pref.getBool('isSubscriber') as bool;
     print('LevelId----${levelid}');
-    if (isSubscriber == false) {
+    // if (isSubscriber == false) {
       fetchData();
       circle();
       level();
-    }
+  
   
   }
 
@@ -344,11 +344,11 @@ Widget build(BuildContext context) {
                                            
                                   SettingNotification(
                                         resellerId: widget
-                                            .resellerDet?.settings.resellerId),
+                                            .resellerDet?.id),
                     
                                   ResellerPackage(
                                         resellerId: widget
-                                            .resellerDet?.settings.resellerId),
+                                            .resellerDet?.id),
                                 ],
                               ),
                             ),

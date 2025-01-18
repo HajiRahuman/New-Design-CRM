@@ -13,6 +13,10 @@ Future<ResellerDetResp> fetchResellerDetail(int resellerId) async {
   final response = await http.get('reseller/$resellerId');
   return ResellerDetResp.toJson(response);
 }
+Future<ResellerAmountDetResp> fetchResellerAmount() async {
+  final response = await http.get('reseller');
+  return ResellerAmountDetResp.toJson(response);
+}
 
 
 Future<Map<String, dynamic>> updateResellerPwd(int resellerId,body) async {

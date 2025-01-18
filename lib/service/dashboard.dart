@@ -1,3 +1,4 @@
+import 'package:crm/model/hotel.dart';
 import 'package:intl/intl.dart';
 import '../model/dashboard.dart';
 import '../model/subscriber.dart';
@@ -10,9 +11,14 @@ Future<ExpirySubscribersResp> getExpirySubscriberByDate(
   return ExpirySubscribersResp.toJson(resp);
 }
 
-Future<SubscriberSummaryResp> getSubscriberSummaryData(String url) async {
+Future<SubscriberSummaryResp> getSubscriberSummaryData() async {
   var resp = await http.get('subscriber/summary');
   return SubscriberSummaryResp.toJson(resp);
+}
+
+Future<HotelSummaryResp> getHtelSummaryData() async {
+  var resp = await http.get('hotel/summary');
+  return HotelSummaryResp.toJson(resp);
 }
 
 Future<Map<String, dynamic>> packRenewal(String apiUrl) async {

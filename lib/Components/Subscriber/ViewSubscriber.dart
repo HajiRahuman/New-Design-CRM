@@ -1,4 +1,6 @@
 
+import 'dart:convert';
+
 import 'package:crm/AppBar.dart';
 import 'package:crm/AppStaticData/AppStaticData.dart';
 import 'package:crm/AppStaticData/toaster.dart';
@@ -8,6 +10,7 @@ import 'package:crm/Components/Subscriber/Complaints/Complaints.dart';
 import 'package:crm/Components/Subscriber/MacBinding.dart';
 import 'package:crm/Components/Subscriber/SessionCheck&Stop.dart';
 import 'package:crm/Components/Subscriber/SubscriberRenewal.dart';
+import 'package:crm/Components/Subscriber/UpdateAccountType.dart';
 import 'package:crm/Components/Subscriber/UpdateAuthPwd.dart';
 import 'package:crm/Components/Subscriber/UpdatePackage&Validity.dart';
 import 'package:crm/Components/Subscriber/UpdateProfileId.dart';
@@ -53,24 +56,27 @@ class MyAppState extends State<ViewSubscriber> with SingleTickerProviderStateMix
 
   int selectedIndex = 0;
   PageController _pageController = PageController();
-
-  Future<void> fetchData() async {
-    final resp = await subscriberSrv.fetchSubscriberDetail(widget.subscriberId!);
+Future<void> fetchData() async {
+  final resp = await subscriberSrv.fetchSubscriberDetail(widget.subscriberId!);
+  if (mounted) {
     setState(() {
       if (resp.error) alert(context, resp.msg);
       widget.subscriberDet = resp.data;
     });
-
-    await circle();
-    await reseller();
   }
+
+  await circle();
+  await reseller();
+}
 
   Future<void> fetchData1() async {
     final resp = await subscriberSrv.getUpdateUserDetail(widget.subscriberId!);
+    if (mounted) {
     setState(() {
       if (resp.error) alert(context, resp.msg);
       widget.subscriberUpdateDet = resp.data;
     });
+    }
   }
 
   @override
@@ -115,18 +121,21 @@ class MyAppState extends State<ViewSubscriber> with SingleTickerProviderStateMix
   Future<void> circle() async {
     String apiUrl = 'circle';
     CircleResp resp = await subscriberSrv.circle(apiUrl);
-
+if (mounted) {
     setState(() {
       idAndNames = resp.error == true ? [] : resp.data ?? [];
     });
+}
   }
 
   Future<void> reseller() async {
     String apiUrl = 'resellerAlice';
     BranchResp resp = await subscriberSrv.resellerAlice(apiUrl);
+    if (mounted) {
     setState(() {
       reselleralice = resp.error == true ? [] : resp.data ?? [];
     });
+    }
   }
 
   int levelid = 0;
@@ -134,13 +143,31 @@ class MyAppState extends State<ViewSubscriber> with SingleTickerProviderStateMix
   int id = 0;
   int selectedAmount = 0;
   bool isSubscriber = false;
-
+  String? menuIdString='';
+List<int> menuIdList = [];
   getMenuAccess() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     levelid = pref.getInt('level_id') as int;
     isIspAdmin = pref.getBool('isIspAdmin') as bool;
     id = pref.getInt('id') as int;
     isSubscriber = pref.getBool('isSubscriber') as bool;
+ 
+    menuIdString = pref.getString("menu_id");
+
+    // Safely decode menu_id string into a list
+    if (menuIdString != null) {
+      try {
+        menuIdList = List<int>.from(jsonDecode(menuIdString!));
+      
+      } catch (e) {
+        menuIdList = [];
+        
+        print("Error decoding menu_id: $e");
+      }
+    } else {
+      menuIdList = [];
+     
+    }
 
     if (!isIspAdmin && levelid > 4) {
       fetchData();
@@ -796,7 +823,7 @@ PopupMenuItem _buildPopupAdminMenuItem() {
           // height: 700,
           width: 200,
           child: Center(
-            child: Table(
+            child: Table( 
               columnWidths: const {
                 0: FixedColumnWidth(20),
               },
@@ -806,19 +833,20 @@ PopupMenuItem _buildPopupAdminMenuItem() {
                 row(title: 'Update', icon: Icons.update),
                   if ( isSubscriber==false)
                 row(title: 'Update Account Type', icon: Icons.update),
-                if (widget.subscriberDet?.acctype != 1 && isSubscriber==false)
+                if (widget.subscriberDet?.acctype == 0 && isSubscriber==false)
                 row(title: 'Mac Binding', icon: Icons.subtitles),
-                 if ( isSubscriber==false && levelid==3)
+                 if ( isSubscriber==false && levelid==3|| menuIdList.any((id) => [1205].contains(id))||isIspAdmin==true)
+                // if ( isIspAdmin==true)
                 row(title: 'Update Pack & Validity', icon: Icons.system_security_update_warning),
                 if (widget.subscriberDet?.acctype != 1) 
                 row(title: 'View Password', icon: Icons.password),
                  if ( isSubscriber==false)
                 row(title: 'Update Profile Password', icon: Icons.reset_tv),
-                if (widget.subscriberDet?.acctype !=1 && isSubscriber==false) 
+                if (widget.subscriberDet?.acctype == 0 && isSubscriber==false) 
                 row(title: 'Update Auth Password', icon: Icons.update),
-                 if ( isSubscriber==false)
+                 if ( isSubscriber==false || menuIdList.any((id) => [1208].contains(id))||isIspAdmin==true)
                 row(title: 'Update Profile ID', icon: Icons.fingerprint),
-                 if ( isSubscriber==false)
+                 if ( isSubscriber==false )
                 row(title: 'Account Status', icon: Icons.account_box),
                  if (widget.subscriberDet?.conn == 'Online')
                 row(title: 'Live Graph', icon: Icons.reset_tv),
@@ -849,6 +877,7 @@ TableRow row({required String title, required IconData icon}) {
   return TableRow(children: [
     TableRowInkWell(
       onTap: () {
+        Navigator.of(context).pop();
      
       },
       child: Padding(
@@ -858,6 +887,7 @@ TableRow row({required String title, required IconData icon}) {
     ),
     TableRowInkWell(
       onTap: () {
+        Navigator.of(context).pop();
         if (title == 'Renewal') {
           showDialog(
                                         context: context,
@@ -878,9 +908,12 @@ TableRow row({required String title, required IconData icon}) {
                                             ),
                                       ).then((val) => {
                                           // print('dialog--$val'),
-                                          if (val) fetchData()
+                                          if (val==true){ fetchData()}
                                         });
         }
+          if (  menuIdList.any((id) => [
+                                       1203
+                                        ].contains(id))) {
           if (title == 'Update') {
            Navigator.pushReplacement(
                                           context,
@@ -896,11 +929,29 @@ TableRow row({required String title, required IconData icon}) {
 
                                               })).then((val) => {
                                           // print('dialog--$val'),
-                                          if (val) fetchData()
+                                          if (val==true){ fetchData()}
                                         });
         }
+                                        }
         if (title == 'Update Account Type') {
-          
+           showDialog(
+                                          context: context,
+                                          builder: (ctx) => AlertDialog(
+                                            backgroundColor:notifier.getbgcolor,
+                                            actions: [
+                                              UpdateAccountType(
+                                                subscriberId:
+                                                widget.subscriberDet!.id,
+                                                acctstatus: widget.subscriberDet!.acctstatus,
+                                                conn: widget.subscriberDet!.conn,
+                                                enablemac: widget.subscriberDet!.enablemac,
+                                                username:widget.subscriberDet!.username, acctype: widget.subscriberDet!.acctype,
+                                              ),
+                                            ],
+                                          ),
+                                        ).then((val) => {
+                                            if (val==true){ fetchData()}
+                                        });
         }
          if (title == 'Mac Binding') {
             showDialog(
@@ -923,7 +974,7 @@ TableRow row({required String title, required IconData icon}) {
                                             ),
                                           ).then((val) => {
                                             // print('dialog--$val'),
-                                            if (val) fetchData()
+                                            if (val==true){ fetchData()}
                                           });
         }
          if (title == 'Update Pack & Validity') {
@@ -944,7 +995,7 @@ TableRow row({required String title, required IconData icon}) {
                                           ),
                                         ).then((val) => {
                                           // print('dialog--$val'),
-                                          if (val) fetchData()
+                                          if (val==true){ fetchData()}
                                         });
         }
         
@@ -1018,7 +1069,7 @@ TableRow row({required String title, required IconData icon}) {
                                           ),
                                         ).then((val) => {
                                           // print('dialog--$val'),
-                                          if (val) fetchData()
+                                          if (val==true){ fetchData()}
                                         });
         }
          if (title == 'Update Auth Password') {
@@ -1036,7 +1087,7 @@ TableRow row({required String title, required IconData icon}) {
                                           ),
                                         ).then((val) => {
                                           // print('dialog--$val'),
-                                          if (val) fetchData()
+                                          if (val==true){ fetchData()}
                                         });
         }
          if (title == 'Update Profile ID') {
@@ -1056,7 +1107,7 @@ TableRow row({required String title, required IconData icon}) {
                                           ),
                                         ).then((val) => {
                                           // print('dialog--$val'),
-                                          if (val) fetchData()
+                                          if (val==true){ fetchData()}
                                         });
         }
           if (title == 'Account Status') {
@@ -1076,7 +1127,7 @@ TableRow row({required String title, required IconData icon}) {
                                           ),
                                         ).then((val) => {
                                           // print('dialog--$val'),
-                                          if (val) fetchData()
+                                          if (val==true){ fetchData()}
                                         });
         }
           if (title == 'Live Graph') {
@@ -1106,7 +1157,7 @@ TableRow row({required String title, required IconData icon}) {
                                              ).then((val) =>
                                              {
                                               //  print('dialog--$val'),
-                                               if (val) fetchData()
+                                               if (val==true){ fetchData()}
                                              });
            
         
@@ -1120,7 +1171,7 @@ TableRow row({required String title, required IconData icon}) {
                                                   child:DocUpload(subscriberId:   widget.subscriberDet!.id,isProfile:false, isDocum1:true, isDocum2: false, isSign: false,)                                                            ),
                                         ).then((val) => {
                                           // print('dialog--$val'),
-                                          if (val) fetchData()
+                                          if (val==true){ fetchData()}
                                         });
           
         
@@ -1134,7 +1185,7 @@ TableRow row({required String title, required IconData icon}) {
                                                     child:DocUpload(subscriberId:   widget.subscriberDet!.id,isProfile:false, isDocum1: false, isDocum2: true, isSign: false,)                                                            ),
                                           ).then((val) => {
                                             // print('dialog--$val'),
-                                            if (val) fetchData()
+                                            if (val==true){ fetchData()}
                                           });
           
         

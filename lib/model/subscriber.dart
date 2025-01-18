@@ -572,10 +572,28 @@ class UpdateAccType{
 }
 
 class UpdatePacandVal{
+  final int id;
   final int packid;
   final String expiration;
-  final String simultaneoususe;
-  UpdatePacandVal({required this.packid,required this.expiration,required this.simultaneoususe});
+  final int simultaneoususe;
+  final String remarks;
+  final int dllimit;
+  final int uplimit;
+  final int totallimit;
+  final int timelimit;
+
+
+  UpdatePacandVal(
+    {required this.packid,
+    required this.expiration,
+    required this.simultaneoususe,
+    required this.id,
+    required this.dllimit,
+    required this.remarks,
+    required this.timelimit,
+    required this.totallimit,
+    required this.uplimit
+    });
 }
 
 
@@ -1915,5 +1933,4 @@ class SessionRptResp {
             : []);
   }
   }
-
 

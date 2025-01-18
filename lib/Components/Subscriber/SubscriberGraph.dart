@@ -315,10 +315,6 @@ Future<void> _downloadImage(String base64Image, String folderPath) async {
    Future<bool> _checkPermission() async { 
       return await Permission.photos.request().isGranted;
     }
-
-
-  
-
   
   }
 

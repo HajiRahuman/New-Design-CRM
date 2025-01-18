@@ -97,7 +97,7 @@ Future<void> GetCompanyInfo() async {
                           ),
                           child:    Text( cleanRefund.isNotEmpty 
                 ? cleanRefund 
-                : 'No privacy info available', style: mediumBlackTextStyle.copyWith(
+                : 'Refund Policy is not available.', style: mediumBlackTextStyle.copyWith(
               color: notifier.getMainText),
       ),
                                ),

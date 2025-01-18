@@ -1,23 +1,31 @@
 
 
 
+import 'dart:convert';
+
 import 'package:crm/AppBar.dart';
 import 'package:crm/AppStaticData/AppStaticData.dart';
 import 'package:crm/AppStaticData/toaster.dart';
 import 'package:crm/Components/Subscriber/ListSubscriber.dart';
 import 'package:crm/Components/Subscriber/ViewSubscriber.dart';
 import 'package:crm/Controller/Drawer.dart';
+import 'package:crm/Hotel/ListHotel.dart';
 import 'package:crm/Providers/providercolors.dart';
 import 'package:crm/Widgets/CommonTitle.dart';
 import 'package:crm/Widgets/SizedBox.dart';
 import 'package:crm/model/dashboard.dart';
+import 'package:crm/model/hotel.dart';
 import 'package:crm/model/subscriber.dart';
 import 'package:crm/service/dashboard.dart'  as dashboardSrv;
 import 'package:crm/service/subscriber.dart' as subscriberSrv;
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:timezone/timezone.dart' as tz;
 
 class DashBoard extends StatefulWidget {
@@ -55,6 +63,7 @@ class _DashBoard extends State<DashBoard> with SingleTickerProviderStateMixin{
   bool isSearching = false;
   List<ExpirySubscriber> apiDataList = [];
   SubscriberSummary? subscriberSummary;
+  HotelSummary? hotelSummary;
   List<Map<String, dynamic>> renewal = [];
 
   String formattedDate = DateFormat('MMM d, yyyy').format(DateTime.now());
@@ -62,21 +71,32 @@ class _DashBoard extends State<DashBoard> with SingleTickerProviderStateMixin{
   double rotationAngle = 0.0;
   List<String> data = [];
 
-  Future<void> getSubscriberSummary() async {
-    String apiUrl = 'subscriber/summary'; // Define the URL
-    final resp = await  dashboardSrv.getSubscriberSummaryData(apiUrl);
+Future<void> getSubscriberSummary() async {
+  // Check if the current levelid is NOT in the list [14, 15]
+  if (![14, 15].contains(levelid)) {
+    final resp = await dashboardSrv.getSubscriberSummaryData(); 
     if (resp.error == false) {
       setState(() {
         subscriberSummary = resp.summary;
       });
     }
+  } else {
+    final resp = await dashboardSrv.getHtelSummaryData();
+    if (resp.error == false) {
+      setState(() {
+        hotelSummary = resp.summary;
+      });
+    }
   }
+}
+
   int currentPage = 1;
   final int itemsPerPage = 5;
   @override
   void initState() {
     super.initState();
-    getSubscriberSummary();
+     getMenuAccess();
+  
     getExpirySubscriber(today); // Fetch data for today's date
   }
 
@@ -97,6 +117,38 @@ class _DashBoard extends State<DashBoard> with SingleTickerProviderStateMixin{
     });
   }
 
+  int levelid = 0;
+  bool isIspAdmin = false;
+  int id = 0;
+  int selectedAmount = 0;
+  bool isSubscriber = false;
+  String? menuIdString='';
+List<int> menuIdList = [];
+  getMenuAccess() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    levelid = pref.getInt('level_id') as int;
+    isIspAdmin = pref.getBool('isIspAdmin') as bool;
+    id = pref.getInt('id') as int;
+    isSubscriber = pref.getBool('isSubscriber') as bool;
+ 
+    menuIdString = pref.getString("menu_id");
+
+    // Safely decode menu_id string into a list
+    if (menuIdString != null) {
+      try {
+        menuIdList = List<int>.from(jsonDecode(menuIdString!));
+      
+      } catch (e) {
+        menuIdList = [];
+        
+        print("Error decoding menu_id: $e");
+      }
+    } else {
+      menuIdList = [];
+     
+    }
+      getSubscriberSummary();
+  }
   
 
   @override
@@ -126,66 +178,75 @@ class _DashBoard extends State<DashBoard> with SingleTickerProviderStateMixin{
                       children: [
                            const SizedBoxx(),
                         const ComunTitle(title: 'Dashboard', path: "Default"),
-                       _buildcompo1(
-  title: "Total",
-  iconpath: "assets/users33.svg",
-  Subscriber: subscriberSummary?.totalusers ?? "0",
-  Indicator: _buildIndicator(cardcolors[0], 1.0), // Full progress for total users
-  maincolor: const Color(0xff2F3F95),
-  progressValue: 1.0, 
-   category: 'Total'// Full bar for total users
+                          // if (![14, 15].contains(levelid) && !isSubscriber)
+                      Visibility(
+  visible: (![14, 15].contains(levelid) && !isSubscriber) || ([14, 15].contains(levelid) && !isSubscriber),
+  child: Column(
+    children: [
+      _buildcompo1(
+        title: "Total",
+        iconpath: "assets/users33.svg",
+        Subscriber: (subscriberSummary?.totalusers ?? hotelSummary?.totalusers ?? "0").toString(),
+        Indicator: _buildIndicator(cardcolors[0], 1.0), // Full progress for total users
+        maincolor: const Color(0xff2F3F95),
+        progressValue: 1.0, 
+        category: 'Total'
+      ),
+      _buildcompo1(
+        title: "Active",
+        iconpath: "assets/user29.svg",
+        Subscriber: (subscriberSummary?.active ?? hotelSummary?.active ?? "0").toString(),
+        Indicator: _buildIndicator(cardcolors[1], _calculateProgress(subscriberSummary?.active ?? hotelSummary?.active.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString())),
+        maincolor: const Color(0xff43A047),
+        progressValue: _calculateProgress(subscriberSummary?.active ?? hotelSummary?.active.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString()),
+        category: 'Active'
+      ),
+      _buildcompo1(
+        title: "Online",
+        iconpath: "assets/wallet33.svg",
+        Subscriber: (subscriberSummary?.mainonline ?? hotelSummary?.mainonline ?? "0").toString(),
+        Indicator: _buildIndicator(cardcolors[2], _calculateProgress(subscriberSummary?.mainonline ?? hotelSummary?.mainonline.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString())),
+        maincolor: const Color(0xff25D366),
+        progressValue: _calculateProgress(subscriberSummary?.mainonline ?? hotelSummary?.mainonline.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString()),
+        category: 'Online'
+      ),
+      _buildcompo1(
+        title: "Offline",
+        iconpath: "assets/coins29.svg",
+        Subscriber: (subscriberSummary?.offline ?? hotelSummary?.offline ?? "0").toString(),
+        Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.offline ?? hotelSummary?.offline.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString())),
+        maincolor: const Color(0xffFF6F00),
+        progressValue: _calculateProgress(subscriberSummary?.offline ?? hotelSummary?.offline.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString(),),
+        category: 'Offline'
+      ),
+      _buildcompo1(
+        title: "Expiry",
+        iconpath: "assets/box-check33.svg",
+        Subscriber: (subscriberSummary?.deactive ?? hotelSummary?.deactive ?? "0").toString(),
+        Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.deactive ?? hotelSummary?.deactive.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString(),)),
+        maincolor: const Color(0xffE53935),
+        progressValue: _calculateProgress(subscriberSummary?.deactive ?? hotelSummary?.deactive.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString(),),
+        category: 'Expired'
+      ),
+       if(![14, 15].contains(levelid) && !isSubscriber)
+      _buildcompo1(
+        title: "Hold",
+        iconpath: "assets/lock.svg",
+        Subscriber: (subscriberSummary?.hold ?? hotelSummary?.duplicate_session ?? "0").toString(),
+        Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.hold ?? hotelSummary?.duplicate_session.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString())),
+        maincolor: const Color(0xffFF4081),
+        progressValue: _calculateProgress(subscriberSummary?.hold ?? hotelSummary?.duplicate_session.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString()),
+        category: 'Hold'
+      ),
+    ],
+  ),
 ),
-                        _buildcompo1(
-  title: "Active",
-  iconpath: "assets/user29.svg",
-  Subscriber: subscriberSummary?.active ?? "0",
-  Indicator: _buildIndicator(cardcolors[1], _calculateProgress(subscriberSummary?.active, subscriberSummary?.totalusers)),
-  maincolor: const Color(0xff43A047),
-  progressValue: _calculateProgress(subscriberSummary?.active, subscriberSummary?.totalusers),
-   category: 'Active' // Add this line
-),
-                       
-                     _buildcompo1(
-  title: "Online",
-  iconpath: "assets/wallet33.svg",
-  Subscriber: subscriberSummary?.mainonline ?? "0",
-  Indicator: _buildIndicator(cardcolors[2], _calculateProgress(subscriberSummary?.mainonline, subscriberSummary?.totalusers)),
-  maincolor: const Color(0xff25D366),
-  progressValue: _calculateProgress(subscriberSummary?.mainonline, subscriberSummary?.totalusers),
-   category: 'Online' // Add progressValue here
-),
-_buildcompo1(
-    title: "Offline",
-  iconpath: "assets/coins29.svg",
- Subscriber: subscriberSummary?.offline ?? "0",
-  Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.offline, subscriberSummary?.totalusers)),
-  maincolor: const Color(0xffFF6F00),
-  progressValue: _calculateProgress(subscriberSummary?.offline, subscriberSummary?.totalusers), 
-   category: 'Offline' // Add progressValue here
-),
- _buildcompo1(
-  title: "Expiry",
-  iconpath: "assets/box-check33.svg",
-  Subscriber: subscriberSummary?.deactive ?? "0",
-  Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.deactive, subscriberSummary?.totalusers)),
-  maincolor: const Color(0xffE53935),
-  progressValue: _calculateProgress(subscriberSummary?.deactive, subscriberSummary?.totalusers),
-  category: 'Expired' // Add progressValue here
-),
-_buildcompo1(
-  title: "Hold",
-  iconpath: "assets/lock.svg",
-  Subscriber: subscriberSummary?.hold ?? "0",
-  Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.hold, subscriberSummary?.totalusers)),
-  maincolor: const Color(0xffFF4081),
-  progressValue: _calculateProgress(subscriberSummary?.hold, subscriberSummary?.totalusers),
-  category: 'Hold'  // Add progressValue here
-),
-                      
-                        
-                     _buildcompo2(width: constraints.maxWidth),
-                        const SizedBoxx(),
-          
+
+
+                                              Visibility(
+                                                visible:!isSubscriber && ![14, 15].contains(levelid) ,
+                                                child: _buildcompo2(width: constraints.maxWidth)),
+                          const SizedBoxx(),
                                               ],
                     ),
                   );
@@ -196,90 +257,103 @@ _buildcompo1(
                       children: [
                            const SizedBoxx(),
                      const ComunTitle(title: 'Dashboard', path: "Default"),
-                        Row(
-                          children: [
-                            Expanded(
-                              child:  _buildcompo1(
-  title: "Total",
-  iconpath: "assets/users33.svg",
-  Subscriber: subscriberSummary?.totalusers ?? "0",
-  Indicator: _buildIndicator(cardcolors[0], 1.0), // Full progress for total users
-  maincolor: const Color(0xff2F3F95),
-  progressValue: 1.0,
-    category: 'Total'
-   // Full bar for total users
-),
-                            ),
-                            Expanded(
-                              child: _buildcompo1(
-  title: "Active",
-  iconpath: "assets/user29.svg",
-  Subscriber: subscriberSummary?.active ?? "0",
-  Indicator: _buildIndicator(cardcolors[1], _calculateProgress(subscriberSummary?.active, subscriberSummary?.totalusers)),
-  maincolor: const Color(0xff43A047),
-  progressValue: _calculateProgress(subscriberSummary?.active, subscriberSummary?.totalusers),
-    category: 'Active' // Add this line
-),
-                            ),
-                          ],
+                        // if (![14, 15].contains(levelid) && !isSubscriber)
+                        Visibility(
+                            visible: (![14, 15].contains(levelid) && !isSubscriber)|| ([14, 15].contains(levelid) && !isSubscriber),
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child:    _buildcompo1(
+        title: "Total",
+        iconpath: "assets/users33.svg",
+        Subscriber: (subscriberSummary?.totalusers ?? hotelSummary?.totalusers ?? "0").toString(),
+        Indicator: _buildIndicator(cardcolors[0], 1.0), // Full progress for total users
+        maincolor: const Color(0xff2F3F95),
+        progressValue: 1.0, 
+        category: 'Total'
+      ),
+                                  ),
+                                  Expanded(
+                                    child:  _buildcompo1(
+        title: "Active",
+        iconpath: "assets/user29.svg",
+        Subscriber: (subscriberSummary?.active ?? hotelSummary?.active ?? "0").toString(),
+        Indicator: _buildIndicator(cardcolors[1], _calculateProgress(subscriberSummary?.active ?? hotelSummary?.active.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString())),
+        maincolor: const Color(0xff43A047),
+        progressValue: _calculateProgress(subscriberSummary?.active ?? hotelSummary?.active.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString()),
+        category: 'Active'
+      ),
+                                  ),
+                                ],
+                              ),
+                           
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildcompo1(
+        title: "Online",
+        iconpath: "assets/wallet33.svg",
+        Subscriber: (subscriberSummary?.mainonline ?? hotelSummary?.mainonline ?? "0").toString(),
+        Indicator: _buildIndicator(cardcolors[2], _calculateProgress(subscriberSummary?.mainonline ?? hotelSummary?.mainonline.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString())),
+        maincolor: const Color(0xff25D366),
+        progressValue: _calculateProgress(subscriberSummary?.mainonline ?? hotelSummary?.mainonline.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString()),
+        category: 'Online'
+      ),
+                              ),
+                              Expanded(
+                                child:_buildcompo1(
+        title: "Offline",
+        iconpath: "assets/coins29.svg",
+        Subscriber: (subscriberSummary?.offline ?? hotelSummary?.offline ?? "0").toString(),
+        Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.offline ?? hotelSummary?.offline.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString())),
+        maincolor: const Color(0xffFF6F00),
+        progressValue: _calculateProgress(subscriberSummary?.offline ?? hotelSummary?.offline.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString(),),
+        category: 'Offline'
+      ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildcompo1(
+        title: "Expiry",
+        iconpath: "assets/box-check33.svg",
+        Subscriber: (subscriberSummary?.deactive ?? hotelSummary?.deactive ?? "0").toString(),
+        Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.deactive ?? hotelSummary?.deactive.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString(),)),
+        maincolor: const Color(0xffE53935),
+        progressValue: _calculateProgress(subscriberSummary?.deactive ?? hotelSummary?.deactive.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString(),),
+        category: 'Expired'
+      ),
+                              ),
+                                 if(![14, 15].contains(levelid) && !isSubscriber)
+                                      Expanded(child:   _buildcompo1(
+        title: "Hold",
+        iconpath: "assets/lock.svg",
+        Subscriber: (subscriberSummary?.hold ?? hotelSummary?.duplicate_session ?? "0").toString(),
+        Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.hold ?? hotelSummary?.duplicate_session.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString())),
+        maincolor: const Color(0xffFF4081),
+        progressValue: _calculateProgress(subscriberSummary?.hold ?? hotelSummary?.duplicate_session.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString()),
+        category: 'Hold'
+      ),)
+                            ],
+                          ),
+                        
+                           ],
+                          ),
                         ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child:  _buildcompo1(
-  title: "Online",
-  iconpath: "assets/wallet33.svg",
-  Subscriber: subscriberSummary?.mainonline ?? "0",
-  Indicator: _buildIndicator(cardcolors[2], _calculateProgress(subscriberSummary?.mainonline, subscriberSummary?.totalusers)),
-  maincolor: const Color(0xff25D366),
-  progressValue: _calculateProgress(subscriberSummary?.mainonline, subscriberSummary?.totalusers),
-    category: 'Online' // Add progressValue here
-),
+                          Visibility(
+                               visible:!isSubscriber && ![14, 15].contains(levelid) ,
+                            child: Row(
+                              children: [
+                                Expanded(child: _buildcompo2(width: constraints.maxWidth)),
+                              
+                              ],
                             ),
-                            Expanded(
-                              child:_buildcompo1(
-    title: "Offline",
-  iconpath: "assets/coins29.svg",
- Subscriber: subscriberSummary?.offline ?? "0",
-  Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.offline, subscriberSummary?.totalusers)),
-  maincolor: const Color(0xffFF6F00),
-  progressValue: _calculateProgress(subscriberSummary?.offline, subscriberSummary?.totalusers), 
-    category: 'Offline'// Add progressValue here
-),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child:_buildcompo1(
-  title: "Expiry",
-  iconpath: "assets/box-check33.svg",
-  Subscriber: subscriberSummary?.deactive ?? "0",
-  Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.deactive, subscriberSummary?.totalusers)),
-  maincolor: const Color(0xffE53935),
-  progressValue: _calculateProgress(subscriberSummary?.deactive, subscriberSummary?.totalusers), 
-    category: 'Expired'// Add progressValue here
-),
-                            ),
-            Expanded(child: _buildcompo1(
-  title: "Hold",
-  iconpath: "assets/lock.svg",
-  Subscriber: subscriberSummary?.hold ?? "0",
-  Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.hold, subscriberSummary?.totalusers)),
-  maincolor: const Color(0xffFF4081),
-  progressValue: _calculateProgress(subscriberSummary?.hold, subscriberSummary?.totalusers),
-    category: 'Hold' // Add progressValue here
-),)
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Expanded(child: _buildcompo2(width: constraints.maxWidth)),
-                          
-                          ],
-                        ),
-                        const SizedBoxx(),
+                          ),
+                          const SizedBoxx(),
                       ],
                     ),
                   );
@@ -290,101 +364,113 @@ _buildcompo1(
                       children: [
                            const SizedBoxx(),
                          const ComunTitle(title: 'Dashboard', path: "Default"),
-                        Row(
-                          children: [
-                            Expanded(
-                              child:  _buildcompo1(
-  title: "Total",
-  iconpath: "assets/users33.svg",
-  Subscriber: subscriberSummary?.totalusers ?? "0",
-  Indicator: _buildIndicator(cardcolors[0], 1.0), // Full progress for total users
-  maincolor: const Color(0xff2F3F95),
-  progressValue: 1.0,
-    category: 'Total' // Full bar for total users
-),
-
-                            ),
-                            Expanded(
-                              child: _buildcompo1(
-  title: "Active",
-  iconpath: "assets/user29.svg",
-  Subscriber: subscriberSummary?.active ?? "0",
-  Indicator: _buildIndicator(cardcolors[1], _calculateProgress(subscriberSummary?.active, subscriberSummary?.totalusers)),
-  maincolor: const Color(0xff43A047),
-  progressValue: _calculateProgress(subscriberSummary?.active, subscriberSummary?.totalusers), 
-    category: 'Active'// Add this line
-),
-                            ),
-                            Expanded(
-                              child:  _buildcompo1(
-  title: "Online",
-  iconpath: "assets/wallet33.svg",
-  Subscriber: subscriberSummary?.mainonline ?? "0",
-  Indicator: _buildIndicator(cardcolors[2], _calculateProgress(subscriberSummary?.mainonline, subscriberSummary?.totalusers)),
-  maincolor: const Color(0xff25D366),
-  progressValue: _calculateProgress(subscriberSummary?.mainonline, subscriberSummary?.totalusers),
-    category: 'Online'
-   // Add progressValue here
-),
-                            ),
-                            Expanded(
-                              child:  _buildcompo1(
-    title: "Offline",
-  iconpath: "assets/coins29.svg",
- Subscriber: subscriberSummary?.offline ?? "0",
-  Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.offline, subscriberSummary?.totalusers)),
-  maincolor: const Color(0xffFF6F00),
-  progressValue: _calculateProgress(subscriberSummary?.offline, subscriberSummary?.totalusers), // Add progressValue here
-    category: 'Offline'
-),
-                            ),
-                          ],
+                            // if (![14, 15].contains(levelid) && !isSubscriber)
+                        Visibility(
+                            visible: (![14, 15].contains(levelid) && !isSubscriber)|| ([14, 15].contains(levelid) && !isSubscriber),
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child:   _buildcompo1(
+        title: "Total",
+        iconpath: "assets/users33.svg",
+        Subscriber: (subscriberSummary?.totalusers ?? hotelSummary?.totalusers ?? "0").toString(),
+        Indicator: _buildIndicator(cardcolors[0], 1.0), // Full progress for total users
+        maincolor: const Color(0xff2F3F95),
+        progressValue: 1.0, 
+        category: 'Total'
+      ),
+                              
+                                  ),
+                                  Expanded(
+                                    child:  _buildcompo1(
+        title: "Active",
+        iconpath: "assets/user29.svg",
+        Subscriber: (subscriberSummary?.active ?? hotelSummary?.active ?? "0").toString(),
+        Indicator: _buildIndicator(cardcolors[1], _calculateProgress(subscriberSummary?.active ?? hotelSummary?.active.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString())),
+        maincolor: const Color(0xff43A047),
+        progressValue: _calculateProgress(subscriberSummary?.active ?? hotelSummary?.active.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString()),
+        category: 'Active'
+      ),
+                                  ),
+                                  Expanded(
+                                    child:  _buildcompo1(
+        title: "Online",
+        iconpath: "assets/wallet33.svg",
+        Subscriber: (subscriberSummary?.mainonline ?? hotelSummary?.mainonline ?? "0").toString(),
+        Indicator: _buildIndicator(cardcolors[2], _calculateProgress(subscriberSummary?.mainonline ?? hotelSummary?.mainonline.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString())),
+        maincolor: const Color(0xff25D366),
+        progressValue: _calculateProgress(subscriberSummary?.mainonline ?? hotelSummary?.mainonline.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString()),
+        category: 'Online'
+      ),
+                                  ),
+                                  Expanded(
+                                    child:  _buildcompo1(
+        title: "Offline",
+        iconpath: "assets/coins29.svg",
+        Subscriber: (subscriberSummary?.offline ?? hotelSummary?.offline ?? "0").toString(),
+        Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.offline ?? hotelSummary?.offline.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString())),
+        maincolor: const Color(0xffFF6F00),
+        progressValue: _calculateProgress(subscriberSummary?.offline ?? hotelSummary?.offline.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString(),),
+        category: 'Offline'
+      ),
+                                  ),
+                                ],
+                              ),
+                            
+                          Row(
+                            children: [
+                              Expanded(
+                                child:
+                          
+                          _buildcompo1(
+        title: "Expiry",
+        iconpath: "assets/box-check33.svg",
+        Subscriber: (subscriberSummary?.deactive ?? hotelSummary?.deactive ?? "0").toString(),
+        Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.deactive ?? hotelSummary?.deactive.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString(),)),
+        maincolor: const Color(0xffE53935),
+        progressValue: _calculateProgress(subscriberSummary?.deactive ?? hotelSummary?.deactive.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString(),),
+        category: 'Expired'
+      ),
+                             ),
+                                if(![14, 15].contains(levelid) && !isSubscriber)
+                             Expanded(child:  _buildcompo1(
+        title: "Hold",
+        iconpath: "assets/lock.svg",
+        Subscriber: (subscriberSummary?.hold ?? hotelSummary?.duplicate_session ?? "0").toString(),
+        Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.hold ?? hotelSummary?.duplicate_session.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString())),
+        maincolor: const Color(0xffFF4081),
+        progressValue: _calculateProgress(subscriberSummary?.hold ?? hotelSummary?.duplicate_session.toString(), subscriberSummary?.totalusers ?? hotelSummary?.totalusers.toString()),
+        category: 'Hold'
+      ),)
+                            ],
+                          ),
+                          
+                          //                         Row(children: [Expanded(child: _buildcompo1(
+                          //   title: "Hold",
+                          //   iconpath: "assets/lock.svg",
+                          //   Subscriber: subscriberSummary?.hold ?? "0",
+                          //   Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.hold, subscriberSummary?.totalusers)),
+                          //   maincolor: const Color(0xffFF4081),
+                          //   progressValue: _calculateProgress(subscriberSummary?.hold, subscriberSummary?.totalusers), // Add progressValue here
+                          // ),)],),
+                           
+                                                ],
+                          ),
                         ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child:
-
-_buildcompo1(
-  title: "Expiry",
-  iconpath: "assets/box-check33.svg",
-  Subscriber: subscriberSummary?.deactive ?? "0",
-  Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.deactive, subscriberSummary?.totalusers)),
-  maincolor: const Color(0xffE53935),
-  progressValue: _calculateProgress(subscriberSummary?.deactive, subscriberSummary?.totalusers), // Add progressValue here
-    category: 'Expired'
-),
+                        Visibility(
+                            visible:!isSubscriber && ![14, 15].contains(levelid) ,
+                             child: Row(
+                              children: [
+                                Expanded(
+                                  flex: 2,
+                                  child: _buildcompo2(width: constraints.maxWidth),
+                                ),
+                              ],
+                                                       ),
                            ),
-                           Expanded(child: _buildcompo1(
-  title: "Hold",
-  iconpath: "assets/lock.svg",
-  Subscriber: subscriberSummary?.hold ?? "0",
-  Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.hold, subscriberSummary?.totalusers)),
-  maincolor: const Color(0xffFF4081),
-  progressValue: _calculateProgress(subscriberSummary?.hold, subscriberSummary?.totalusers), // Add progressValue here
-    category: 'Hold'
-),)
-                          ],
-                        ),
-
-//                         Row(children: [Expanded(child: _buildcompo1(
-//   title: "Hold",
-//   iconpath: "assets/lock.svg",
-//   Subscriber: subscriberSummary?.hold ?? "0",
-//   Indicator: _buildIndicator(cardcolors[3], _calculateProgress(subscriberSummary?.hold, subscriberSummary?.totalusers)),
-//   maincolor: const Color(0xffFF4081),
-//   progressValue: _calculateProgress(subscriberSummary?.hold, subscriberSummary?.totalusers), // Add progressValue here
-// ),)],),
-                         Row(
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child: _buildcompo2(width: constraints.maxWidth),
-                            ),
-                          ],
-                        ),
-                        const SizedBoxx(),
-                      
+                          const SizedBoxx(),
                       ],
                     ),
                   );
@@ -418,10 +504,16 @@ Widget _buildcompo1({
       color: Colors.transparent,
       child: GestureDetector(
         onTap: () {
-          // Trigger the getListSubscriber function with category parameter
+        if (![14, 15].contains(levelid)) {
            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
                                     return  ListSubscriber(category: category);
                                   }));
+        }else{
+ Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
+                                    return  ListHotel(category: category);
+                                  }));
+
+        }
          
         },
         child: Container(
@@ -557,9 +649,9 @@ Widget _buildcompo2({required double width}) {
                     color: appMainColor,
                   ), // Customize style if needed
                       onSubtitleTap: () {
-                        // Navigate to viewSubscriber when profileid is tapped
-                         navigateToViewSubscriber(
-                                    expirySubs.uid, context);
+                       if (expirySubs.usertype == 0) {
+  navigateToViewSubscriber(expirySubs.uid, context);
+}
                       },
                     ),
                     

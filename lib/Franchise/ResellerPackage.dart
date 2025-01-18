@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../model/reseller.dart';
 import '../../service/reseller.dart' as resellerSrv;
@@ -45,7 +46,7 @@ class MyAppState extends State<ResellerPackage> {
      setState(() {
       isLoading = true; // Set loading to true when fetching data
     });
-    viewResellerPackPriceResp resp = await resellerSrv.ViewResellerPackPrice(widget.resellerId!, 1);
+    viewResellerPackPriceResp resp = await resellerSrv.ViewResellerPackPrice(isIspAdmin? widget.resellerId!:id, 1);
     setState(() {
       if (resp.error) alert(context, resp.msg);
       ResellerPackPrice = resp.error ? [] : resp.data ?? [];
@@ -57,12 +58,29 @@ class MyAppState extends State<ResellerPackage> {
 
 
 
+  int levelid = 0;
+  bool isIspAdmin = false;
+  int id = 0;
+  bool isSubscriber = false;
+  getMenuAccess() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    levelid = pref.getInt('level_id') as int;
+    isIspAdmin = pref.getBool('isIspAdmin') as bool;
+    id = pref.getInt('id') as int;
+    isSubscriber = pref.getBool('isSubscriber') as bool;
+    print('LevelId----${levelid}');
+    // if (isSubscriber == false) {
+      getViewResellerPackPrice();
+    
+  
+  
+  }
 
   @override
   void initState() {
     super.initState();
-    getViewResellerPackPrice();
-    print('Reseller ID---${widget.resellerId}');
+   getMenuAccess();
+ 
   
     
     

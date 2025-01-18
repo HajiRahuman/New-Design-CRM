@@ -777,3 +777,41 @@ class viewResellerPackPriceDet {
 }
 
 
+class ResellerAmountDetResp {
+  final bool error;
+  final String msg;
+  final List<ResellarAmountDet>? data;
+
+  ResellerAmountDetResp({required this.error, required this.msg, this.data});
+
+  factory ResellerAmountDetResp.toJson(Map<String, dynamic> resp) {
+    return ResellerAmountDetResp(
+      error: resp['error'] ?? false,
+      msg: resp['msg'] ?? "",
+      data: (resp['data'] as List<dynamic>?)
+          ?.map((item) => ResellarAmountDet.toJson(item as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
+
+class ResellarAmountDet {
+ final int id;
+  late final dynamic wallet;
+  
+
+  ResellarAmountDet({
+   
+    required this.id,
+    required this.wallet,
+   
+  });
+
+  factory ResellarAmountDet.toJson(Map<String, dynamic> json) {
+    return ResellarAmountDet(
+       id: json['id'] ?? 0,
+      wallet: json['wallet'] ?? 0,
+      
+    );
+  }
+}

@@ -1,4 +1,6 @@
 
+import 'dart:convert';
+
 import 'package:crm/AppBar.dart';
 import 'package:crm/AppStaticData/AppStaticData.dart';
 import 'package:crm/AppStaticData/toaster.dart';
@@ -15,6 +17,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../service/subscriber.dart' as subscriberSrv;
 
 class ListSubscriber extends StatefulWidget {
@@ -103,10 +106,35 @@ Future<void> getListSubscriber({int? acctstatus, int? conn}) async {
     isLoading = false; // Set loading to false once data is fetched
   });
 }
+String? menuIdString = '';
+  List<int> menuIdList = [];
+Future<void> getMenuAccess() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
 
+    setState(() {
+     
+      menuIdString = pref.getString("menu_id");
+
+      // Safely decode menu_id string into a list
+      if (menuIdString != null) {
+        try {
+          menuIdList = List<int>.from(jsonDecode(menuIdString!));
+        } catch (e) {
+          menuIdList = [];
+
+          print("Error decoding menu_id: $e");
+        }
+      } else {
+        menuIdList = [];
+      }
+    });
+
+    
+  }
   @override
   void initState() {
     super.initState();
+    getMenuAccess();
     getListSubscriber();
   }
 
@@ -215,9 +243,13 @@ Future<void> getListSubscriber({int? acctstatus, int? conn}) async {
                 fixedSize: const Size.fromHeight(40),
               ),
               onPressed: () {
+                 if (  menuIdList.any((id) => [
+                                       1202
+                                        ].contains(id))) {
                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
                   return AddSubscriber();
                 }));
+              }
               },
               child: Text(
                 "Add",
@@ -272,7 +304,11 @@ Future<void> getListSubscriber({int? acctstatus, int? conn}) async {
                                 color: notifier.getMainText,
                               ),
                               onTap: () {
+                                  if (  menuIdList.any((id) => [
+                                       1204
+                                        ].contains(id))) {
                                 navigateToViewSubscriber(subscriber.id, context);
+                                        }
                               },
                             ),
                                 ],

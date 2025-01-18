@@ -7,6 +7,8 @@ import 'package:crm/AppStaticData/toaster.dart';
 import 'package:crm/Controller/Drawer.dart';
 import 'package:crm/Providers/providercolors.dart';
 import 'package:crm/model/UpdateSubscriber.dart';
+import 'package:crm/model/subscriber.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -246,7 +248,6 @@ createAddrForm(int index, data) async {
   // //
   // FormArray get addressBook => form?.control('address_book') as FormArray;
   
-  final GlobalKey<ScaffoldState> _key = GlobalKey();
   final GlobalKey<MyAppState> packageAndIpKey = GlobalKey<MyAppState>();
   TextEditingController propswController = TextEditingController();
   TextEditingController authpswController = TextEditingController();
@@ -344,11 +345,19 @@ createAddrForm(int index, data) async {
     _tabController.dispose(); // Dispose of the TabController.
     super.dispose();
   }
+  List<GetLevelDet> level= [];
+  Future<void> GetLevel() async {
+    GetLevelDetResp resp = (await addsubscriberSrv.getLevel());
+    setState(() {
+      level = resp.error == true ? [] : resp.data ?? [];
+    });
+  }
+
 int levelid = 0;
-  bool isIspAdmin = false;
-  int id = 0;
-  int selectedAmount = 0;
-  bool isSubscriber = false;
+bool isIspAdmin = false;
+int id = 0;
+int selectedAmount = 0;
+bool isSubscriber = false;
 bool reselusertype = false; 
   getMenuAccess() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -359,6 +368,7 @@ bool reselusertype = false;
 
      resellerAlice(widget.resellerid ?? id);
     getReseller(widget.resellerid ?? id);
+    GetLevel();
     circle();
     ResellerList();
   }
@@ -509,11 +519,11 @@ bool reselusertype = false;
 
     widget.updateSubsDet = resp.data;
     createForm();
-    print('Id----${widget.subscriberId}');
-    print('Id----${widget.updateSubsDet?.addressBook}');
+    // print('Id----${widget.subscriberId}');
+    // print('Id----${widget.updateSubsDet?.addressBook}');
     
     widget.updateSubsDet?.addressBook.asMap().forEach((index, e) {
-      print('Address Entry--- $e');
+      // print('Address Entry--- $e');
       createAddrForm(index, e);
 
       // Fetch pincode details for each address entry
@@ -652,10 +662,10 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double screenHight = MediaQuery.of(context).size.height;
+    // double screenHight = MediaQuery.of(context).size.height;
          final notifier = Provider.of<ColorNotifire>(context);
-          final textStyle = Theme.of(context).textTheme.bodyLarge;
-  final selectedTextStyle = textStyle?.copyWith(fontWeight: FontWeight.bold);
+          // final textStyle = Theme.of(context).textTheme.bodyLarge;
+  // final selectedTextStyle = textStyle?.copyWith(fontWeight: FontWeight.bold);
     return  DefaultTabController(
           length: 3,
           child: Scaffold(
@@ -705,8 +715,7 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
                           
                           Visibility(
                           visible: levelid < 4 || 
-         (reselusertype && [5, 6, 7, 8, 9, 10].contains(levelid)),
-
+         (reselusertype && [5, 6, 7, 8, 9, 10].contains(levelid)||isIspAdmin==true),
                             child: Column(
                               children: [
                                 Padding(
@@ -761,6 +770,7 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 20),
                               child: ReactiveDropdownField<int>(
+                                readOnly: widget.subscriberId!=null,
                                  validationMessages: {
                                                             'required': (error) =>
                                                                 'Reseller required!',
@@ -2156,6 +2166,7 @@ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: 20.0),
                                           child: ReactiveTextField<String>(
+                                            readOnly: widget.subscriberId!=null,
                                             validationMessages: {
     'required': (error) => 'Username required!',
     'minLength': (error) => 'Username must be at least 6 characters!',
@@ -2680,6 +2691,7 @@ ReactiveDropdownField<int>(
                                                 value: item.packid,
                                                 // Set enabled based on the condition
                                                 // enabled: !isDisabled,
+                                              
                                                 child: Text(item.packname),
                                               );
                                             }).toList(),
@@ -2711,6 +2723,7 @@ ReactiveDropdownField<int>(
                                                 GetPack(form?.value['packid']);
                                               });
                                             },
+                                            readOnly: widget.resellerid != null ?true:false,
                                           ),
                                         ),
                                         const SizedBox(height: 10),
@@ -2792,14 +2805,16 @@ ReactiveDropdownField<int>(
                                       color: notifier.isDark
                                           ? notifier.geticoncolor
                                           : Colors.black)),
-                                          suffixIcon: GestureDetector(
-                                                onTap: () => _selectDate(context),
-                                                child:  Icon(
-                                                  Icons
-                                                      .calendar_today, // You can use any icon you prefer
-                                                  color: notifier.getMainText
-                                                ),
-                                              ),
+                                          suffixIcon: Visibility(
+      visible: !(widget.resellerid != null|| levelid > 4 && isIspAdmin!=true) , // The icon will be visible if the condition is false
+      child: GestureDetector(
+        onTap: () => _selectDate(context),
+        child: Icon(
+          Icons.calendar_today, // Use any icon you prefer
+          color: notifier.getMainText,
+        ),
+      ),
+                                          ),
                                               ),
                                           ),
                                         ),
@@ -2859,9 +2874,9 @@ ReactiveDropdownField<int>(
                                                                   .toString();
                                                         });
                                                       },
-                                                      child: const Icon(
+                                                      child: Icon(
                                                         Icons.arrow_drop_up,
-                                                        color: Colors.black,
+                                                          color: notifier.getMainText
                                                       ),
                                                     ),
                                                     GestureDetector(
@@ -2943,9 +2958,9 @@ ReactiveDropdownField<int>(
                                                                   .toString();
                                                         });
                                                       },
-                                                      child: const Icon(
+                                                      child:  Icon(
                                                         Icons.arrow_drop_up,
-                                                        color: Colors.black,
+                                                          color: notifier.getMainText
                                                       ),
                                                     ),
                                                     GestureDetector(
@@ -2960,9 +2975,9 @@ ReactiveDropdownField<int>(
                                                           });
                                                         }
                                                       },
-                                                      child: const Icon(
+                                                      child:  Icon(
                                                         Icons.arrow_drop_down,
-                                                        color: Colors.black,
+                                                           color: notifier.getMainText
                                                       ),
                                                     ),
                                                   ],
@@ -3022,9 +3037,9 @@ visible: (getPackOpt?.packmode ?? 0) >= 3 &&
                                                                   .toString();
                                                         });
                                                       },
-                                                      child: const Icon(
+                                                      child:  Icon(
                                                         Icons.arrow_drop_up,
-                                                        color: Colors.black,
+                                                           color: notifier.getMainText,
                                                       ),
                                                     ),
                                                     GestureDetector(
@@ -3039,9 +3054,9 @@ visible: (getPackOpt?.packmode ?? 0) >= 3 &&
                                                           });
                                                         }
                                                       },
-                                                      child: const Icon(
+                                                      child:  Icon(
                                                         Icons.arrow_drop_down,
-                                                        color: Colors.black,
+                                                          color: notifier.getMainText
                                                       ),
                                                     ),
                                                   ],
@@ -3100,9 +3115,9 @@ visible: (getPackOpt?.packmode ?? 0) >= 3 &&
                                                                   .toString();
                                                         });
                                                       },
-                                                      child: const Icon(
+                                                      child:  Icon(
                                                         Icons.arrow_drop_up,
-                                                        color: Colors.black,
+                                                         color: notifier.getMainText
                                                       ),
                                                     ),
                                                     GestureDetector(
@@ -3117,9 +3132,9 @@ visible: (getPackOpt?.packmode ?? 0) >= 3 &&
                                                           });
                                                         }
                                                       },
-                                                      child: const Icon(
+                                                      child:  Icon(
                                                         Icons.arrow_drop_down,
-                                                        color: Colors.black,
+                                                        color: notifier.getMainText
                                                       ),
                                                     ),
                                                   ],
@@ -3130,296 +3145,304 @@ visible: (getPackOpt?.packmode ?? 0) >= 3 &&
                                           ),
                                         ),
                                         const SizedBox(height: 10),
-                                       Align(
-                                          alignment: Alignment.topLeft,
-                                          child: Text(
-                                            'IP-V4',
-                                             style: mediumBlackTextStyle.copyWith(color: notifier.getMainText),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 10),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 18.0),
-                                          child: ReactiveDropdownField<int>(
-                                            formControlName: 'ipmode',
-                                          focusColor: Colors.transparent,
-                                            isExpanded: true,
-                                            items: ipv4.keys
-                                                .map<DropdownMenuItem<int>>(
-                                              (String key) {
-                                                final value = ipv4[key];
-                                                return DropdownMenuItem<int>(
-                                                  value: value,
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            left: 10),
-                                                    child: Text(key),
-                                                  ),
-                                                );
-                                              },
-                                            ).toList(),
-                                             dropdownColor: notifier.getcontiner,
-                                                         style: TextStyle(color: notifier.getMainText),
-                                                                          
-                                                                         
-                                                                           decoration: InputDecoration(
-                                                                             contentPadding:const EdgeInsets.only(left: 15),
-                                                                
-                                                                              labelStyle: mediumGreyTextStyle.copyWith(
-                                            fontSize: 13),
-                                                                               labelText: 'IP Mode',
-                                                                            enabledBorder: OutlineInputBorder(
-                                  borderRadius:BorderRadius .circular(10.0),
-                                  borderSide: BorderSide(
-                                      color: notifier.isDark
-                                          ? notifier.geticoncolor
-                                          : Colors.black)),
-                                                      border: OutlineInputBorder(
-                                  borderRadius:BorderRadius .circular(10.0),
-                                  borderSide: BorderSide(
-                                      color: notifier.isDark
-                                          ? notifier.geticoncolor
-                                          : Colors.black)),
-                                                                            ),
-                                            onChanged: (value) {
-                                              setState(() {
-                                                GetAllIpv4(int.parse(form
-                                                        ?.value['resellerid']
-                                                        ?.toString() ??
-                                                    '0'));
-                                                getIpv4 = null;
-                                              });
-                                            },
-                                          ),
-                                        ),
-                                        const SizedBox(height: 10),
-                                        Visibility(
-                                          // visible : SelectedIpMode== 'Local Static Ipv4',
-                                          visible: form?.value['ipmode'] ==
-                                              ipv4['Local Static Ipv4'],
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 20.0),
-                                            child: ReactiveTextField<String>(
-                                               validationMessages: {
-                                                'required': (error) =>
-                                                    'Ipv4 required!',
-                                              },
-                                              formControlName: 'ipv4',
-                                             
-                                                         style: TextStyle(color: notifier.getMainText),
-                                                                          
-                                                                         
-                                                                           decoration: InputDecoration(
-                                                                             contentPadding:const EdgeInsets.only(left: 15),
-                                                                
-                                                                              labelStyle: mediumGreyTextStyle.copyWith(
-                                            fontSize: 13),
-                                                                               labelText: 'Local Ipv4',
-                                                                            enabledBorder: OutlineInputBorder(
-                                  borderRadius:BorderRadius .circular(10.0),
-                                  borderSide: BorderSide(
-                                      color: notifier.isDark
-                                          ? notifier.geticoncolor
-                                          : Colors.black)),
-                                                      border: OutlineInputBorder(
-                                  borderRadius:BorderRadius .circular(10.0),
-                                  borderSide: BorderSide(
-                                      color: notifier.isDark
-                                          ? notifier.geticoncolor
-                                          : Colors.black)),
-                                                                            ),
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 10),
-                                        Visibility(
-                                          visible: form?.value['ipmode'] ==
-                                              ipv4['Public Static Ipv4'],
-                                          child: Padding(
+                                       Visibility(
+                                        visible:levelid < 4 ||isIspAdmin==true,
+                                         child: Column(
+                                           children: [
+                                             Align(
+                                                alignment: Alignment.topLeft,
+                                                child: Text(
+                                                  'IP-V4',
+                                                   style: mediumBlackTextStyle.copyWith(color: notifier.getMainText),
+                                                ),
+                                              ),
+                                          
+                                          const SizedBox(height: 10),
+                                          Padding(
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 18.0),
                                             child: ReactiveDropdownField<int>(
-                                              focusColor: Colors.transparent,
-                                              formControlName: 'ipv4id',
-                                               validationMessages: {
-                                                'required': (error) =>
-                                                    'Ipv4 required!',
-                                              },
+                                              formControlName: 'ipmode',
+                                            focusColor: Colors.transparent,
                                               isExpanded: true,
-                                              items: getIpv4Opt.map((item) {
-                                                return DropdownMenuItem<int>(
-                                                  value: item.resellerid,
-                                                  child: Text(item.ipaddr),
-                                                );
-                                              }).toList(),
-                                              dropdownColor: notifier.getcontiner,
-                                                         style: TextStyle(color: notifier.getMainText),
-                                                                          
-                                                                         
-                                                                           decoration: InputDecoration(
-                                                                             contentPadding:const EdgeInsets.only(left: 15),
-                                                                
-                                                                              labelStyle: mediumGreyTextStyle.copyWith(
-                                            fontSize: 13),
-                                                                               labelText: 'Public Ipv4',
-                                                                            enabledBorder: OutlineInputBorder(
-                                  borderRadius:BorderRadius .circular(10.0),
-                                  borderSide: BorderSide(
-                                      color: notifier.isDark
-                                          ? notifier.geticoncolor
-                                          : Colors.black)),
-                                                      border: OutlineInputBorder(
-                                  borderRadius:BorderRadius .circular(10.0),
-                                  borderSide: BorderSide(
-                                      color: notifier.isDark
-                                          ? notifier.geticoncolor
-                                          : Colors.black)),
-                                                                            ),
+                                              items: ipv4.keys
+                                                  .map<DropdownMenuItem<int>>(
+                                                (String key) {
+                                                  final value = ipv4[key];
+                                                  return DropdownMenuItem<int>(
+                                                    value: value,
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              left: 10),
+                                                      child: Text(key),
+                                                    ),
+                                                  );
+                                                },
+                                              ).toList(),
+                                               dropdownColor: notifier.getcontiner,
+                                                           style: TextStyle(color: notifier.getMainText),
+                                                                            
+                                                                           
+                                                                             decoration: InputDecoration(
+                                                                               contentPadding:const EdgeInsets.only(left: 15),
+                                                                  
+                                                                                labelStyle: mediumGreyTextStyle.copyWith(
+                                              fontSize: 13),
+                                                                                 labelText: 'IP Mode',
+                                                                              enabledBorder: OutlineInputBorder(
+                                                                           borderRadius:BorderRadius .circular(10.0),
+                                                                           borderSide: BorderSide(
+                                                                               color: notifier.isDark
+                                            ? notifier.geticoncolor
+                                            : Colors.black)),
+                                                        border: OutlineInputBorder(
+                                                                           borderRadius:BorderRadius .circular(10.0),
+                                                                           borderSide: BorderSide(
+                                                                               color: notifier.isDark
+                                            ? notifier.geticoncolor
+                                            : Colors.black)),
+                                                                              ),
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  GetAllIpv4(int.parse(form
+                                                          ?.value['resellerid']
+                                                          ?.toString() ??
+                                                      '0'));
+                                                  getIpv4 = null;
+                                                });
+                                              },
                                             ),
                                           ),
-                                        ),
-                                        const SizedBox(height: 10),
-                                         Align(
-                                          alignment: Alignment.topLeft,
-                                          child: Text(
-                                            'IP-V6',
-                                             style: mediumBlackTextStyle.copyWith(color: notifier.getMainText),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 10),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 18.0),
-                                          child: ReactiveDropdownField<int>(
-                                            formControlName: 'ip6mode',
-                                        focusColor: Colors.transparent,
-                                            isExpanded: true,
-                                            items: ipv6.keys
-                                                .map<DropdownMenuItem<int>>(
-                                              (String key) {
-                                                final value = ipv6[key];
-                                                return DropdownMenuItem<int>(
-                                                  value: value,
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            left: 10),
-                                                    child: Text(key),
-                                                  ),
-                                                );
-                                              },
-                                            ).toList(),
-                                            dropdownColor: notifier.getcontiner,
-                                                         style: TextStyle(color: notifier.getMainText),
-                                                                          
-                                                                         
-                                                                           decoration: InputDecoration(
-                                                                             contentPadding:const EdgeInsets.only(left: 15),
-                                                                
-                                                                              labelStyle: mediumGreyTextStyle.copyWith(
-                                            fontSize: 13),
-                                                                               labelText: 'IP-V6-Mode',
-                                                                            enabledBorder: OutlineInputBorder(
-                                  borderRadius:BorderRadius .circular(10.0),
-                                  borderSide: BorderSide(
-                                      color: notifier.isDark
-                                          ? notifier.geticoncolor
-                                          : Colors.black)),
-                                                      border: OutlineInputBorder(
-                                  borderRadius:BorderRadius .circular(10.0),
-                                  borderSide: BorderSide(
-                                      color: notifier.isDark
-                                          ? notifier.geticoncolor
-                                          : Colors.black)),
-                                                                            ),
-                                            onChanged: (value) {
-                                              setState(() {});
-                                            },
-                                          ),
-                                        ),
-                                        const SizedBox(height: 10),
-                                        Visibility(
-                                          visible: form?.value['ip6mode'] ==
-                                              ipv6['Local Static Ipv6'],
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 20.0),
-                                            child: ReactiveTextField<String>(
-                                              validationMessages: {
-                                                'required': (error) =>
-                                                    'Ipv6 required!',
-                                              },
-                                              formControlName: 'ipv6',
-                                              // controller:  blockController,
-                                              
-                                                         style: TextStyle(color: notifier.getMainText),
-                                                                          
-                                                                         
-                                                                           decoration: InputDecoration(
-                                                                             contentPadding:const EdgeInsets.only(left: 15),
-                                                                
-                                                                              labelStyle: mediumGreyTextStyle.copyWith(
-                                            fontSize: 13),
-                                                                               labelText: 'Local Ipv6',
-                                                                            enabledBorder: OutlineInputBorder(
-                                  borderRadius:BorderRadius .circular(10.0),
-                                  borderSide: BorderSide(
-                                      color: notifier.isDark
-                                          ? notifier.geticoncolor
-                                          : Colors.black)),
-                                                      border: OutlineInputBorder(
-                                  borderRadius:BorderRadius .circular(10.0),
-                                  borderSide: BorderSide(
-                                      color: notifier.isDark
-                                          ? notifier.geticoncolor
-                                          : Colors.black)),
-                                                                            ),
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 10),
-                                        Visibility(
-                                          visible: form?.value['ip6mode'] ==
-                                              ipv6['Public Static Ipv6'],
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 20.0),
-                                            child: ReactiveTextField<int>(
-                                              validationMessages: {
-                                                'required': (error) =>
-                                                    'Ipv6 required!',
-                                              },
-                                              formControlName: 'ipv6id',
-                                              // controller:  blockController,
+                                          const SizedBox(height: 10),
+                                          Visibility(
+                                            // visible : SelectedIpMode== 'Local Static Ipv4',
+                                            visible: form?.value['ipmode'] ==
+                                                ipv4['Local Static Ipv4'],
+                                            child: Padding(
+                                              padding: const EdgeInsets.symmetric(
+                                                  horizontal: 20.0),
+                                              child: ReactiveTextField<String>(
+                                                 validationMessages: {
+                                                  'required': (error) =>
+                                                      'Ipv4 required!',
+                                                },
+                                                formControlName: 'ipv4',
                                                
-                                                         style: TextStyle(color: notifier.getMainText),
-                                                                          
-                                                                         
-                                                                           decoration: InputDecoration(
-                                                                             contentPadding:const EdgeInsets.only(left: 15),
-                                                                
-                                                                              labelStyle: mediumGreyTextStyle.copyWith(
-                                            fontSize: 13),
-                                                                               labelText: 'Public Ipv6',
-                                                                            enabledBorder: OutlineInputBorder(
-                                  borderRadius:BorderRadius .circular(10.0),
-                                  borderSide: BorderSide(
-                                      color: notifier.isDark
-                                          ? notifier.geticoncolor
-                                          : Colors.black)),
-                                                      border: OutlineInputBorder(
-                                  borderRadius:BorderRadius .circular(10.0),
-                                  borderSide: BorderSide(
-                                      color: notifier.isDark
-                                          ? notifier.geticoncolor
-                                          : Colors.black)),
-                                                                            ),
+                                                           style: TextStyle(color: notifier.getMainText),
+                                                                            
+                                                                           
+                                                                             decoration: InputDecoration(
+                                                                               contentPadding:const EdgeInsets.only(left: 15),
+                                                                  
+                                                                                labelStyle: mediumGreyTextStyle.copyWith(
+                                              fontSize: 13),
+                                                                                 labelText: 'Local Ipv4',
+                                                                              enabledBorder: OutlineInputBorder(
+                                                                           borderRadius:BorderRadius .circular(10.0),
+                                                                           borderSide: BorderSide(
+                                                                               color: notifier.isDark
+                                            ? notifier.geticoncolor
+                                            : Colors.black)),
+                                                        border: OutlineInputBorder(
+                                                                           borderRadius:BorderRadius .circular(10.0),
+                                                                           borderSide: BorderSide(
+                                                                               color: notifier.isDark
+                                            ? notifier.geticoncolor
+                                            : Colors.black)),
+                                                                              ),
+                                              ),
                                             ),
                                           ),
-                                        ),
+                                          const SizedBox(height: 10),
+                                          Visibility(
+                                            visible: form?.value['ipmode'] ==
+                                                ipv4['Public Static Ipv4'],
+                                            child: Padding(
+                                              padding: const EdgeInsets.symmetric(
+                                                  horizontal: 18.0),
+                                              child: ReactiveDropdownField<int>(
+                                                focusColor: Colors.transparent,
+                                                formControlName: 'ipv4id',
+                                                 validationMessages: {
+                                                  'required': (error) =>
+                                                      'Ipv4 required!',
+                                                },
+                                                isExpanded: true,
+                                                items: getIpv4Opt.map((item) {
+                                                  return DropdownMenuItem<int>(
+                                                    value: item.resellerid,
+                                                    child: Text(item.ipaddr),
+                                                  );
+                                                }).toList(),
+                                                dropdownColor: notifier.getcontiner,
+                                                           style: TextStyle(color: notifier.getMainText),
+                                                                            
+                                                                           
+                                                                             decoration: InputDecoration(
+                                                                               contentPadding:const EdgeInsets.only(left: 15),
+                                                                  
+                                                                                labelStyle: mediumGreyTextStyle.copyWith(
+                                              fontSize: 13),
+                                                                                 labelText: 'Public Ipv4',
+                                                                              enabledBorder: OutlineInputBorder(
+                                                                           borderRadius:BorderRadius .circular(10.0),
+                                                                           borderSide: BorderSide(
+                                                                               color: notifier.isDark
+                                            ? notifier.geticoncolor
+                                            : Colors.black)),
+                                                        border: OutlineInputBorder(
+                                                                           borderRadius:BorderRadius .circular(10.0),
+                                                                           borderSide: BorderSide(
+                                                                               color: notifier.isDark
+                                            ? notifier.geticoncolor
+                                            : Colors.black)),
+                                                                              ),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                           Align(
+                                            alignment: Alignment.topLeft,
+                                            child: Text(
+                                              'IP-V6',
+                                               style: mediumBlackTextStyle.copyWith(color: notifier.getMainText),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 18.0),
+                                            child: ReactiveDropdownField<int>(
+                                              formControlName: 'ip6mode',
+                                          focusColor: Colors.transparent,
+                                              isExpanded: true,
+                                              items: ipv6.keys
+                                                  .map<DropdownMenuItem<int>>(
+                                                (String key) {
+                                                  final value = ipv6[key];
+                                                  return DropdownMenuItem<int>(
+                                                    value: value,
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              left: 10),
+                                                      child: Text(key),
+                                                    ),
+                                                  );
+                                                },
+                                              ).toList(),
+                                              dropdownColor: notifier.getcontiner,
+                                                           style: TextStyle(color: notifier.getMainText),
+                                                                            
+                                                                           
+                                                                             decoration: InputDecoration(
+                                                                               contentPadding:const EdgeInsets.only(left: 15),
+                                                                  
+                                                                                labelStyle: mediumGreyTextStyle.copyWith(
+                                              fontSize: 13),
+                                                                                 labelText: 'IP-V6-Mode',
+                                                                              enabledBorder: OutlineInputBorder(
+                                                                           borderRadius:BorderRadius .circular(10.0),
+                                                                           borderSide: BorderSide(
+                                                                               color: notifier.isDark
+                                            ? notifier.geticoncolor
+                                            : Colors.black)),
+                                                        border: OutlineInputBorder(
+                                                                           borderRadius:BorderRadius .circular(10.0),
+                                                                           borderSide: BorderSide(
+                                                                               color: notifier.isDark
+                                            ? notifier.geticoncolor
+                                            : Colors.black)),
+                                                                              ),
+                                              onChanged: (value) {
+                                                setState(() {});
+                                              },
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          Visibility(
+                                            visible: form?.value['ip6mode'] ==
+                                                ipv6['Local Static Ipv6'],
+                                            child: Padding(
+                                              padding: const EdgeInsets.symmetric(
+                                                  horizontal: 20.0),
+                                              child: ReactiveTextField<String>(
+                                                validationMessages: {
+                                                  'required': (error) =>
+                                                      'Ipv6 required!',
+                                                },
+                                                formControlName: 'ipv6',
+                                                // controller:  blockController,
+                                                
+                                                           style: TextStyle(color: notifier.getMainText),
+                                                                            
+                                                                           
+                                                                             decoration: InputDecoration(
+                                                                               contentPadding:const EdgeInsets.only(left: 15),
+                                                                  
+                                                                                labelStyle: mediumGreyTextStyle.copyWith(
+                                              fontSize: 13),
+                                                                                 labelText: 'Local Ipv6',
+                                                                              enabledBorder: OutlineInputBorder(
+                                                                           borderRadius:BorderRadius .circular(10.0),
+                                                                           borderSide: BorderSide(
+                                                                               color: notifier.isDark
+                                            ? notifier.geticoncolor
+                                            : Colors.black)),
+                                                        border: OutlineInputBorder(
+                                                                           borderRadius:BorderRadius .circular(10.0),
+                                                                           borderSide: BorderSide(
+                                                                               color: notifier.isDark
+                                            ? notifier.geticoncolor
+                                            : Colors.black)),
+                                                                              ),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          Visibility(
+                                            visible: form?.value['ip6mode'] ==
+                                                ipv6['Public Static Ipv6'],
+                                            child: Padding(
+                                              padding: const EdgeInsets.symmetric(
+                                                  horizontal: 20.0),
+                                              child: ReactiveTextField<int>(
+                                                validationMessages: {
+                                                  'required': (error) =>
+                                                      'Ipv6 required!',
+                                                },
+                                                formControlName: 'ipv6id',
+                                                // controller:  blockController,
+                                                 
+                                                           style: TextStyle(color: notifier.getMainText),
+                                                                            
+                                                                           
+                                                                             decoration: InputDecoration(
+                                                                               contentPadding:const EdgeInsets.only(left: 15),
+                                                                  
+                                                                                labelStyle: mediumGreyTextStyle.copyWith(
+                                              fontSize: 13),
+                                                                                 labelText: 'Public Ipv6',
+                                                                              enabledBorder: OutlineInputBorder(
+                                                                           borderRadius:BorderRadius .circular(10.0),
+                                                                           borderSide: BorderSide(
+                                                                               color: notifier.isDark
+                                            ? notifier.geticoncolor
+                                            : Colors.black)),
+                                                        border: OutlineInputBorder(
+                                                                           borderRadius:BorderRadius .circular(10.0),
+                                                                           borderSide: BorderSide(
+                                                                               color: notifier.isDark
+                                            ? notifier.geticoncolor
+                                            : Colors.black)),
+                                                                              ),
+                                              ),
+                                            ),
+                                          ),
+                                           ],
+                                         ),
+                                       ),
                                         const SizedBox(height: 20),
                                       ],
                                     ),

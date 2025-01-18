@@ -262,3 +262,5 @@ Future<SessionRptResp> sessionRpt(int Id,int index ,int limit,bool isDayReport,{
   final resp = await http.get('subscriber/$Id/sessionRpt/?index=$index&limit=$limit&isDayReport=$isDayReport&starttime=$startDate&endtime=$endDate');
   return SessionRptResp.toJson((resp));
 }
+
+

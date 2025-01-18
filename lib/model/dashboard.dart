@@ -7,6 +7,7 @@ class ExpirySubscriber {
   final String packname;
   final String emailpri;
   final String expiration;
+  final int usertype;
 
   ExpirySubscriber(
       {required this.uid,
@@ -16,17 +17,20 @@ class ExpirySubscriber {
       required this.mobile,
       required this.emailpri,
       required this.expiration,
-      required this.packname});
+      required this.packname,
+      required this.usertype
+      });
   factory ExpirySubscriber.toJson(Map<dynamic, dynamic> data) {
     return ExpirySubscriber(
-        profileid: data['profileid'],
-        fullname: data['fullname'],
-        mobile: data['mobile'],
-        uid: data['uid'],
-        packid: data['packid'],
-        emailpri: data['emailpri'],
-        expiration: data['expiration'],
-        packname: data['packname']);
+        profileid: data['profileid']??"",
+        fullname: data['fullname']??"",
+        mobile: data['mobile']??"",
+        uid: data['uid']??0,
+        packid: data['packid']??0,
+        emailpri: data['emailpri']??"",
+        expiration: data['expiration']??"",
+        packname: data['packname']??"",
+      usertype: data['usertype']??0);
   }
 }
 

@@ -44,11 +44,14 @@ class _ListFranchise extends State<ListFranchise> with SingleTickerProviderState
       listResller = resp.error == true ? [] : resp.data ?? [];
     });
   }
-
+ bool isIspAdmin = false;
+ 
+  
   int id=0;
   getIdLevelID() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     id = pref.getInt('id') as int;
+       isIspAdmin = pref.getBool('isIspAdmin') as bool;
   }
 
   @override
@@ -82,41 +85,56 @@ class _ListFranchise extends State<ListFranchise> with SingleTickerProviderState
         width: MediaQuery.of(context).size.width,
         child: LayoutBuilder(
           builder: (context, constraints) {
-            return SingleChildScrollView(
-              child: Column(
-                children: [
-                  
-                  const SizedBoxx(),
-                  const ComunTitle(title: 'List Franchise', path: "Franchise"),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 0, right: padding, left: padding, bottom: 0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color:notifier.getcontiner,
-                        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
+            return Stack(
+              children: [
+                SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      
+                      const SizedBoxx(),
+                      const ComunTitle(title: 'List Franchise', path: "Franchise"),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 0, right: padding, left: padding, bottom: 0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color:notifier.getcontiner,
+                            borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
+                          ),
+                          child: Column(
                             children: [
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(padding),
-                                  child: _buildProfile1(isphon: true),
-                                ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(padding),
+                                      child: _buildProfile1(isphon: true),
+                                    ),
+                                  ),
+                                ],
                               ),
+                              
                             ],
                           ),
-                          
-                        ],
+                        ),
                       ),
-                    ),
+                      _buildPaginationControls(),
+                      const SizedBoxx(),
+                      
+                    ],
                   ),
-                  _buildPaginationControls(),
-                  const SizedBoxx(),
-                  
-                ],
-              ),
+                ),
+                 if (isLoading) 
+                           Positioned.fill(
+                      child: Container(
+                        color: Colors.black.withOpacity(0.5),
+                        child: const Center(
+                          child: CircularProgressIndicator(
+                          
+                          ),
+                        ),
+                      ),
+                    ), 
+              ],
             );
           },
         ),
@@ -146,6 +164,7 @@ class _ListFranchise extends State<ListFranchise> with SingleTickerProviderState
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
+              if(isIspAdmin==false)
                 IconButton(onPressed: () async {
                       navigateToViewReseller(
                           id, context);
@@ -194,7 +213,7 @@ class _ListFranchise extends State<ListFranchise> with SingleTickerProviderState
                                   "assets/settings.svg",
                                   height: 18,
                                   width: 18,
-                                  color: appGreyColor,
+                                  color: notifier.geticoncolor,
                                 ),
                                 onTap: (){
                                    
@@ -203,13 +222,13 @@ class _ListFranchise extends State<ListFranchise> with SingleTickerProviderState
                                                     reseller.id, context);
                                 },
                               ), ),
-                                   _buildCommonListTile(title: "NAME", subtitle:': ${reseller.fullName}}'),
+                                   _buildCommonListTile(title: "NAME", subtitle:': ${reseller.fullName}'),
                                                                   
-                                   _buildCommonListTile(title: "MOBILE", subtitle:': ${reseller.mobile}}'),
+                                   _buildCommonListTile(title: "MOBILE", subtitle:': ${reseller.mobile}'),
                                                                    
-                                  _buildCommonListTile(title: "PROFILE ID", subtitle:': ${reseller.profileId}}'),
+                                  _buildCommonListTile(title: "PROFILE ID", subtitle:': ${reseller.profileId}'),
                                   
-                                  _buildCommonListTile(title: "COMPANY", subtitle:': ${reseller.company}}'),
+                                  _buildCommonListTile(title: "COMPANY", subtitle:': ${reseller.company}'),
                                  
                                 ],
                               ),
@@ -276,8 +295,9 @@ Widget _buildCommonListTile({
         Expanded(
           child: Text(
             subtitle,
-             style: mediumGreyTextStyle,
-          
+             style:  mediumBlackTextStyle.copyWith(
+              color: notifier.getMainText,
+            ),
           ),
         ),
       ],

@@ -1,57 +1,67 @@
 
 class HotelDet {
   final int id;
-  final int resellerid;
-  final String conn;
-  final String profileid;
-  // final int packid;
-  // final String packmode;
-  // final String packname;
+  final int resellerId;
+  final String profileId;
   final String expiration;
-  // final int dllimit;
-  // final int ullimit;
-  // final int totallimit;
-  // final int timelimit;
-  final int simultaneoususe;
-  final String authpsw;
-  final String acctstatus;
-  // final int soc;
+  final String packId;
+  final int dlLimit;
+  final int ulLimit;
+  final int totalLimit;
+  final int timeLimit;
+  final int simultaneousUse;
+  final String authPassword;
+  final String packMode;
+  final String packName;
+  final String conn;
+  final int soc;
+  final String acctStatus;
+  final String username;
+  final String authReject;
+  final String authRejectDate;
+
   HotelDet( {
-    required this.id,
-    required this.resellerid,
-    required this.conn,
-    required this.profileid,
-    // required this.packid,
-    // required this.packmode,
-    // required this.packname,
+      required this.id,
+    required this.resellerId,
+    required this.profileId,
     required this.expiration,
-    // required this.dllimit,
-    // required this.ullimit,
-    // required this.totallimit,
-    // required this.timelimit,
-    required this.simultaneoususe,
-    required this.acctstatus,
-    required this.authpsw,
-    // required this.soc,
+    required this.packId,
+    required this.dlLimit,
+    required this.ulLimit,
+    required this.totalLimit,
+    required this.timeLimit,
+    required this.simultaneousUse,
+    required this.authPassword,
+    required this.packMode,
+    required this.packName,
+    required this.conn,
+    required this.soc,
+    required this.acctStatus,
+    required this.username,
+   required this.authReject,
+   required this.authRejectDate,
   });
-  factory HotelDet.toJson(Map<dynamic, dynamic> data) {
+  factory HotelDet.toJson(Map<dynamic, dynamic> json) {
     return HotelDet(
-      id: data['id'],
-      resellerid: data['resellerid'],
-      conn: data['conn'],
-      profileid: data['profileid'] ?? "",
-      // packid: data['packid'],
-      // packmode: data['packmode'],
-      // packname: data['packname'],
-      expiration: data['expiration'],
-      // dllimit: data['dllimit'],
-      // ullimit: data['ullimit'],
-      // totallimit: data['totallimit'],
-      // timelimit: data['timelimit'],
-      simultaneoususe: data['simultaneoususe'],
-      // soc: data['soc'],
-      acctstatus: data['acctstatus'],
-      authpsw: data['authpsw'],
+       id: json['id'] ?? 0,
+    resellerId: json['resellerid'] ?? 0,
+    profileId: json['profileid'] ?? "",
+    expiration: json['expiration'] ?? "", // Default to current date-time
+    packId: json['packid'] ?? "",
+    dlLimit: json['dllimit'] ?? 0,
+    ulLimit: json['uplimit'] ?? 0,
+    totalLimit: json['totallimit'] ?? 0,
+    timeLimit: json['timelimit'] ?? 0,
+    simultaneousUse: json['simultaneoususe'] ?? 0,
+    authPassword: json['authpsw'] ?? "",
+    packMode: json['packmode'] ?? "",
+    packName: json['packname'] ?? "",
+    conn: json['conn'] ?? "",
+    soc: json['soc'] ?? 0,
+    acctStatus: json['acctstatus'] ?? "",
+    username: json['username'] ?? "",
+    authReject: json['authreject'] ?? "",
+    authRejectDate: json['authreject_dt'] ?? "",
     );
   }
 }
@@ -71,5 +81,54 @@ class HotelResp {
             ? List<HotelDet>.from(
             data['data'].map((e) => HotelDet.toJson(e)))
             : []);
+  }
+}
+
+
+class HotelSummary {
+    
+  final int totalusers;
+  final int deactive;
+  final int active;
+  final int mainonline;
+  final int offline;
+  final int duplicate_session;
+ 
+
+  HotelSummary (
+      {required this.totalusers,
+      required this.deactive,
+      required this.active,
+    
+      required this.mainonline,
+      required this.offline,
+      required this.duplicate_session,
+     });
+  factory HotelSummary .toJson(Map<dynamic, dynamic> data) {
+    return HotelSummary (
+        totalusers: data['totalusers'] ?? '0',
+        deactive: data['deactive'] ?? '0',
+        active: data['active'] ?? '0',
+      
+        mainonline: data['mainonline'] ?? '0',
+        offline: data['offline'] ?? '0',
+        duplicate_session: data['duplicate_session'] ?? '0',
+     
+        );
+  }
+}
+class HotelSummaryResp {
+  final String msg;
+  final bool error;
+  final HotelSummary ? summary;
+  HotelSummaryResp({required this.error, required this.msg, this.summary});
+
+  factory HotelSummaryResp.toJson(Map<dynamic, dynamic> data) {
+    return HotelSummaryResp(
+        error: data['error'],
+        msg: data['msg'],
+        summary: data['summary'] != null
+            ? HotelSummary .toJson(data['summary'])
+            : null);
   }
 }

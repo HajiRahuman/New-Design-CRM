@@ -141,7 +141,7 @@ class MyAppState extends State<UpdateAccountType> {
                           ),
                           child: Text(
                             widget.acctstatus ?? 'N/A',
-                           style: mediumBlackTextStyle.copyWith(color: notifier.getMainText),
+                           style: mediumBlackTextStyle.copyWith(color:Colors.white),
                             textAlign: TextAlign.center,
                           ),
                           onPressed: () {},
@@ -158,7 +158,7 @@ class MyAppState extends State<UpdateAccountType> {
                           ),
                           child: Text(
                             widget.conn ?? 'N/A',
-                          style: mediumBlackTextStyle.copyWith(color: notifier.getMainText),
+                          style: mediumBlackTextStyle.copyWith(color:Colors.white),
                             textAlign: TextAlign.center,
                           ),
                           onPressed: () {},

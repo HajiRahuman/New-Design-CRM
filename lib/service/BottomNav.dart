@@ -12,7 +12,7 @@ Future<SearchResp> search({int index = 0, int userType = 0}) async {
 }
 
 
-Future<SearchPubIpResp> searchPublicIp({int index = 0, int ipmode=2, int userType = 0, required int usertype, required String like, required int fieldType}) async {
+Future<SearchPubIpResp> searchPublicIp({int index = 0, int ipmode=2, int userType = 0,}) async {
   final response = await http.get('subscriber/publicip?index=$index&ipmode=$ipmode&usertype=$userType');
   return SearchPubIpResp.toJson(response);
 }

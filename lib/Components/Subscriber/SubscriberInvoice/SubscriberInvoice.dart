@@ -1,5 +1,7 @@
 import 'dart:convert';
 // import 'dart:ui';
+import 'package:cherry_toast/cherry_toast.dart';
+import 'package:cherry_toast/resources/arrays.dart';
 import 'package:crm/AppStaticData/AppStaticData.dart';
 import 'package:crm/AppStaticData/toaster.dart';
 import 'package:crm/Providers/providercolors.dart';
@@ -622,13 +624,13 @@ pw.Padding(
                lineSpacing: 4, 
             ),
           ),
-          pw.TextSpan(
-                  text: 'Companys Bank Details:\n',
-                 style: pw.TextStyle(font: pw.Font.timesBold(),
-               lineSpacing: 4, 
+          // pw.TextSpan(
+          //         text: 'Companys Bank Details:\n',
+          //        style: pw.TextStyle(font: pw.Font.timesBold(),
+          //      lineSpacing: 4, 
                 
-                ),
-                ),
+          //       ),
+          //       ),
                  pw.TextSpan(
                   text: 'Account name : Grey Sky Internet Services Pvt Ltd\n',
                  style: pw.TextStyle(font: pw.Font.timesItalic(),
@@ -705,9 +707,13 @@ Future<void> _checkAndSavePDF(int invid) async {
     OpenFile.open(filePath);
   } else {
     // If permission is denied, show a message (optional)
-    ScaffoldMessenger.of(context).showSnackBar(
-  const  SnackBar(content: Text('Permission to access storage is required to save and open the PDF.')),
-    );
+     CherryToast.error(
+        enableIconAnimation: false,
+        animationType: AnimationType.fromRight,
+        animationDuration: const Duration(milliseconds: 1000),
+        autoDismiss: true,
+        title: const Text('Permission denied.'),
+      ).show(context);
   }
 }
 

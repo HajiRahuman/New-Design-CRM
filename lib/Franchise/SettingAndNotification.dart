@@ -36,7 +36,7 @@ Future<void> fetchData() async {
     setState(() {
       isLoading = true; // Set loading to true when fetching data
     });
-  final resp = await resellerSrv.fetchResellerDetail(id);
+  final resp = await resellerSrv.fetchResellerDetail(isIspAdmin?widget.resellerId!:id);
   if (resp.error) {
     alert(context, resp.msg);
   }
@@ -59,11 +59,11 @@ Future<void> fetchData() async {
     isIspAdmin = pref.getBool('isIspAdmin') as bool;
     id = pref.getInt('id') as int;
     isSubscriber = pref.getBool('isSubscriber') as bool;
-    print('LevelId----${levelid}');
-    if (isSubscriber == false) {
+    
+    // if (isSubscriber == false) {
       fetchData();
     
-    }
+  
   
   }
   @override

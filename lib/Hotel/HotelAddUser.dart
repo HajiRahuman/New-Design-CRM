@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:crm/AppStaticData/AppStaticData.dart';
 import 'package:crm/AppStaticData/toaster.dart';
 import 'package:crm/Providers/providercolors.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -12,6 +13,7 @@ import 'package:flutter/widgets.dart';
 
 
 import 'package:crm/model/subscriber.dart';
+import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:reactive_forms/reactive_forms.dart';
@@ -25,6 +27,7 @@ import '../../service/crypto.dart';
 
 
 
+// ignore: must_be_immutable
 class HotelAddUser extends StatefulWidget {
   SubscriberFullDet? subscriberDet;
   HotelDet? hotel;
@@ -38,7 +41,6 @@ class HotelAddUser extends StatefulWidget {
 class MyAppState extends State<HotelAddUser> {
   late  FormGroup form;
 
-  final GlobalKey<ScaffoldState> _key = GlobalKey();
   final GlobalKey<MyAppState> packageAndIpKey = GlobalKey<MyAppState>();
   TextEditingController propswController  = TextEditingController();
   TextEditingController usernameController  = TextEditingController();
@@ -62,20 +64,25 @@ class MyAppState extends State<HotelAddUser> {
     super.initState();
     ResellerList();
    createForm();
+   // ignore: unrelated_type_equality_checks
+   if(widget.hotel!=null) {
+    getReseller(widget.hotel!.resellerId);
+     GetPack(widget.hotel!.packId);
+   }
   }
   createForm(){
     form = FormGroup({
       'id': FormControl<int>(value:widget.hotel != null ? widget.hotel?.id : null , validators: [Validators.required]),
-      'resellerid': FormControl<int>(value:widget.hotel != null ? widget.hotel?.resellerid : null ,validators: [Validators.required]),
-      'profileid': FormControl<String>(value:widget.hotel != null ? widget.hotel?.profileid : '' ,validators: [Validators.required]),
-      'packid': FormControl<int>(validators: [Validators.required]),
-      'dllimit': FormControl<String>(validators: [Validators.required]),
-      'uplimit': FormControl<String>(validators: [Validators.required]),
-      'totallimit': FormControl<String>(validators: [Validators.required]),
-      'timelimit': FormControl<String>(validators: [Validators.required]),
-      'simultaneoususe': FormControl<int>(value:widget.hotel != null ? widget.hotel?.simultaneoususe : null ,validators: [Validators.required]),
-      'password': FormControl<String>(value:widget.hotel != null ? widget.hotel?.authpsw: '' ,validators: [Validators.required]),
-      'expiration': FormControl<String>(value:widget.hotel != null ? widget.hotel?.expiration : '' ,validators: [Validators.requiredTrue]),
+      'resellerid': FormControl<int>(value:widget.hotel != null ? widget.hotel?.resellerId : null ,validators: [Validators.required]),
+      'profileid': FormControl<String>(value:widget.hotel != null ? widget.hotel?.profileId : '' ,validators: [Validators.required]),
+      'packid': FormControl<int>( ),
+      'dllimit': FormControl<int>(value:widget.hotel != null ? widget.hotel?.dlLimit : 0 ),
+      'uplimit': FormControl<int>(value:widget.hotel != null ? widget.hotel?.ulLimit : 0 ),
+      'totallimit': FormControl<int>(value:widget.hotel != null ? widget.hotel?.totalLimit : 0 ),
+      'timelimit': FormControl<int>(value:widget.hotel != null ? widget.hotel?.timeLimit: 0 ),
+      'simultaneoususe': FormControl<int>(value:widget.hotel != null ? widget.hotel?.simultaneousUse : null ,validators: [Validators.required]),
+      'password': FormControl<String>(value:widget.hotel != null ? widget.hotel?.authPassword: '' ,validators: [Validators.required]),
+      'expiration': FormControl<String>(value:widget.hotel != null ? widget.hotel?.expiration: '' ,validators: [Validators.required]),
     });
   }
 
@@ -106,11 +113,11 @@ class MyAppState extends State<HotelAddUser> {
 
   GetPackDet? getPackOpt = null;
   Future<void> GetPack(packid) async {
-    GetPackResp resp = await addsubscriberSrv.getPack(packid);
+    GetPackResp resp = await HotelUserSrv.getPackHotel(packid);
     setState(() {
       getPackOpt = resp.error == true ? null : resp.data;
     });
-
+ updateValidators();
   }
 
 
@@ -132,10 +139,53 @@ class MyAppState extends State<HotelAddUser> {
   }
 
 
+void updateValidators() {
+  // 'dllimit' validator
+  final dlLimitControl = form.control('dllimit');
+  if ((getPackOpt?.packmode ?? 0) >= 3 &&
+           ((getPackOpt?.fupmode ?? -1) == 0 || (getPackOpt?.fupmode ?? -1) == 2)) {
+    dlLimitControl.setValidators([Validators.required]);
+  } else {
+    dlLimitControl.setValidators([]);
+  }
+  dlLimitControl.updateValueAndValidity();
+
+  // 'uplimit' validator
+  final upLimitControl = form.control('uplimit');
+  if ((getPackOpt?.packmode ?? 0) >= 3 &&
+         ((getPackOpt?.fupmode ?? -1) == 1 || (getPackOpt?.fupmode ?? -1) == 2)) {
+    upLimitControl.setValidators([Validators.required]);
+  } else {
+    upLimitControl.setValidators([]);
+  }
+  upLimitControl.updateValueAndValidity();  // formControlName: 'totallimit',
+// 'uplimit' validator
+  final totalLimitControl = form.control('totallimit');
+  if ( (getPackOpt?.packmode ?? 0) >= 3 &&
+         (getPackOpt?.fupmode ?? -1) == 3) {
+    totalLimitControl .setValidators([Validators.required]);
+  } else {
+    totalLimitControl .setValidators([]);
+  }
+  totalLimitControl .updateValueAndValidity();
+
+  // 'timelimit' validator
+  final timeLimitControl = form.control('timelimit');
+  if ((getPackOpt?.packmode == 1 ||getPackOpt?.packmode == 4)) {
+    timeLimitControl.setValidators([Validators.required]);
+  } else {
+    timeLimitControl.setValidators([]);
+  }
+  timeLimitControl.updateValueAndValidity();
+
+  
+  // 'ipv6' validator
+ 
+}
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double screenHight = MediaQuery.of(context).size.height;
+    // double screenHight = MediaQuery.of(context).size.height;
      final notifier = Provider.of<ColorNotifire>(context);
     return  Scaffold(
        backgroundColor:notifier.getbgcolor,
@@ -157,7 +207,7 @@ class MyAppState extends State<HotelAddUser> {
                                          style: TextStyle(
                                     color: notifier.getMainText,
                                     fontWeight: FontWeight.w700,
-                                      fontSize: screenWidth * 0.02,),
+                                      fontSize: screenWidth * 0.04,),
                                         
                                       ),
                                     CircleAvatar(
@@ -182,8 +232,11 @@ class MyAppState extends State<HotelAddUser> {
                             const SizedBox(height: 20),
                             Padding(padding: const EdgeInsets.symmetric(horizontal: 20),
                               child: ReactiveDropdownField<int>(
+                                focusColor: Colors.transparent,
                                 formControlName: 'resellerid',
-                            
+                                                                        validationMessages: {
+                                              'required': (error) => 'Reseller Required!',
+                                            },
                                 isExpanded: true,
                                 // controller: resellerDropdownController,
                                 onChanged: (newValue) {
@@ -197,7 +250,7 @@ class MyAppState extends State<HotelAddUser> {
                                     .map((item) {
                                   return DropdownMenuItem<int>(
                                     value: item.id,
-                                    child: Text(item.company),
+                                    child: Text(item.profileid),
                                   );
                                 }).toList(),
                                 dropdownColor: notifier.getcontiner,
@@ -230,7 +283,7 @@ class MyAppState extends State<HotelAddUser> {
                                 child: Text('Individual',  style: TextStyle(
                                     color: notifier.getMainText,
                                     fontWeight: FontWeight.w700,
-                                      fontSize: screenWidth * 0.02,),
+                                      fontSize: screenWidth * 0.04,),
                                         
                                       )),
                             const SizedBox(height: 15),
@@ -309,7 +362,7 @@ class MyAppState extends State<HotelAddUser> {
                                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                                     child:ReactiveTextField<String>(
                                       validationMessages: {
-                                        'required': (error) => 'Expiration User is Required!',
+                                        'required': (error) => 'Expiration Required!',
                                       },
                                       formControlName: 'expiration',
                                       controller: dateController,
@@ -320,7 +373,9 @@ class MyAppState extends State<HotelAddUser> {
                                                                          decoration: InputDecoration(
                                                                            contentPadding:const EdgeInsets.only(left: 15),
                                                               
-                                                                           
+                                                                           labelStyle: mediumGreyTextStyle.copyWith(
+                                          fontSize: 13),
+                                                                          labelText: 'Expiry',
                                                                             enabledBorder: OutlineInputBorder(
                                 borderRadius:BorderRadius .circular(10.0),
                                 borderSide: BorderSide(
@@ -347,6 +402,8 @@ class MyAppState extends State<HotelAddUser> {
                             const SizedBox(height: 10),
                             Padding(padding: const EdgeInsets.symmetric(horizontal: 20),
                               child: ReactiveDropdownField<int>(
+                                
+                                focusColor: Colors.transparent,
                                 formControlName: 'packid',
                                
                                 isExpanded: true,
@@ -389,7 +446,352 @@ class MyAppState extends State<HotelAddUser> {
                               ),
                             ),
                             const SizedBox(height: 10),
-                                  Padding(
+                               
+                            Visibility(
+                                           visible: (getPackOpt?.packmode ?? 0) >= 3 &&
+           ((getPackOpt?.fupmode ?? -1) == 0 || (getPackOpt?.fupmode ?? -1) == 2),
+                                          // visible:
+                                          //  getPackOpt?.packmode == 3 &&
+                                          //     (getPackOpt?.fupmode == 0 ||
+                                          //         getPackOpt?.fupmode == 2),
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 20.0),
+                                            child: ReactiveTextField(
+                                                validationMessages: {
+                                                   'required': (error) => 'Download Limit required..!',
+                                                   },
+                                              formControlName: 'dllimit',
+                                              controller: downLimitController,
+                                              inputFormatters: [
+                                                FilteringTextInputFormatter.allow(
+                                                    RegExp(r'[0-9]')),
+                                              ],
+                                           
+                                                         style: TextStyle(color: notifier.getMainText),
+                                                                          
+                                                                         
+                                                                           decoration: InputDecoration(
+                                                                             contentPadding:const EdgeInsets.only(left: 15),
+                                                                
+                                                                              labelStyle: mediumGreyTextStyle.copyWith(
+                                            fontSize: 13),
+                                                                               labelText: 'Download Limit(in Mbps)',
+                                                                            enabledBorder: OutlineInputBorder(
+                                  borderRadius:BorderRadius .circular(10.0),
+                                  borderSide: BorderSide(
+                                      color: notifier.isDark
+                                          ? notifier.geticoncolor
+                                          : Colors.black)),
+                                                      border: OutlineInputBorder(
+                                  borderRadius:BorderRadius .circular(10.0),
+                                  borderSide: BorderSide(
+                                      color: notifier.isDark
+                                          ? notifier.geticoncolor
+                                          : Colors.black)),
+                               suffixIcon: Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    GestureDetector(
+                                                      onTap: () {
+                                                        setState(() {
+                                                          selectedDownMbps++;
+                                                          downLimitController
+                                                                  .text =
+                                                              selectedDownMbps
+                                                                  .toString();
+                                                        });
+                                                      },
+                                                      child: Icon(
+                                                        Icons.arrow_drop_up,
+                                                          color: notifier.getMainText
+                                                      ),
+                                                    ),
+                                                    GestureDetector(
+                                                      onTap: () {
+                                                        if (selectedDownMbps >
+                                                            0) {
+                                                          setState(() {
+                                                            selectedDownMbps--;
+                                                            downLimitController
+                                                                    .text =
+                                                                selectedDownMbps
+                                                                    .toString();
+                                                          });
+                                                        }
+                                                      },
+                                                      child:  Icon(
+                                                        Icons.arrow_drop_down,
+                                                        color: notifier.getMainText
+                                                      ),
+                                                    ),
+                                                  ]
+                                                                            )
+                                                                           )
+                                              
+                                            ),
+                                          ),
+                                        ),
+                                        Visibility(
+                                           visible: (getPackOpt?.packmode ?? 0) >= 3 &&
+           ((getPackOpt?.fupmode ?? -1) == 0 || (getPackOpt?.fupmode ?? -1) == 2),
+                                          child: const SizedBox(height: 10)),
+                                        Visibility(
+                                          visible: (getPackOpt?.packmode ?? 0) >= 3 &&
+         ((getPackOpt?.fupmode ?? -1) == 1 || (getPackOpt?.fupmode ?? -1) == 2),
+
+                            //               visible:
+                            //                 getPackOpt!.packmode >= 3 &&
+                            // (getPackOpt!.fupmode == 1 || getPackOpt!.fupmode == 2),
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 20.0),
+                                            child: ReactiveTextField(
+                                             validationMessages: {
+                                                   'required': (error) => 'Upload Limit required..!',
+                                                   },
+                                              formControlName: 'uplimit',
+                                              controller: upLimitController,
+                                              inputFormatters: [
+                                                FilteringTextInputFormatter.allow(
+                                                    RegExp(r'[0-9]')),
+                                              ],
+                                               style: TextStyle(color: notifier.getMainText),
+                                                                          
+                                                                         
+                                                                           decoration: InputDecoration(
+                                                                             contentPadding:const EdgeInsets.only(left: 15),
+                                                                
+                                                                              labelStyle: mediumGreyTextStyle.copyWith(
+                                            fontSize: 13),
+                                                                               labelText:'Upload Limit(in Mbps)',
+                                                                            enabledBorder: OutlineInputBorder(
+                                  borderRadius:BorderRadius .circular(10.0),
+                                  borderSide: BorderSide(
+                                      color: notifier.isDark
+                                          ? notifier.geticoncolor
+                                          : Colors.black)),
+                                                      border: OutlineInputBorder(
+                                  borderRadius:BorderRadius .circular(10.0),
+                                  borderSide: BorderSide(
+                                      color: notifier.isDark
+                                          ? notifier.geticoncolor
+                                          : Colors.black)),
+                                 suffixIcon: Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    GestureDetector(
+                                                      onTap: () {
+                                                        setState(() {
+                                                          selectedUpMbps++;
+                                                          upLimitController.text =
+                                                              selectedUpMbps
+                                                                  .toString();
+                                                        });
+                                                      },
+                                                      child:  Icon(
+                                                        Icons.arrow_drop_up,
+                                                          color: notifier.getMainText
+                                                      ),
+                                                    ),
+                                                    GestureDetector(
+                                                      onTap: () {
+                                                        if (selectedUpMbps > 0) {
+                                                          setState(() {
+                                                            selectedUpMbps--;
+                                                            upLimitController
+                                                                    .text =
+                                                                selectedUpMbps
+                                                                    .toString();
+                                                          });
+                                                        }
+                                                      },
+                                                      child:  Icon(
+                                                        Icons.arrow_drop_down,
+                                                           color: notifier.getMainText
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                                           )
+                                            ),
+                                          ),
+                                        ),
+                                        Visibility(
+                                             visible: (getPackOpt?.packmode ?? 0) >= 3 &&
+         ((getPackOpt?.fupmode ?? -1) == 1 || (getPackOpt?.fupmode ?? -1) == 2),
+
+                                          child: const SizedBox(height: 10)),
+                                        Visibility(
+                                         
+visible: (getPackOpt?.packmode ?? 0) >= 3 &&
+         (getPackOpt?.fupmode ?? -1) == 3,
+
+                                          // visible:getPackOpt!.packmode >= 3 &&getPackOpt!.fupmode == 3,
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 20.0),
+                                            child: ReactiveTextField(
+                                                   validationMessages: {
+                                                   'required': (error) => 'Total Limit required..!',
+                                                   },
+                                              inputFormatters: [
+                                                FilteringTextInputFormatter.allow(
+                                                    RegExp(r'[0-9]')),
+                                              ],
+                                              formControlName: 'totallimit',
+                                              controller: totLimitController,
+                                               style: TextStyle(color: notifier.getMainText),
+                                                                          
+                                                                         
+                                                                           decoration: InputDecoration(
+                                                                             contentPadding:const EdgeInsets.only(left: 15),
+                                                                
+                                                                              labelStyle: mediumGreyTextStyle.copyWith(
+                                            fontSize: 13),
+                                                                               labelText:'Total Limit(in Mbps)',
+                                                                            enabledBorder: OutlineInputBorder(
+                                  borderRadius:BorderRadius .circular(10.0),
+                                  borderSide: BorderSide(
+                                      color: notifier.isDark
+                                          ? notifier.geticoncolor
+                                          : Colors.black)),
+                                                      border: OutlineInputBorder(
+                                  borderRadius:BorderRadius .circular(10.0),
+                                  borderSide: BorderSide(
+                                      color: notifier.isDark
+                                          ? notifier.geticoncolor
+                                          : Colors.black)),
+                                 suffixIcon: Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    GestureDetector(
+                                                      onTap: () {
+                                                        setState(() {
+                                                          selectedTotMbps++;
+                                                          totLimitController
+                                                                  .text =
+                                                              selectedTotMbps
+                                                                  .toString();
+                                                        });
+                                                      },
+                                                      child:  Icon(
+                                                        Icons.arrow_drop_up,
+                                                           color: notifier.getMainText,
+                                                      ),
+                                                    ),
+                                                    GestureDetector(
+                                                      onTap: () {
+                                                        if (selectedUpMbps > 0) {
+                                                          setState(() {
+                                                            selectedTotMbps--;
+                                                            totLimitController
+                                                                    .text =
+                                                                selectedTotMbps
+                                                                    .toString();
+                                                          });
+                                                        }
+                                                      },
+                                                      child:  Icon(
+                                                        Icons.arrow_drop_down,
+                                                          color: notifier.getMainText
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                                           )
+                                              
+                                            ),
+                                          ),
+                                        ),
+                                        // timelimit
+                                        Visibility(
+                                          visible: (getPackOpt?.packmode ?? 0) >= 3 &&
+         (getPackOpt?.fupmode ?? -1) == 3,
+
+                                          child: const SizedBox(height: 10)),
+                                        Visibility(
+                                          visible: (getPackOpt?.packmode == 1 ||getPackOpt?.packmode == 4),
+                                             
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 20.0),
+                                            child: ReactiveTextField(
+                                                 validationMessages: {
+                                                   'required': (error) => 'Online time required..!',
+                                                   },
+                                              
+                                              inputFormatters: [
+                                                FilteringTextInputFormatter.allow(
+                                                    RegExp(r'[0-9]')),
+                                              ],
+                                              formControlName: 'timelimit',
+                                              controller:OnlineTimeSecondController ,
+                                               style: TextStyle(color: notifier.getMainText),
+                                                                          
+                                                                         
+                                                                           decoration: InputDecoration(
+                                                                             contentPadding:const EdgeInsets.only(left: 15),
+                                                                
+                                                                              labelStyle: mediumGreyTextStyle.copyWith(
+                                            fontSize: 13),
+                                                                               labelText:'Online Time(Seconds))',
+                                                                            enabledBorder: OutlineInputBorder(
+                                  borderRadius:BorderRadius .circular(10.0),
+                                  borderSide: BorderSide(
+                                      color: notifier.isDark
+                                          ? notifier.geticoncolor
+                                          : Colors.black)),
+                                                      border: OutlineInputBorder(
+                                  borderRadius:BorderRadius .circular(10.0),
+                                  borderSide: BorderSide(
+                                      color: notifier.isDark
+                                          ? notifier.geticoncolor
+                                          : Colors.black)),
+                                 suffixIcon: Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    GestureDetector(
+                                                      onTap: () {
+                                                        setState(() {
+                                                          selectedOnlineTimeSeconds++;
+                                                          OnlineTimeSecondController
+                                                                  .text =
+                                                              selectedOnlineTimeSeconds
+                                                                  .toString();
+                                                        });
+                                                      },
+                                                      child:  Icon(
+                                                        Icons.arrow_drop_up,
+                                                         color: notifier.getMainText
+                                                      ),
+                                                    ),
+                                                    GestureDetector(
+                                                      onTap: () {
+                                                        if (selectedOnlineTimeSeconds > 0) {
+                                                          setState(() {
+                                                            selectedOnlineTimeSeconds--;
+                                                            OnlineTimeSecondController
+                                                                    .text =
+                                                                selectedOnlineTimeSeconds
+                                                                    .toString();
+                                                          });
+                                                        }
+                                                      },
+                                                      child:  Icon(
+                                                        Icons.arrow_drop_down,
+                                                        color: notifier.getMainText
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                                           )
+                                              
+                                            ),
+                                          ),
+                                        ),
+                            const SizedBox(height: 10),
+                               Padding(
                                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                                     child:ReactiveTextField<int>(
                                       validationMessages: {
@@ -423,285 +825,6 @@ class MyAppState extends State<HotelAddUser> {
                                    
                                     ),
                                   ),
-                            const SizedBox(height: 10),
-                            Visibility(
-                              visible: getPackOpt?.packmode == 3 && (getPackOpt?.fupmode == 1 || getPackOpt?.fupmode == 2),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                                child: ReactiveTextField(
-                                  formControlName: 'uplimit',
-                                  controller: upLimitController,
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                                  ],
-                                  
-                                                       style: TextStyle(color: notifier.getMainText),
-                                                                        
-                                                                       
-                                                                         decoration: InputDecoration(
-                                                                           contentPadding:const EdgeInsets.only(left: 15),
-                                                              
-                                                                            labelStyle: mediumGreyTextStyle.copyWith(
-                                          fontSize: 13),
-                                                                            labelText: 'Upload Limit(in Mbps)',
-                                                                          enabledBorder: OutlineInputBorder(
-                                borderRadius:BorderRadius .circular(10.0),
-                                borderSide: BorderSide(
-                                    color: notifier.isDark
-                                        ? notifier.geticoncolor
-                                        : Colors.black)),
-                        border: OutlineInputBorder(
-                                borderRadius:BorderRadius .circular(10.0),
-                                borderSide: BorderSide(
-                                    color: notifier.isDark
-                                        ? notifier.geticoncolor
-                                        : Colors.black)),
-                                                              suffixIconColor:  notifier.getMainText,
-                                                               suffixIcon: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              selectedUpMbps++;
-                                              upLimitController.text = selectedUpMbps.toString();
-                                            });
-                                          },
-                                          child:  Icon(
-                                            Icons.arrow_drop_up,
-                                             color: notifier.getMainText
-                                          ),
-                                        ),
-                                        GestureDetector(
-                                          onTap: () {
-                                            if (selectedUpMbps > 0) {
-                                              setState(() {
-                                                selectedUpMbps--;
-                                                upLimitController.text = selectedUpMbps.toString();
-                                              });
-                                            }
-                                          },
-                                          child:  Icon(
-                                            Icons.arrow_drop_down,
-                                            color: notifier.getMainText
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                                                          ),
-                                  
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Visibility(
-                              visible: getPackOpt?.packmode == 4 && (getPackOpt?.fupmode == 0 || getPackOpt?.fupmode == 2),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                                child: ReactiveTextField(
-                                  formControlName: 'dllimit',
-                                  controller: downLimitController,
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                                  ],
-                                   style: TextStyle(color: notifier.getMainText),
-                                                                        
-                                                                       
-                                                                         decoration: InputDecoration(
-                                                                           contentPadding:const EdgeInsets.only(left: 15),
-                                                              
-                                                                            labelStyle: mediumGreyTextStyle.copyWith(
-                                          fontSize: 13),
-                                                                             labelText: 'Download Limit(in Mbps)',
-                                                                           enabledBorder: OutlineInputBorder(
-                                borderRadius:BorderRadius .circular(10.0),
-                                borderSide: BorderSide(
-                                    color: notifier.isDark
-                                        ? notifier.geticoncolor
-                                        : Colors.black)),
-                        border: OutlineInputBorder(
-                                borderRadius:BorderRadius .circular(10.0),
-                                borderSide: BorderSide(
-                                    color: notifier.isDark
-                                        ? notifier.geticoncolor
-                                        : Colors.black)),
-                                                              suffixIconColor:notifier.getMainText,
-                                                             suffixIcon: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              selectedDownMbps++;
-                                              downLimitController.text = selectedDownMbps.toString();
-                                            });
-                                          },
-                                          child:  Icon(
-                                            Icons.arrow_drop_up,
-                                          color: notifier.getMainText
-                                          ),
-                                        ),
-                                        GestureDetector(
-                                          onTap: () {
-                                            if (selectedDownMbps > 0) {
-                                              setState(() {
-                                                selectedDownMbps--;
-                                                downLimitController.text = selectedDownMbps.toString();
-                                              });
-                                            }
-                                          },
-                                          child:  Icon(
-                                            Icons.arrow_drop_down,
-                                           color: notifier.getMainText
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                                                          ),
-                                  
-                                 
-                                ),
-                              ),
-                            ),
-
-                            const SizedBox(height: 10),
-                            Visibility(
-                              visible:(getPackOpt?.packmode == 3 || getPackOpt?.packmode == 4 || getPackOpt?.packmode == 5) && getPackOpt?.fupmode == 3,
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                                child: ReactiveTextField(
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                                  ],
-                                  formControlName: 'totallimit',
-                                  controller: totLimitController,
-                                   style: TextStyle(color: notifier.getMainText),
-                                                                        
-                                                                       
-                                                                         decoration: InputDecoration(
-                                                                           contentPadding:const EdgeInsets.only(left: 15),
-                                                              
-                                                                            labelStyle: mediumGreyTextStyle.copyWith(
-                                          fontSize: 13),
-                                                                             labelText: 'Total Limit(in Mbps)',
-                                                                            enabledBorder: OutlineInputBorder(
-                                borderRadius:BorderRadius .circular(10.0),
-                                borderSide: BorderSide(
-                                    color: notifier.isDark
-                                        ? notifier.geticoncolor
-                                        : Colors.black)),
-                        border: OutlineInputBorder(
-                                borderRadius:BorderRadius .circular(10.0),
-                                borderSide: BorderSide(
-                                    color: notifier.isDark
-                                        ? notifier.geticoncolor
-                                        : Colors.black)),
-                                                              suffixIconColor: notifier.getMainText,
-                                                             suffixIcon: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children:[
-                                        GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              selectedTotMbps++;
-                                              totLimitController.text = selectedTotMbps.toString();
-                                            });
-                                          },
-                                          child:Icon(
-                                            Icons.arrow_drop_up,
-                                          color: notifier.getMainText
-                                          ),
-                                        ),
-                                        GestureDetector(
-                                          onTap: () {
-                                            if (selectedUpMbps > 0) {
-                                              setState(() {
-                                                selectedTotMbps--;
-                                                totLimitController.text = selectedTotMbps.toString();
-                                              });
-                                            }
-                                          },
-                                          child: Icon(
-                                            Icons.arrow_drop_down,
-                                            color: notifier.getMainText
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                                                          ),
-                                 
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Visibility(
-                              visible: getPackOpt?.packmode == 4 && (getPackOpt?.fupmode == 0 || getPackOpt?.fupmode == 2),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                                child: ReactiveTextField(
-                                  formControlName: 'timelimit',
-                                  controller: OnlineTimeSecondController,
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                                  ],
-                                   style: TextStyle(color: notifier.getMainText),
-                                                                        
-                                                                       
-                                                                         decoration: InputDecoration(
-                                                                           contentPadding:const EdgeInsets.only(left: 15),
-                                                              
-                                                                            labelStyle: mediumGreyTextStyle.copyWith(
-                                          fontSize: 13),
-                                                                            labelText: 'Online Time(Seconds)',
-                                                                            enabledBorder: OutlineInputBorder(
-                                borderRadius:BorderRadius .circular(10.0),
-                                borderSide: BorderSide(
-                                    color: notifier.isDark
-                                        ? notifier.geticoncolor
-                                        : Colors.black)),
-                        border: OutlineInputBorder(
-                                borderRadius:BorderRadius .circular(10.0),
-                                borderSide: BorderSide(
-                                    color: notifier.isDark
-                                        ? notifier.geticoncolor
-                                        : Colors.black)),
-                                                              suffixIconColor:  notifier.getMainText,
-                                                             suffixIcon: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              selectedOnlineTimeSeconds++;
-                                              OnlineTimeSecondController.text =selectedOnlineTimeSeconds.toString();
-                                            });
-                                          },
-                                          child:  Icon(
-                                            Icons.arrow_drop_up,
-                                             color: notifier.getMainText
-                                          ),
-                                        ),
-                                        GestureDetector(
-                                          onTap: () {
-                                            if (selectedOnlineTimeSeconds > 0) {
-                                              setState(() {
-                                                selectedOnlineTimeSeconds--;
-                                                OnlineTimeSecondController.text = selectedOnlineTimeSeconds.toString();
-                                              });
-                                            }
-                                          },
-                                          child: Icon(
-                                            Icons.arrow_drop_down,
-                                          color: notifier.getMainText
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                                                          ),
-                                 
-                                ),
-                              ),
-                            ),
                             const SizedBox(height: 10),
                               ],
                             ),
@@ -747,20 +870,57 @@ class MyAppState extends State<HotelAddUser> {
     return encryptedPwd;
     // form.control('profilepsw').value = encryptedPwd;
   }
-  String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
-  Future<void> _selectDate(BuildContext context) async {
-    DateTime? picked = await showDatePicker(
+  // String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+  // Future<void> _selectDate(BuildContext context) async {
+  //   DateTime? picked = await showDatePicker(
+  //     context: context,
+  //     initialDate: DateTime.now(),
+  //     firstDate: DateTime(1950),
+  //     lastDate: DateTime(2100),
+  //   );
+  //   if (picked != null) {
+  //     setState(() {
+  //       formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(picked);
+  //       dateController.text = formattedDate;
+  //     });
+  //   }
+  // }
+
+ String formattedDate = DateFormat('M/d/yyyy hh:mm:ss a').format(DateTime.now());
+
+Future<void> _selectDate(BuildContext context) async {
+  // Show the date picker first
+  DateTime? pickedDate = await showDatePicker(
+    context: context,
+    initialDate: DateTime.now(),
+    firstDate: DateTime(1950),
+    lastDate: DateTime(2100),
+  );
+
+  if (pickedDate != null) {
+    // Show the time picker after a date is selected
+    TimeOfDay? pickedTime = await showTimePicker(
+      // ignore: use_build_context_synchronously
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1950),
-      lastDate: DateTime(2100),
+      initialTime: TimeOfDay.now(),
     );
-    if (picked != null) {
+
+    if (pickedTime != null) {
+      // Combine the picked date and time
+      final DateTime pickedDateTime = DateTime(
+        pickedDate.year,
+        pickedDate.month,
+        pickedDate.day,
+        pickedTime.hour,
+        pickedTime.minute,
+      );
+
       setState(() {
-        formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(picked);
-        dateController.text = formattedDate;
+        // Format the combined date and time with AM/PM and seconds
+        formattedDate = DateFormat('yyyy-MM-dd hh:mm:ss a').format(pickedDateTime);
+          dateController.text = formattedDate;
       });
     }
   }
-
+}
 }

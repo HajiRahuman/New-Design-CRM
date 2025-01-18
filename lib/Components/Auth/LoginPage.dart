@@ -1,4 +1,6 @@
 
+import 'dart:convert';
+
 import 'package:crm/AppStaticData/AppStaticData.dart';
 import 'package:crm/AppStaticData/toaster.dart';
 import 'package:crm/Components/DashBoard/DashBoard.dart';
@@ -60,7 +62,7 @@ class MyAppState extends State<LoginPage> {
     isSubscriber = pref.getBool('isSubscriber') as bool;
     username = pref.getString('username') as String;
     
-    print('Usernameeeeeeeeeeeee----${username}');
+    // print('Usernameeeeeeeeeeeee----${username}');
     if (!isIspAdmin && levelid > 4) {}
   }
 
@@ -331,8 +333,13 @@ class MyAppState extends State<LoginPage> {
         prefs.setInt("id", authResp['id'] ?? 0);
         prefs.setBool('isIspAdmin', authResp['isIspAdmin'] ?? false);
         prefs.setBool('isSubscriber', authResp['isSubscriber'] ?? false);
+         prefs.setBool('isSuperAdmin', authResp['isSuperAdmin'] ?? false);
+           prefs.setInt("cardlimit", authResp['cardlimit'] ?? 0);
+           prefs.setInt("hotellimit", authResp['hotellimit'] ?? 0);
         prefs.setString("username", authResp['username'] ?? "");
         prefs.setString("company", authResp['company'] ?? "");
+        List<dynamic> menuIdList = authResp['menu_id'] ?? [];
+        prefs.setString("menu_id", jsonEncode(menuIdList));
 
         if (_checkboxListTile) {
           prefs.setString("username", usernameController.text);
