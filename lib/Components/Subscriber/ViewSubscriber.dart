@@ -1162,9 +1162,7 @@ TableRow row({required String title, required IconData icon}) {
            
         
         }
-          if (  menuIdList.any((id) => [
-                                       1211, 1212
-                                        ].contains(id)) ||isIspAdmin ==true) {
+        
         
          if (title == 'Upload Document') {
            showDialog(
@@ -1195,7 +1193,7 @@ TableRow row({required String title, required IconData icon}) {
           
         
         }
-                                        }
+                                      
          if (title == 'Upload Picture') {
            showDialog(
                                           context: context,
@@ -1223,9 +1221,7 @@ TableRow row({required String title, required IconData icon}) {
                                         });
         
         }
-          if (  menuIdList.any((id) => [
-                                       1211, 1212
-                                        ].contains(id)) ||isIspAdmin ==true) {
+         
         if (title == 'View Document') {
           showDialog(
                                           context: context,
@@ -1238,7 +1234,7 @@ TableRow row({required String title, required IconData icon}) {
                                           // print('dialog--$val'),
                                         });
         }
-                                        }
+                                      
          if (title == 'Complaints') {
            Navigator.push(
                       context,
