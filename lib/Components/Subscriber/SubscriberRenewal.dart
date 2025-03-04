@@ -73,7 +73,7 @@ Map<String, int> paymentMode = {
       'priceid': FormControl<int>(validators: [Validators.required]),
       'renewal_through': FormControl<int>(),
       'userpayedamt': FormControl<int>(),
-      'schedule_dt': FormControl<String>(value: widget.expiration,),
+      'schedule_dt': FormControl<String>(value: widget.expiration != null ? DateFormat('M/d/yyyy h:mm a').format(DateTime.parse(widget.expiration!)) : ''),
       'paydate': FormControl<String>(),
       'comment1': FormControl<String>(),
       'pay_status': FormControl<int>(),
@@ -170,14 +170,6 @@ GetRenewalPriceResp resp = await subscriberSrv.getRenewalVoice(
         getVoice(widget.resellerid);
     initializeForm();
     getMenuAccess();
-    //  print('resellerid-- ${widget.resellerid}');
-    //     print('uid-- ${widget.uid}');
-    //        print('srvusermode-- ${widget.srvusermode}');
-    //           print('packid-- ${widget.packid}');
-    //              print('subsid-- ${widget.subscriberId}');
-    //                 print('expiration-- ${widget.expiration}');
-    //                    print('voiceid-- ${widget.voiceid}');
-
   }
   int levelid = 0;
   bool isIspAdmin = false;
@@ -306,20 +298,27 @@ late Razorpay razorpay;
 
 
   DateTime? schedulePackValidity, scheduleVoiceValidity;
-  void calculateScheduleValidityDate() {
+ void calculateScheduleValidityDate() {
+  if ([2, 4].contains(form.value['renewal_through'])) {
+    String scheduleDtString = form.value['schedule_dt'] as String;
 
+    // Correct parsing of the given date format
+    try {
+      DateTime parsedDate = DateFormat("M/d/yyyy h:mm a").parse(scheduleDtString);
+      schedulePackValidity = parsedDate;
 
-    if ([2,4].contains(form.value['renewal_through'])) {
-      schedulePackValidity =  DateTime.parse(form.value['schedule_dt'] as String);
       schedulePackValidity = addDaysOrMonths(
         schedulePackValidity!,
         Iunittype,
         Itimeunit,
         Iextradays,
       );
-// print('schedulepavali---${schedulePackValidity}');
+
+    } catch (e) {
+      print("Error parsing date: $e");
     }
   }
+}
 
 
   DateTime addDaysOrMonths(
@@ -412,10 +411,6 @@ late Razorpay razorpay;
             bbpaidtax
         ).toStringAsFixed(3)
     );
-    //  totalAmount = bbpaidamount + bbpaidtax;
-    // print('Internet====$bbpaidamount');
-    // print('Tax2====$bbpaidtax');
-    // print('Total Amount====$totalAmount');
   setPaidAmount();
   }
 
