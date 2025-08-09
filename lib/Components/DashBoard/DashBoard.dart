@@ -26,6 +26,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:crm/Service/versionManagement.dart' as VersionSrv;
 // import 'package:timezone/timezone.dart' as tz;
 
 class DashBoard extends StatefulWidget {
@@ -89,12 +90,31 @@ Future<void> getSubscriberSummary() async {
     }
   }
 }
+bool isForceUpdate = false;
+  String version = "1.0.0";
+  // AppUpdateInfo? _updateInfo;
 
+  Future<void> GetVersion() async {
+    try {
+      final resp = await VersionSrv.getVersion(version);
+      setState(() {
+        isForceUpdate = resp.isForceUpdate;
+        print("Force Update Required: $isForceUpdate");
+      });
+
+      if (isForceUpdate) {
+        // _checkForAppUpdates();
+      }
+    } catch (e) {
+      print("Error fetching version: $e");
+    }
+  }
   int currentPage = 1;
   final int itemsPerPage = 5;
   @override
   void initState() {
     super.initState();
+    GetVersion();
      getMenuAccess();
   
     getExpirySubscriber(today); // Fetch data for today's date

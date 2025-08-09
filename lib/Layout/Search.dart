@@ -1,4 +1,3 @@
-
 // import 'dart:convert';
 
 // import 'package:crm/AppStaticData/AppStaticData.dart';
@@ -9,8 +8,6 @@
 // import 'package:crm/Providers/providercolors.dart';
 // import 'package:crm/components/Subscriber/ViewSubscriber.dart';
 // import 'package:crm/model/subscriber.dart';
-
-
 
 // import 'package:crm/service/BottomNav.dart' as bottonNavSrv;
 // import 'package:flutter/cupertino.dart';
@@ -62,7 +59,6 @@
 //   }
 // }
 
-
 //   int selectedSearchType = 1;
 
 //   String searchTypeLike = '';
@@ -75,7 +71,6 @@
 //           ))
 //       .toList();
 // }
-
 
 //   List<SearchDet> search = [];
 //   Future<void> searchFunction(String query) async {
@@ -193,7 +188,6 @@
 // //   }
 // // });
 
-
 //    int levelid = 0;
 //   bool isIspAdmin = false;
 //   int id = 0;
@@ -219,41 +213,41 @@
 //   searchFunction("query");
 
 //   // Listen to changes in the 'search' FormControl
-  // form.control('search').valueChanges.listen((value) {
-  //   if (value != null) {
-  //     if (this.value == 1) {
-  //       // Navigate to ListCard if "Card" is selected
-  //       Navigator.pushReplacement(
-  //         context,
-  //         MaterialPageRoute(
-  //           builder: (_) {
-  //             return ListCard(id: (value as SearchDet).id,search: true);
-  //           },
-  //         ),
-  //       );
-  //     } else if (this.value == 4) {
-  //       // Navigate to a Hotel-specific page
-  //       Navigator.pushReplacement(
-  //         context,
-  //         MaterialPageRoute(
-  //           builder: (_) {
-  //             return ListHotel(id: (value as SearchDet).id,search: true,);
-  //           },
-  //         ),
-  //       );
-  //     } else {
-  //       // Default navigation to ViewSubscriber
-  //       Navigator.pushReplacement(
-  //         context,
-  //         MaterialPageRoute(
-  //           builder: (_) {
-  //             return ViewSubscriber(subscriberId: (value as SearchDet).id);
-  //           },
-  //         ),
-  //       );
-  //     }
-  //   }
-  // });
+// form.control('search').valueChanges.listen((value) {
+//   if (value != null) {
+//     if (this.value == 1) {
+//       // Navigate to ListCard if "Card" is selected
+//       Navigator.pushReplacement(
+//         context,
+//         MaterialPageRoute(
+//           builder: (_) {
+//             return ListCard(id: (value as SearchDet).id,search: true);
+//           },
+//         ),
+//       );
+//     } else if (this.value == 4) {
+//       // Navigate to a Hotel-specific page
+//       Navigator.pushReplacement(
+//         context,
+//         MaterialPageRoute(
+//           builder: (_) {
+//             return ListHotel(id: (value as SearchDet).id,search: true,);
+//           },
+//         ),
+//       );
+//     } else {
+//       // Default navigation to ViewSubscriber
+//       Navigator.pushReplacement(
+//         context,
+//         MaterialPageRoute(
+//           builder: (_) {
+//             return ViewSubscriber(subscriberId: (value as SearchDet).id);
+//           },
+//         ),
+//       );
+//     }
+//   }
+// });
 // }
 
 //   Future<List<SearchDet>> fetchSearchResults(String filter) async {
@@ -328,35 +322,34 @@
 //                         ),
 //                       ],
 //                     ),
-                  
+
 //                 const SizedBox(height: 20),
-              // Visibility(
-              //   visible: (levelid<= 3 || isSuperAdmin || isIspAdmin),
-              //   child: Column(
-                  // mainAxisAlignment: MainAxisAlignment.center,
-                  // crossAxisAlignment: CrossAxisAlignment.center,
-              //         children: [
-              //           CustomRadioButton("Broadband",0 ),
-              //           const SizedBox(height: 5),
-              //           CustomRadioButton("Hotel", 4),
-              //            const SizedBox(height: 5),
-              //           CustomRadioButton("Card", 1),
-                        
-                    
-              //             ],
-              //       ),
-              // ),
-                
+// Visibility(
+//   visible: (levelid<= 3 || isSuperAdmin || isIspAdmin),
+//   child: Column(
+// mainAxisAlignment: MainAxisAlignment.center,
+// crossAxisAlignment: CrossAxisAlignment.center,
+//         children: [
+//           CustomRadioButton("Broadband",0 ),
+//           const SizedBox(height: 5),
+//           CustomRadioButton("Hotel", 4),
+//            const SizedBox(height: 5),
+//           CustomRadioButton("Card", 1),
+
+//             ],
+//       ),
+// ),
+
 //                 const SizedBox(height: 20),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.start,
-              //   children: [
-              //     Text(
-              //       '  Search Type',
-              //      style: mediumBlackTextStyle.copyWith(color:notifier.getMainText,fontWeight: FontWeight.bold,fontSize: 16)
-              //     ),
-              //   ],
-              // ),
+// Row(
+//   mainAxisAlignment: MainAxisAlignment.start,
+//   children: [
+//     Text(
+//       '  Search Type',
+//      style: mediumBlackTextStyle.copyWith(color:notifier.getMainText,fontWeight: FontWeight.bold,fontSize: 16)
+//     ),
+//   ],
+// ),
 //               const SizedBox(height: 5),
 //             Padding(
 //                  padding: const EdgeInsets.symmetric(
@@ -367,7 +360,7 @@
 //                         onChanged: (newValue) async {
 //                           setState(() {
 //                             selectedSearchType = newValue!;
-                            
+
 //                           });
 //                           switch (selectedSearchType) {
 //                             case 1:
@@ -392,11 +385,10 @@
 //                         items: buildDropdownMenuItems(),
 //                          dropdownColor: notifier.getcontiner,
 //                                                            style: TextStyle(color: notifier.getMainText),
-                                                                            
-                                                                           
+
 //                                                                              decoration: InputDecoration(
 //                                                                                contentPadding:const EdgeInsets.only(left: 15),
-                                                                  
+
 //                                                                               enabledBorder: OutlineInputBorder(
 //                                     borderRadius:BorderRadius .circular(10.0),
 //                                     borderSide: BorderSide(
@@ -412,18 +404,16 @@
 //                                                                               ),
 //                       ),
 //             ),
-      
-                
-              
+
 //               const SizedBox(height: 30),
-              
+
 //               Padding(
 //                  padding: const EdgeInsets.symmetric(
 //                   horizontal: 20,),
 //                 child: ReactiveDropdownSearch<SearchDet, SearchDet>(
-                  
+
 //         formControlName: 'search', // Specify the form control name
-         
+
 //         dropdownDecoratorProps: DropDownDecoratorProps(
 //       dropdownSearchDecoration: InputDecoration(
 //       focusColor: Colors.transparent,
@@ -461,16 +451,15 @@
 //   ),
 //         itemAsString: (dynamic item) => _getDisplayTextForSearchDet(item as SearchDet),
 //       ),
-      
-      
+
 //               ),
-              
+
 //               const SizedBox(height: 20),
-      
+
 //               // You can add more Text widgets with different sentences here
 //             ],
 //           ),
-        
+
 //       ),
 //     );
 //   }
@@ -530,11 +519,9 @@ class Search extends StatefulWidget {
 }
 
 class MyAppState extends State<Search> {
-  
   bool isSearching = false;
 
   String simul = '';
- 
 
   List<Map<String, dynamic>> fields = [
     {'id': 1, 'label': 'Profile ID', 'key': 'profileid', 'hide': false},
@@ -548,10 +535,18 @@ class MyAppState extends State<Search> {
   ];
 
   List<Map<String, dynamic>> setUserType = [
-    {'level': 2, 'level_role': [14, 15], 'name': 'Hotel'},
-    {'level': 3, 'level_role': [18, 19], 'name': 'Card'},
+    {
+      'level': 2,
+      'level_role': [14, 15],
+      'name': 'Hotel'
+    },
+    {
+      'level': 3,
+      'level_role': [18, 19],
+      'name': 'Card'
+    },
   ];
-List<Map<String, dynamic>> allFields = [];
+  List<Map<String, dynamic>> allFields = [];
   int userType = 1;
   int fieldType = 1;
   String searchUser = '';
@@ -562,16 +557,15 @@ List<Map<String, dynamic>> allFields = [];
   int selectedSearchType = 1;
 
   String searchTypeLike = '';
- List<DropdownMenuItem<int>> buildDropdownMenuItems() {
-  return fields
-      .where((field) => field['id'] != null) // Ensure id is not null
-      .map((field) => DropdownMenuItem<int>(
-            value: field['id'],
-            child: Text(field['label']),
-          ))
-      .toList();
-}
-
+  List<DropdownMenuItem<int>> buildDropdownMenuItems() {
+    return fields
+        .where((field) => field['id'] != null) // Ensure id is not null
+        .map((field) => DropdownMenuItem<int>(
+              value: field['id'],
+              child: Text(field['label']),
+            ))
+        .toList();
+  }
 
   List<SearchDet> search = [];
   Future<void> searchFunction(int query) async {
@@ -588,9 +582,9 @@ List<Map<String, dynamic>> allFields = [];
     }
 
     try {
-    int userTypeValue = searchParams['usertype'] ?? query;
-    // print(userTypeValue); // Default to 0 if not provided
-SearchResp resp = await bottonNavSrv.search(userType: userTypeValue);
+      int userTypeValue = searchParams['usertype'] ?? query;
+      // print(userTypeValue); // Default to 0 if not provided
+      SearchResp resp = await bottonNavSrv.search(userType: userTypeValue);
       if (resp.error) {
         alert(context, resp.msg);
       } else {
@@ -614,7 +608,6 @@ SearchResp resp = await bottonNavSrv.search(userType: userTypeValue);
         index: 0,
         // limit: 25,
         ipmode: 2,
-       
       );
       setState(() {
         isSearching = false;
@@ -633,6 +626,7 @@ SearchResp resp = await bottonNavSrv.search(userType: userTypeValue);
       print("Error during search: $error");
     }
   }
+
   // List<SearchDet> searchlocalIp = [];
   // ignore: non_constant_identifier_names
   Future<void> SearchLocalIp(String query) async {
@@ -647,17 +641,18 @@ SearchResp resp = await bottonNavSrv.search(userType: userTypeValue);
           alert(context, resp.msg);
           search = [];
         } else {
-          search= resp.data ?? [];
+          search = resp.data ?? [];
         }
       });
     } catch (error) {
       setState(() {
         isSearching = false;
-        search= [];
+        search = [];
       });
       print("Error during search: $error");
     }
   }
+
   List<SearchUserMacDet> usermac = [];
   Future<void> UserMAC(String query) async {
     try {
@@ -681,10 +676,11 @@ SearchResp resp = await bottonNavSrv.search(userType: userTypeValue);
       print("Error during search: $error");
     }
   }
+
 // Somewhere in your widget tree (likely in `initState` or `build` method)
-final form = FormGroup({
-  'search': FormControl<SearchDet>(),
-});
+  final form = FormGroup({
+    'search': FormControl<SearchDet>(),
+  });
 
   Future<void> initializeUser() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -694,35 +690,35 @@ final form = FormGroup({
 
     if (levelId > 3) {
       userType = setUserType.firstWhere(
-              (user) => (user['level_role'] as List<int>).contains(levelId),
-              orElse: () => {'level': 1})['level']!;
+          (user) => (user['level_role'] as List<int>).contains(levelId),
+          orElse: () => {'level': 1})['level']!;
       getUserFields(userType);
     }
 
     filterFields();
-     
-     if((levelId <= 3 || isSuperAdmin || isIspAdmin)) {
+
+    if ((levelId <= 3 || isSuperAdmin || isIspAdmin)) {
       value = 1;
-       getUserFields(value);
-     }
+      getUserFields(value);
+    }
   }
-  
- void getUserFields(int type) {
+
+  void getUserFields(int type) {
     fieldType = 1;
     searchUser = '';
     userType = type;
 
     fields = (type == 2 || type == 3)
         ? fields.where((field) => !field['hide']).toList()
-        :allFields;
+        : allFields;
 // print("Fields---$fields");
     if (levelId > 4) {
       fields = fields.where((field) => field['id'] != 8).toList();
     }
-     searchFunction(type);
-    
+    searchFunction(type);
   }
-   void filterFields() async {
+
+  void filterFields() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     int cardLimit = pref.getInt('cardlimit') ?? 0;
     int hotelLimit = pref.getInt('hotellimit') ?? 0;
@@ -744,122 +740,126 @@ final form = FormGroup({
     }
   }
 
-@override
+  @override
   void initState() {
     super.initState();
-     allFields = List<Map<String, dynamic>>.from(fields);
-    initializeUser() ;
+    allFields = List<Map<String, dynamic>>.from(fields);
+    initializeUser();
 //  searchFunction(0);
-    
-      form.control('search').valueChanges.listen((value) {
-    if (value != null) {
-      if (userType == 3) {
-        // Navigate to ListCard if "Card" is selected
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) {
-              return ListCard(id: (value as SearchDet).id,search: true);
-            },
-          ),
-        );
-      } else if (userType == 2) {
-        // Navigate to a Hotel-specific page
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) {
-              return ListHotel(id: (value as SearchDet).id,search: true,);
-            },
-          ),
-        );
-      } else {
-        // Default navigation to ViewSubscriber
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) {
-              return ViewSubscriber(subscriberId: (value as SearchDet).id);
-            },
-          ),
-        );
+
+    form.control('search').valueChanges.listen((value) {
+      if (value != null) {
+        if (userType == 3) {
+          // Navigate to ListCard if "Card" is selected
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) {
+                return ListCard(id: (value as SearchDet).id, search: true);
+              },
+            ),
+          );
+        } else if (userType == 2) {
+          // Navigate to a Hotel-specific page
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) {
+                return ListHotel(
+                  id: (value as SearchDet).id,
+                  search: true,
+                );
+              },
+            ),
+          );
+        } else {
+          // Default navigation to ViewSubscriber
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) {
+                return ViewSubscriber(subscriberId: (value as SearchDet).id);
+              },
+            ),
+          );
+        }
+      }
+    });
+  }
+
+  Future<List<dynamic>> fetchSearchResults(String filter) async {
+    List<dynamic> results = [];
+
+    try {
+      // Combine the lists
+      List<dynamic> combinedList = [];
+      combinedList.addAll(searchPubIp); // Add searchPubIp list
+      combinedList.addAll(usermac); // Add usermac list
+      combinedList.addAll(search); // Add search list
+
+      // Filter the combined list
+      results = combinedList.where((item) {
+        return _getDisplayTextForSearchDet(item)
+            .toLowerCase()
+            .contains(filter.toLowerCase());
+      }).toList();
+    } catch (error) {
+      print("Error during search: $error");
+    }
+
+    return results;
+  }
+
+  String _getDisplayTextForSearchDet(dynamic item) {
+    if (item is SearchDet) {
+      // Handle SearchDet
+
+      switch (selectedSearchType) {
+        case 1:
+          return item.profileid;
+        case 2:
+          return '${item.id}';
+        case 3:
+          return item.fullname;
+        case 4:
+          return item.emailpri;
+        case 5:
+          return item.mobile;
+        case 6:
+          return item.ipv4;
+        default:
+          return '';
+      }
+    } else if (item is SearchPubIpDet) {
+      // Handle SearchPubIpDet
+      switch (selectedSearchType) {
+        case 7:
+          return item.ipaddr;
+        default:
+          return '';
+      }
+    } else if (item is SearchUserMacDet) {
+      // Handle SearchUserMacDet
+      switch (selectedSearchType) {
+        case 8:
+          return item.usermac;
+        default:
+          return '';
       }
     }
-  });
+    return '';
   }
-Future<List<dynamic>> fetchSearchResults(String filter) async {
-  List<dynamic> results = [];
-
-  try {
-    // Combine the lists
-    List<dynamic> combinedList = [];
-    combinedList.addAll(searchPubIp);  // Add searchPubIp list
-    combinedList.addAll(usermac);      // Add usermac list
-    combinedList.addAll(search);       // Add search list
-
-    // Filter the combined list
-    results = combinedList.where((item) {
-      return _getDisplayTextForSearchDet(item)
-          .toLowerCase()
-          .contains(filter.toLowerCase());
-    }).toList();
-  } catch (error) {
-    print("Error during search: $error");
-  }
-
-  return results;
-}
-
-String _getDisplayTextForSearchDet(dynamic item) {
-  if (item is SearchDet) {
-    // Handle SearchDet
-  
-    switch (selectedSearchType) {
-      case 1:
-        return item.profileid;
-      case 2:
-        return '${item.id}';
-      case 3:
-        return item.fullname;
-      case 4:
-        return item.emailpri;
-      case 5:
-        return item.mobile;
-      case 6:
-        return item.ipv4;
-      default:
-        return '';
-    }
-  } else if (item is SearchPubIpDet) {
-    // Handle SearchPubIpDet
-    switch (selectedSearchType) {
-      case 7:
-        return item.ipaddr;
-      default:
-        return '';
-    }
-  } else if (item is SearchUserMacDet) {
-    // Handle SearchUserMacDet
-    switch (selectedSearchType) {
-      case 8:
-        return item.usermac;
-      default:
-        return '';
-    }
-  }
-  return '';
-}
 
   int value = 0;
- Widget CustomRadioButton(String text, int index) {
+  Widget CustomRadioButton(String text, int index) {
     final notifier = Provider.of<ColorNotifire>(context);
     return OutlinedButton(
       onPressed: () {
         setState(() {
           value = index; // Update value based on selected button
         });
-        // searchFunction(value); 
-        getUserFields(value);// Call search function
+        // searchFunction(value);
+        getUserFields(value); // Call search function
       },
       style: OutlinedButton.styleFrom(
         backgroundColor: (value == index) ? appMainColor : appWhiteColor,
@@ -882,185 +882,185 @@ String _getDisplayTextForSearchDet(dynamic item) {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-       final notifier = Provider.of<ColorNotifire>(context);
-    return  ReactiveForm(
+    final notifier = Provider.of<ColorNotifire>(context);
+    return ReactiveForm(
       formGroup: form,
       child: SingleChildScrollView(
-        child:  Column(
-             mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-                const SizedBox(height:5),
-             Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Universal Search",
-                          style: TextStyle(
-                                      color: notifier.getMainText,
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 20),
-                        ),
-                        CircleAvatar(
-                            radius: 20,
-                          child: IconButton(
-                            icon: Icon(
-                              Icons.close_rounded,
-                              color: notifier.getMainText,
-                            ), // Add the close icon
-                            onPressed: () {
-                              // Close the current tab
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  
-                const SizedBox(height: 20),
-              
-                Visibility(
-            visible:  fields.length > 1 &&(levelId <= 3 || isSuperAdmin || isIspAdmin),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 5),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                CustomRadioButton("Broadband", 1),
-                const SizedBox(height: 5),
-                CustomRadioButton("Hotel", 2),
-                const SizedBox(height: 5),
-                CustomRadioButton("Card", 3),
+                Text(
+                  "Universal Search",
+                  style: TextStyle(
+                      color: notifier.getMainText,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 20),
+                ),
+                CircleAvatar(
+                  radius: 20,
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.close_rounded,
+                      color: notifier.getMainText,
+                    ), // Add the close icon
+                    onPressed: () {
+                      // Close the current tab
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ),
               ],
             ),
-          ),
-              const SizedBox(height: 20),
- Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+
+            const SizedBox(height: 20),
+
+            Visibility(
+              visible: fields.length > 1 &&
+                  (levelId <= 3 || isSuperAdmin || isIspAdmin),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(
-                    '  Search Type',
-                   style: mediumBlackTextStyle.copyWith(color:notifier.getMainText,fontWeight: FontWeight.bold,fontSize: 16)
-                  ),
+                  CustomRadioButton("Broadband", 1),
+                  const SizedBox(height: 5),
+                  CustomRadioButton("Hotel", 2),
+                  const SizedBox(height: 5),
+                  CustomRadioButton("Card", 3),
                 ],
               ),
-              const SizedBox(height: 5),
-            Padding(
-                 padding: const EdgeInsets.symmetric(
-                  horizontal: 20,),
-              child: DropdownButtonFormField<int>(
-                       focusColor: Colors.transparent,
-                        value: fields.any((field) => field['id'] == selectedSearchType)
-      ? selectedSearchType
-      : fields.first['id'], // Use a valid value from the fields list
-                        onChanged: (newValue) async {
-                          setState(() {
-                            selectedSearchType = newValue!;
-                             search.clear();
-                            //  searchlocalIp.clear();
-                             searchPubIp.clear();
-                             usermac.clear();
-                          });
-                          switch (selectedSearchType) {
-                            case 1:
-                            case 2:
-                            case 3:
-                            case 4:
-                            case 5:
-                              await searchFunction(0);
-                              break;
-                            case 6:
-                              await SearchLocalIp('query');
-                              break;
-                            case 7:
-                              await SearchPublicIp('query');
-                              break;
-                            case 8:
-                              await UserMAC('query');
-                              break;
-                            default:
-                          }
-                        },
-                        items: buildDropdownMenuItems(),
-                         dropdownColor: notifier.getcontiner,
-                                                           style: TextStyle(color: notifier.getMainText),
-                                                                            
-                                                                           
-                                                                             decoration: InputDecoration(
-                                                                               contentPadding:const EdgeInsets.only(left: 15),
-                                                                  
-                                                                              enabledBorder: OutlineInputBorder(
-                                    borderRadius:BorderRadius .circular(10.0),
-                                    borderSide: BorderSide(
-                                        color: notifier.isDark
-                                            ? notifier.geticoncolor
-                                            : Colors.black)),
-                            border: OutlineInputBorder(
-                                    borderRadius:BorderRadius .circular(10.0),
-                                    borderSide: BorderSide(
-                                        color: notifier.isDark
-                                            ? notifier.geticoncolor
-                                            : Colors.black)),
-                                                                              ),
-                      ),
             ),
-      
-                
-              
-              const SizedBox(height: 30),
-              
-              Padding(
-                 padding: const EdgeInsets.symmetric(
-                  horizontal: 20,),
-                child:ReactiveDropdownSearch<dynamic, dynamic>(
-  formControlName: 'search', // Specify the form control name
-
-  dropdownDecoratorProps: DropDownDecoratorProps(
-    dropdownSearchDecoration: InputDecoration(
-      focusColor: Colors.transparent,
-      contentPadding: const EdgeInsets.only(left: 15),
-      hintStyle: mediumGreyTextStyle.copyWith(fontSize: 13),
-      hintText: 'Search',
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10.0),
-        borderSide: BorderSide(
-          width: 2.0,
-          color: Colors.grey.withOpacity(0.3),
-        ),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10.0),
-        borderSide: BorderSide(
-          width: 2.0,
-          color: Colors.grey.withOpacity(0.3),
-        ),
-      ),
-    ),
-  ),
-  asyncItems: (String filter) async {
-    return fetchSearchResults(filter); // Ensure this returns a List<dynamic>
-  },
-  popupProps: const PopupProps.menu(
-    showSearchBox: true,
-    isFilterOnline: true,
-    searchFieldProps: TextFieldProps(
-      decoration: InputDecoration(
-        contentPadding: EdgeInsets.only(left: 15),
-        hintText: 'Search Subscriber',
-      ),
-    ),
-  ),
-  itemAsString: (dynamic item) => _getDisplayTextForSearchDet(item),
-),
-
-      
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text('  Search Type',
+                    style: mediumBlackTextStyle.copyWith(
+                        color: notifier.getMainText,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16)),
+              ],
+            ),
+            const SizedBox(height: 5),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
               ),
-              
-              const SizedBox(height: 20),
-      
-              // You can add more Text widgets with different sentences here
-            ],
-          ),
-        
+              child: DropdownButtonFormField<int>(
+                focusColor: Colors.transparent,
+                value: fields.any((field) => field['id'] == selectedSearchType)
+                    ? selectedSearchType
+                    : fields
+                        .first['id'], // Use a valid value from the fields list
+                onChanged: (newValue) async {
+                  setState(() {
+                    selectedSearchType = newValue!;
+                    search.clear();
+                    //  searchlocalIp.clear();
+                    searchPubIp.clear();
+                    usermac.clear();
+                  });
+                  switch (selectedSearchType) {
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5:
+                      await searchFunction(0);
+                      break;
+                    case 6:
+                      await SearchLocalIp('query');
+                      break;
+                    case 7:
+                      await SearchPublicIp('query');
+                      break;
+                    case 8:
+                      await UserMAC('query');
+                      break;
+                    default:
+                  }
+                },
+                items: buildDropdownMenuItems(),
+                dropdownColor: notifier.getcontiner,
+                style: TextStyle(color: notifier.getMainText),
+
+                decoration: InputDecoration(
+                  contentPadding: const EdgeInsets.only(left: 15),
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: BorderSide(
+                          color: notifier.isDark
+                              ? notifier.geticoncolor
+                              : Colors.black)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: BorderSide(
+                          color: notifier.isDark
+                              ? notifier.geticoncolor
+                              : Colors.black)),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 30),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
+              ),
+              child: ReactiveDropdownSearch<dynamic, dynamic>(
+                formControlName: 'search', // Specify the form control name
+
+                dropdownDecoratorProps: DropDownDecoratorProps(
+                  dropdownSearchDecoration: InputDecoration(
+                    focusColor: Colors.transparent,
+                    contentPadding: const EdgeInsets.only(left: 15),
+                    hintStyle: mediumGreyTextStyle.copyWith(fontSize: 13),
+                    hintText: 'Search',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: BorderSide(
+                        width: 2.0,
+                        color: Colors.grey.withOpacity(0.3),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: BorderSide(
+                        width: 2.0,
+                        color: Colors.grey.withOpacity(0.3),
+                      ),
+                    ),
+                  ),
+                ),
+                asyncItems: (String filter) async {
+                  return fetchSearchResults(
+                      filter); // Ensure this returns a List<dynamic>
+                },
+                popupProps: const PopupProps.menu(
+                  showSearchBox: true,
+                  isFilterOnline: true,
+                  searchFieldProps: TextFieldProps(
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.only(left: 15),
+                      hintText: 'Search Subscriber',
+                    ),
+                  ),
+                ),
+                itemAsString: (dynamic item) =>
+                    _getDisplayTextForSearchDet(item),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // You can add more Text widgets with different sentences here
+          ],
+        ),
       ),
     );
   }

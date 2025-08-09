@@ -377,173 +377,180 @@ DateTime? _startDate;
 
  
 
-  Widget _buildProfile1({required bool isphon}) {
-  final totalItems = listSessionRpt.length;
-  final totalPages = (totalItems / itemsPerPage).ceil();
+Widget _buildProfile1({required bool isphon}) {
+    final totalItems = listSessionRpt.length;
+    final totalPages = (totalItems / itemsPerPage).ceil();
 
-  // Ensure currentPage stays within valid bounds
-  if (currentPage < 1) {
-    currentPage = 1;
-  } else if (currentPage > totalPages) {
-    currentPage = totalPages;
+    // Ensure currentPage stays within valid bounds
+    if (currentPage < 1) {
+      currentPage = 1;
+    } else if (currentPage > totalPages) {
+      currentPage = totalPages;
+    }
+
+    // Calculate the start and end index of the items for the current page
+    final startIndex = (currentPage - 1) * itemsPerPage;
+    final endIndex = startIndex + itemsPerPage > totalItems
+        ? totalItems
+        : startIndex + itemsPerPage;
+
+    // Ensure startIndex is not out of bounds and adjust accordingly
+    if (startIndex >= totalItems || totalItems == 0) {
+      return const Center(child: Text('No more items to display.'));
+    }
+
+    final paginatedList = listSessionRpt.sublist(startIndex, endIndex);
+    Provider.of<ColorNotifire>(context);
+
+    String extractNumericValue(String value) {
+      // Remove any non-numeric characters and spaces, e.g. "549 MB" -> "549"
+      return value.replaceAll(RegExp(r'[^0-9]'), '');
+    }
+
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: paginatedList.length,
+                itemBuilder: (context, index) {
+                  final session = paginatedList[index];
+                  final uploadSize =
+                      int.parse(extractNumericValue(session.acctinputoctets));
+                  final downloadSize =
+                      int.parse(extractNumericValue(session.acctoutputoctets));
+                  final totalSize = uploadSize + downloadSize;
+                  return Column(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(isphon ? 10 : padding),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border:
+                              Border.all(color: Colors.grey.withOpacity(0.3)),
+                        ),
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: isphon ? 10 : padding),
+                              child: Column(
+                                children: [
+                                  _buildCommonListTile(
+                                      title: "Start AT",
+                                      subtitle:
+                                          ": ${session.acctstarttime.isNotEmpty ? DateFormat.yMd().add_jm().format(DateTime.parse(session.acctstarttime)) : "---"}"),
+                                  _buildCommonListTile(
+                                      title: "End On",
+                                      subtitle:
+                                          ": ${session.acctstoptime.isNotEmpty ? DateFormat.yMd().add_jm().format(DateTime.parse(session.acctstoptime)) : "---"}"),
+                                  _buildCommonListTile(
+                                    title: "Upload",
+                                    subtitle: ": ${formatBytes(uploadSize)}",
+                                  ),
+                                  _buildCommonListTile(
+                                    title: "Download",
+                                    subtitle: ": ${formatBytes(downloadSize)}",
+                                  ),
+                                  _buildCommonListTile(
+                                    title: "Total",
+                                    subtitle: ": ${formatBytes(totalSize)}",
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+        _buildPaginationControls(),
+      ],
+    );
   }
 
-  // Calculate the start and end index of the items for the current page
-  final startIndex = (currentPage - 1) * itemsPerPage;
-  final endIndex = startIndex + itemsPerPage > totalItems ? totalItems : startIndex + itemsPerPage;
-
-  // Ensure startIndex is not out of bounds and adjust accordingly
-  if (startIndex >= totalItems || totalItems == 0) {
-    return const Center(child: Text('No more items to display.'));
+  String extractNumericValue(String value) {
+    // Remove any non-numeric characters and spaces, e.g. "549 MB" -> "549"
+    return value.replaceAll(RegExp(r'[^0-9]'), '');
   }
 
-  final paginatedList = listSessionRpt.sublist(startIndex, endIndex);
-  final notifier = Provider.of<ColorNotifire>(context);
+  Widget _buildCommonListTile({
+    required String title,
+    required String subtitle,
+  }) {
+    final notifier = Provider.of<ColorNotifire>(context, listen: false);
 
-
-String extractNumericValue(String value) {
-  // Remove any non-numeric characters and spaces, e.g. "549 MB" -> "549"
-  return value.replaceAll(RegExp(r'[^0-9]'), '');
-}
-
-  return Column(
-    children: [
-      Row(
+    return Container(
+      padding: const EdgeInsets.symmetric(
+          vertical: 3), // Control the gap between items
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment
+            .start, // Align children to start to handle long text
         children: [
           Expanded(
-            child: ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: paginatedList.length,
-              itemBuilder: (context, index) {
-                final session = paginatedList[index];
-                final uploadSize = int.parse(extractNumericValue(session.acctinputoctets));
-                final downloadSize = int.parse(extractNumericValue(session.acctoutputoctets));
-                final totalSize = uploadSize + downloadSize;
-                return Column(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(isphon ? 10 : padding),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey.withOpacity(0.3)),
-                      ),
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: isphon ? 10 : padding),
-                            child: Column(
-                              children: [
-                                _buildCommonListTile(title: "Start AT", subtitle: ": ${session.acctstarttime.isNotEmpty ? DateFormat.yMd().add_jm().format(DateTime.parse(session.acctstarttime)) : "---"}"),
-                                _buildCommonListTile(title: "End On", subtitle: ": ${session.acctstoptime.isNotEmpty ? DateFormat.yMd().add_jm().format(DateTime.parse(session.acctstoptime)) : "---"}"),
-                                _buildCommonListTile(
-                                  title: "Upload",
-                                  subtitle: ": ${formatBytes(uploadSize)}",
-                                ),
-                                _buildCommonListTile(
-                                  title: "Download",
-                                  subtitle: ": ${formatBytes(downloadSize)}",
-                                ),
-                                _buildCommonListTile(
-                                  title: "Total",
-                                  subtitle: ": ${formatBytes(totalSize)}",
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                  ],
-                );
-              },
+            child: Text(
+              title,
+              style: mediumGreyTextStyle,
+            ),
+          ),
+          const SizedBox(
+              width: 10), // Add some spacing between title and subtitle
+          Expanded(
+            child: Text(
+              subtitle,
+              style: mediumBlackTextStyle.copyWith(
+                color: notifier.getMainText,
+              ),
             ),
           ),
         ],
       ),
-      _buildPaginationControls(),
+    );
+  }
+
+ Widget _buildPaginationControls() {
+  final notifier = Provider.of<ColorNotifire>(context);
+  final totalPages = (listSessionRpt.length / itemsPerPage).ceil();
+
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      IconButton(
+        icon: Icon(Icons.arrow_back_ios, color: notifier.geticoncolor),
+        onPressed: currentPage >= 1
+            ? () {
+                setState(() {
+                  currentPage--;
+                  index = index - itemsPerPage;
+                  if (index < 0) index = 0; // Ensure index doesn't go negative
+                  GetSessionRpt();
+                });
+              }
+            : null, // Disable button if on first page
+      ),
+      const SizedBox(width: 10),
+      IconButton(
+        icon: Icon(Icons.arrow_forward_ios, color: notifier.geticoncolor),
+        onPressed:() {
+                setState(() {
+                  currentPage++;
+                  index = index + itemsPerPage;
+                  GetSessionRpt();
+                });
+              }
+            
+      ),
     ],
   );
-}
-
-String extractNumericValue(String value) {
-  // Remove any non-numeric characters and spaces, e.g. "549 MB" -> "549"
-  return value.replaceAll(RegExp(r'[^0-9]'), '');
-}
-
-
-Widget _buildCommonListTile({
-  required String title,
-  required String subtitle,
-}) {
-  final notifier = Provider.of<ColorNotifire>(context, listen: false);
-
-  return Container(
-    padding: const EdgeInsets.symmetric(vertical: 3), // Control the gap between items
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start, // Align children to start to handle long text
-      children: [
-        Expanded(
-          child: Text(
-            title,
-            style: mediumGreyTextStyle,
-          ),
-        ),
-        const SizedBox(width: 10), // Add some spacing between title and subtitle
-        Expanded(
-          child: Text(
-            subtitle,
-            style: mediumBlackTextStyle.copyWith(
-              color: notifier.getMainText,
-            ),
-          
-          ),
-        ),
-      ],
-    ),
-  );
-}
-Widget _buildPaginationControls() {
-    final notifier = Provider.of<ColorNotifire>(context);
-    final totalPages = (listSessionRpt.length / itemsPerPage).ceil();
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: notifier.geticoncolor),
-          onPressed: 
-               () {
-                  setState(() {
-                    currentPage--;
-                    // Decrease the index by itemsPerPage when going to the previous page
-                    index = index - itemsPerPage;
-                    GetSessionRpt();  // Fetch the new session data based on the updated index
-                  });
-                }
-             
-        ),
-        const SizedBox(width: 10),
-        // Text(
-        //   "Page $currentPage of $totalPages",
-        //   style: mediumBlackTextStyle.copyWith(color: notifier.getMainText),
-        // ),
-        IconButton(
-          icon: Icon(Icons.arrow_forward_ios, color: notifier.geticoncolor),
-          onPressed: 
-              () {
-                  setState(() {
-                    currentPage++;
-                    // Increase the index by itemsPerPage when going to the next page
-                    index = index + itemsPerPage;
-                    GetSessionRpt();  // Fetch the new session data based on the updated index
-                  });
-                }
-              
-        ),
-      ],
-    );
 }
 
   // Helper method to build tab buttons

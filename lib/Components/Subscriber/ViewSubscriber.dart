@@ -528,7 +528,7 @@ Widget build(BuildContext context) {
                                                   'N/A'}'),
                                                           
                                         
-                                          if ( widget.subscriberDet?.conn == 'Online')
+                                          if (widget.subscriberDet?.conn == 'Online' && isSubscriber!=true)
                                         _buildCommonListTile(title: "NAS IP ADDRESS", subtitle: ': ${widget.subscriberDet
                                                       ?.nasipaddress ??
                                                   'N/A'}'),
@@ -838,7 +838,7 @@ PopupMenuItem _buildPopupAdminMenuItem() {
                  if ( isSubscriber==false && levelid==3|| menuIdList.any((id) => [1205].contains(id))||isIspAdmin==true)
                 // if ( isIspAdmin==true)
                 row(title: 'Update Pack & Validity', icon: Icons.system_security_update_warning),
-                if (widget.subscriberDet?.acctype != 1) 
+                 if (widget.subscriberDet?.acctype != 1&& isSubscriber!=true)
                 row(title: 'View Password', icon: Icons.password),
                  if ( isSubscriber==false)
                 row(title: 'Update Profile Password', icon: Icons.reset_tv),
@@ -848,7 +848,7 @@ PopupMenuItem _buildPopupAdminMenuItem() {
                 row(title: 'Update Profile ID', icon: Icons.fingerprint),
                  if ( isSubscriber==false )
                 row(title: 'Account Status', icon: Icons.account_box),
-                 if (widget.subscriberDet?.conn == 'Online')
+                  if (widget.subscriberDet?.conn == 'Online' && isSubscriber!=true)
                 row(title: 'Live Graph', icon: Icons.reset_tv),
                    if (widget.subscriberDet?.conn == 'Online' && isSubscriber==false)
                 row(title: 'Log Off/Session Close', icon: Icons.fact_check),
